@@ -1,4 +1,5 @@
 import type {
+  CompositeResult,
   CountryCode,
   CountryScorePoint,
   Direction,
@@ -27,12 +28,26 @@ import type {
  * pages. See METHODOLOGY.md.
  */
 
+/**
+ * The most recent year we can actually compute Australia's position for:
+ * the latest year in Australia's own series that at least one peer also
+ * reports. Deliberately NOT the union-max year across all 9 countries — a
+ * peer reporting a year Australia hasn't reached yet (e.g. one country's
+ * data runs to 2024 while Australia's stops at 2021) must never make
+ * Australia's own latest real year look like it has no data.
+ */
 export function latestSharedYear(data: GaugeData): number | null {
-  const years = Object.values(data.countries)
-    .flatMap((c) => c.series.map((p) => p.year))
-    .filter((y, i, arr) => arr.indexOf(y) === i)
+  const ausYears = (data.countries.AUS?.series ?? [])
+    .map((p) => p.year)
     .sort((a, b) => b - a);
-  return years[0] ?? null;
+
+  for (const year of ausYears) {
+    const countriesWithData = Object.values(data.countries).filter((c) =>
+      c.series.some((p) => p.year === year)
+    ).length;
+    if (countriesWithData >= 2) return year;
+  }
+  return ausYears[0] ?? null;
 }
 
 export function computeLevelScore(
@@ -351,22 +366,21 @@ export function computeHistoricalComposite(
   return points;
 }
 
-export function computeComposite(
-  scores: GaugeScore[],
-  configs: GaugeConfig[]
-): {
-  composite: number | null;
-  improving: number;
-  deteriorating: number;
-  flat: number;
-} {
-  const weighted = scores
-    .map((s) => {
-      const config = configs.find((c) => c.id === s.gaugeId);
-      if (!config || s.levelScore === null) return null;
-      return { score: s.levelScore, weight: config.weight };
-    })
-    .filter((w): w is { score: number; weight: number } => w !== null);
+export function computeComposite(scores: GaugeScore[], configs: GaugeConfig[]): CompositeResult {
+  const includedGaugeIds: string[] = [];
+  const excludedGaugeIds: string[] = [];
+  const weighted: { score: number; weight: number }[] = [];
+
+  for (const s of scores) {
+    const config = configs.find((c) => c.id === s.gaugeId);
+    if (!config) continue; // not a real gauge — neither included nor "excluded" (nothing to disclose)
+    if (s.levelScore === null) {
+      excludedGaugeIds.push(s.gaugeId);
+      continue;
+    }
+    includedGaugeIds.push(s.gaugeId);
+    weighted.push({ score: s.levelScore, weight: config.weight });
+  }
 
   const totalWeight = weighted.reduce((sum, w) => sum + w.weight, 0);
   const composite =
@@ -381,5 +395,70 @@ export function computeComposite(
     improving: scores.filter((s) => s.direction === "improving").length,
     deteriorating: scores.filter((s) => s.direction === "deteriorating").length,
     flat: scores.filter((s) => s.direction === "flat").length,
+    includedGaugeIds,
+    excludedGaugeIds,
   };
+}
+
+/**
+ * Plain-English fragment naming every gauge excluded from the composite and
+ * why, e.g. "Innovation excluded, no comparable peer data since 2021".
+ * Returns null when nothing is excluded. Any caller with a non-null
+ * excludedGaugeIds list MUST render whatever this returns somewhere the
+ * reader will see the composite score — see assertCompositeDisclosure.
+ */
+export function buildCompositeDisclosure(
+  excludedGaugeIds: string[],
+  scores: GaugeScore[],
+  configs: GaugeConfig[]
+): string | null {
+  if (excludedGaugeIds.length === 0) return null;
+
+  const parts = excludedGaugeIds.map((id) => {
+    const name = configs.find((c) => c.id === id)?.name ?? id;
+    const score = scores.find((s) => s.gaugeId === id);
+    const reason =
+      score && score.latestYear > 0
+        ? `no comparable peer data since ${score.latestYear}`
+        : "no data yet";
+    return `${name} excluded, ${reason}`;
+  });
+
+  return parts.join("; ");
+}
+
+/**
+ * Closes the null-exclusion bug class, not just one instance of it: a gauge
+ * silently dropped from the composite average — with no on-page disclosure
+ * — is a worse failure than a page that refuses to build. Call this
+ * wherever a composite is rendered, immediately after computing the
+ * disclosure text that will actually appear on the page. Throws (which, in
+ * a Server Component, fails `next build`) if any excluded gauge isn't
+ * actually named in that text.
+ */
+export function assertCompositeDisclosure(
+  result: CompositeResult,
+  configs: GaugeConfig[],
+  renderedDisclosureText: string | null
+): void {
+  if (result.excludedGaugeIds.length === 0) return;
+
+  if (!renderedDisclosureText) {
+    throw new Error(
+      `Composite integrity violation: ${result.excludedGaugeIds.join(", ")} excluded from the ` +
+        `composite but no disclosure text was rendered. Silent exclusion is never acceptable — ` +
+        `see assertCompositeDisclosure in lib/scoring.ts.`
+    );
+  }
+
+  for (const id of result.excludedGaugeIds) {
+    const name = configs.find((c) => c.id === id)?.name ?? id;
+    if (!renderedDisclosureText.includes(name)) {
+      throw new Error(
+        `Composite integrity violation: "${name}" is excluded from the composite but is not ` +
+          `named in the disclosure text ("${renderedDisclosureText}"). Silent exclusion is never ` +
+          `acceptable — see assertCompositeDisclosure in lib/scoring.ts.`
+      );
+    }
+  }
 }

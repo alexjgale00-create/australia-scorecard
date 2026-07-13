@@ -28,7 +28,32 @@ export default async function GaugeDetailPage({
   const config = getGaugeConfig(slug);
   const data = getGaugeData(slug);
 
-  if (!config || !data) notFound();
+  if (!config) notFound();
+
+  if (!data) {
+    return (
+      <div className="mx-auto max-w-4xl px-4 py-10">
+        <p className="text-sm text-[var(--text-muted)]">{config.unit}</p>
+        <h1 className="mt-1 text-3xl font-bold">{config.name}</h1>
+        <div className="mt-6 rounded-lg border border-[var(--gridline)] bg-[var(--surface-1)] p-6">
+          <p className="font-semibold text-[var(--text-primary)]">
+            This gauge is configured but doesn&rsquo;t have data yet.
+          </p>
+          <p className="mt-2 text-[var(--text-secondary)]">
+            It&rsquo;s set up to fetch from{" "}
+            <a href={config.source.url} className="underline" target="_blank" rel="noreferrer">
+              {config.source.institution}
+            </a>{" "}
+            ({config.source.seriesId}), but the pipeline hasn&rsquo;t populated it yet. Run{" "}
+            <code className="rounded bg-[var(--page-plane)] px-1.5 py-0.5 text-sm">
+              npm run pipeline
+            </code>{" "}
+            to fetch real data, or check back after the next scheduled refresh.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   const score = computeGaugeScore(data, config, gaugesConfig.directionThresholdScorePointsPerYear);
   const whyThisMatters = getWhyThisMatters(slug);

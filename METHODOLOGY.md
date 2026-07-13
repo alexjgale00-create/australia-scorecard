@@ -98,6 +98,25 @@ composite = Σ(level_score_i * weight_i) / Σ(weight_i)     # over gauges with a
 The homepage sparkline recomputes this composite for every historical year
 where at least one gauge has data, using the same renormalisation rule.
 
+### Disclosure when a gauge is excluded
+
+If any gauge's level score comes back `null` (no comparable data for
+Australia), it's dropped from the weighted average — but **never silently**.
+The verdict's context line grows a clause naming exactly which gauge and
+why, e.g.:
+
+> 4th of 9 peer countries · 2 improving, 1 flat, 0 deteriorating over the
+> trailing decade · Composite based on 6 of 7 gauges — Innovation excluded,
+> no comparable peer data since 2021.
+
+This is enforced, not just a convention: the homepage calls
+`assertCompositeDisclosure` right after building that text, which throws —
+failing the site's production build — if any excluded gauge isn't actually
+named in it. See the "Scoring" section of `CLAUDE.md` for how this was
+found (a real instance of exactly this silent-exclusion failure, caught
+before it reached the site owner) and why both the specific cause and the
+general case were fixed.
+
 ## Score bands (the verdict label)
 
 Any 0–100 score on the site — the composite verdict, a single gauge, a peer
@@ -137,9 +156,37 @@ B/C.
 
 ## Phase A status
 
-Only 3 of 16 planned gauges are live (`living-standards`, `productivity`,
-`education`), all using **hand-written illustrative sample data** — see the
-`SAMPLE_DATA` status and `note` field in each `data/processed/*.json` file.
-None of it is a real published statistic. Weights are currently equal
-(1/3 each) as a placeholder; the site owner will tune real weights once all
+Phase B, Group 1 complete: 7 of 16 planned gauges are configured. 5 are
+**live**, fetched by `/pipeline` from the World Bank API (`living-standards`,
+`innovation`, `external-position`, `rule-of-law-corruption`,
+`demographic-momentum`). 2 are still **hand-written illustrative sample
+data** pending later pipeline groups (`productivity` — Group 4, OECD;
+`education` — Phase C, manual PISA lane). Every gauge's real status is in its
+own `data/processed/*.json` file's `provenance.status` field
+(`SAMPLE_DATA` or `LIVE`) — the site badges each one individually, plus a
+page-level note whenever the set is mixed. Weights are currently equal
+(1/7 each) as a placeholder; the site owner will tune real weights once all
 16 gauges are live with real data (Phase D).
+
+### Corrections made while building Group 1 (2026-07-14)
+
+- **World Bank WGI series IDs were dead.** The brief's assumed codes
+  (`RL.EST`, `CC.EST`) return "indicator not found" on the current World
+  Bank API — verified live before building, not discovered after a failed
+  run. The correct current codes, under World Bank source 3 (Worldwide
+  Governance Indicators, actively maintained), are `GOV_WGI_RL.EST` and
+  `GOV_WGI_CC.EST`. Logged in `gauges.config.json` under
+  `rule-of-law-corruption._seriesIdCorrection`.
+- **`latestSharedYear` had a real bug, caught before handoff.** It picked
+  the most recent year *any* of the 9 countries reported, rather than the
+  most recent year Australia itself has data. When one peer's series ran
+  ahead of Australia's (e.g. Canada reporting R&D spend through 2024 while
+  Australia's data stopped at 2021), Australia's score, rank, and dot-strip
+  position all silently went blank for that gauge — and because a blank
+  level score is excluded from the composite average (by design, per
+  "Composite verdict" above), the *composite itself* was silently missing
+  that gauge's contribution too. Fixed by anchoring "latest year" to
+  Australia's own most recent year that at least one peer also reports.
+  This was caught by inspecting a live gauge card before handoff, not by a
+  user report — worth remembering as a class of bug to watch for as more
+  gauges with uneven reporting cadences are added.

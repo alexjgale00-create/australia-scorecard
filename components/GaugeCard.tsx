@@ -27,7 +27,18 @@ export default function GaugeCard({
       className="block rounded-lg border border-[var(--gridline)] bg-[var(--surface-1)] p-5 transition hover:border-[var(--accent-australia)]"
     >
       <div className="flex items-start justify-between gap-3">
-        <h3 className="font-semibold text-[var(--text-primary)]">{config.name}</h3>
+        <div className="flex items-center gap-2">
+          <h3 className="font-semibold text-[var(--text-primary)]">{config.name}</h3>
+          {data.provenance.status === "SAMPLE_DATA" && (
+            <span
+              className="rounded-full border px-1.5 py-0.5 text-[0.65rem] font-medium leading-none"
+              style={{ borderColor: "var(--status-warning)", color: "var(--status-warning)" }}
+              title="This gauge is showing illustrative sample data, not a real published statistic."
+            >
+              Sample
+            </span>
+          )}
+        </div>
         <div className="text-2xl font-bold tabular-nums text-[var(--accent-australia)]">
           {score.levelScore !== null ? Math.round(score.levelScore) : "—"}
         </div>

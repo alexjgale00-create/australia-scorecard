@@ -1,6 +1,8 @@
 import { gaugesConfig, getGaugeData } from "@/lib/gauges-data";
 import {
+  assertCompositeDisclosure,
   bandForScore,
+  buildCompositeDisclosure,
   computeComposite,
   computeCompositeForAllCountries,
   computeGaugeScore,
@@ -33,7 +35,11 @@ export default function Home() {
   const scores = gaugesWithData.map(({ config, data }) =>
     computeGaugeScore(data, config, gaugesConfig.directionThresholdScorePointsPerYear)
   );
-  const { improving, deteriorating, flat } = computeComposite(scores, gaugesConfig.gauges);
+  const compositeResult = computeComposite(scores, gaugesConfig.gauges);
+  const { improving, deteriorating, flat, includedGaugeIds, excludedGaugeIds } = compositeResult;
+  const compositeDisclosure = buildCompositeDisclosure(excludedGaugeIds, scores, gaugesConfig.gauges);
+  // Fails the build rather than let a gauge silently drop out of the composite unnoticed.
+  assertCompositeDisclosure(compositeResult, gaugesConfig.gauges, compositeDisclosure);
 
   const allComposites = computeCompositeForAllCountries(gaugesWithData);
   const ausComposite = allComposites.find((c) => c.code === "AUS")?.score ?? null;
@@ -61,11 +67,30 @@ export default function Home() {
   const faller = deltas[deltas.length - 1];
   const showWhatsMoving = deltas.length >= 2 && riser.config.id !== faller.config.id;
 
+  const sampleCount = gaugesWithData.filter(
+    ({ data }) => data.provenance.status === "SAMPLE_DATA"
+  ).length;
+  const totalCount = gaugesWithData.length;
+
   return (
     <div className="mx-auto max-w-5xl px-4 py-10">
-      <div className="mb-3">
-        <SampleDataBadge />
-      </div>
+      {sampleCount > 0 && (
+        <div className="mb-3">
+          {sampleCount === totalCount ? (
+            <SampleDataBadge />
+          ) : (
+            <div
+              className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-sm"
+              style={{ borderColor: "var(--status-warning)", color: "var(--text-secondary)" }}
+            >
+              <span aria-hidden="true">⚠</span>{" "}
+              {sampleCount} of {totalCount}{" "}
+              gauges below are still running on sample data — look for the &ldquo;Sample&rdquo;
+              tag on each card.
+            </div>
+          )}
+        </div>
+      )}
 
       <section className="rounded-xl border border-[var(--gridline)] bg-[var(--surface-1)] p-8">
         <p className="text-sm font-medium uppercase tracking-wide text-[var(--text-muted)]">
@@ -90,6 +115,12 @@ export default function Home() {
           {ausRank !== null ? `${ordinal(ausRank)} of ${allComposites.length} peer countries` : "Rank unavailable"}{" "}
           · {improving} improving, {flat} flat, {deteriorating} deteriorating over the trailing
           decade
+          {compositeDisclosure && (
+            <>
+              {" "}· Composite based on {includedGaugeIds.length} of {scores.length} gauges —{" "}
+              {compositeDisclosure}.
+            </>
+          )}
         </p>
 
         <div className="mt-6">

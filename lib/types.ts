@@ -29,6 +29,8 @@ export interface GaugeConfig {
     seriesId: string;
     seriesName: string;
     url: string;
+    /** When a gauge combines multiple raw indicators into one value (e.g. averaging two WGI estimates), lists each contributing series. */
+    componentSeriesIds?: { id: string; name: string }[];
   };
 }
 
@@ -115,4 +117,20 @@ export interface RawValueTrend {
 export interface PeerRelativeTrend extends LevelScoreDelta {
   annualizedDelta: number;
   direction: Direction;
+}
+
+export interface CompositeResult {
+  composite: number | null;
+  improving: number;
+  deteriorating: number;
+  flat: number;
+  /** Gauge IDs that actually fed the weighted average. */
+  includedGaugeIds: string[];
+  /**
+   * Gauge IDs with a null level score, excluded from the weighted average.
+   * Non-empty here obligates the caller to render a disclosure — see
+   * buildCompositeDisclosure / assertCompositeDisclosure in lib/scoring.ts.
+   * Silent exclusion is never acceptable.
+   */
+  excludedGaugeIds: string[];
 }

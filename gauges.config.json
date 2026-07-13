@@ -1,5 +1,5 @@
 {
-  "_readme": "This file defines every gauge on the Scorecard: its data source, its polarity (which direction counts as 'better'), and its weight in the composite verdict. Every polarity choice must be signed off by the site owner before use — see polarityJustification on each gauge. This is Phase A: only 3 of the eventual 16 gauges are populated, using hand-written sample data (see data/processed/*.json, each marked SAMPLE_DATA).",
+  "_readme": "This file defines every gauge on the Scorecard: its data source, its polarity (which direction counts as 'better'), and its weight in the composite verdict. Every polarity choice must be signed off by the site owner before use — see polarityJustification on each gauge. Phase B in progress: 7 of 16 gauges configured. 'accessType: api' gauges are fetched by /pipeline (run `npm run pipeline`); until that's run, or if a fetch fails, a gauge's data file keeps its SAMPLE_DATA status and the site shows it as sample. See CLAUDE.md and METHODOLOGY.md.",
   "peerCountries": [
     {
       "code": "AUS",
@@ -59,7 +59,7 @@
       "accessType": "api",
       "polarity": "higher_is_better",
       "polarityJustification": "Higher GDP per capita, PPP-adjusted, means more real purchasing power per person — an unambiguous 'more is better' metric.",
-      "weight": 0.3333,
+      "weight": 0.142857,
       "source": {
         "institution": "World Bank",
         "seriesId": "NY.GDP.PCAP.PP.KD",
@@ -77,7 +77,7 @@
       "accessType": "api",
       "polarity": "higher_is_better",
       "polarityJustification": "Higher output per hour worked means the economy generates more value for the same labour input — the standard productivity definition.",
-      "weight": 0.3333,
+      "weight": 0.142857,
       "source": {
         "institution": "OECD",
         "seriesId": "PDB_LV",
@@ -95,7 +95,7 @@
       "accessType": "manual",
       "polarity": "higher_is_better",
       "polarityJustification": "A higher average PISA score reflects stronger measured student performance across the three tested domains.",
-      "weight": 0.3334,
+      "weight": 0.142857,
       "source": {
         "institution": "OECD PISA",
         "seriesId": "PISA_MEAN",
@@ -103,6 +103,84 @@
         "url": "https://www.oecd.org/en/about/programmes/pisa.html"
       },
       "oneLiner": "How well 15-year-olds perform on a standardised international test."
+    },
+    {
+      "id": "innovation",
+      "name": "Innovation",
+      "shortName": "Innovation",
+      "unit": "R&D expenditure (% of GDP)",
+      "historyStartYear": 1996,
+      "accessType": "api",
+      "polarity": "higher_is_better",
+      "polarityJustification": "Higher R&D spending as a share of GDP means more of the economy's resources are going toward developing new products, processes, and technologies.",
+      "weight": 0.142857,
+      "source": {
+        "institution": "World Bank",
+        "seriesId": "GB.XPD.RSDV.GD.ZS",
+        "seriesName": "Research and development expenditure (% of GDP)",
+        "url": "https://data.worldbank.org/indicator/GB.XPD.RSDV.GD.ZS"
+      },
+      "oneLiner": "How much of the economy is invested in research and development."
+    },
+    {
+      "id": "external-position",
+      "name": "External position",
+      "shortName": "External position",
+      "unit": "Current account balance (% of GDP)",
+      "historyStartYear": 1980,
+      "accessType": "api",
+      "polarity": "higher_is_better",
+      "_polarityDecision": "SIGNED OFF by site owner, 2026-07-14: 'surplus = better' is a deliberate framework choice, not a claim of settled economics — see the Methodology page for the explicit caveat that this is contestable.",
+      "polarityJustification": "This Scorecard treats external self-sufficiency — a stronger surplus / smaller deficit, i.e. less reliance on foreign capital — as the 'better' end of the scale. Economists legitimately debate current account polarity (a deficit can also reflect healthy foreign investment inflows); this is a stated framework choice, not an assertion that surpluses are objectively superior. See the Methodology page.",
+      "weight": 0.142857,
+      "source": {
+        "institution": "World Bank",
+        "seriesId": "BN.CAB.XOKA.GD.ZS",
+        "seriesName": "Current account balance (% of GDP)",
+        "url": "https://data.worldbank.org/indicator/BN.CAB.XOKA.GD.ZS"
+      },
+      "oneLiner": "Whether the country is a net lender or net borrower to the rest of the world."
+    },
+    {
+      "id": "rule-of-law-corruption",
+      "name": "Rule of law & corruption",
+      "shortName": "Rule of law",
+      "unit": "WGI Rule of Law + Control of Corruption, averaged (estimate, -2.5 to +2.5)",
+      "historyStartYear": 1996,
+      "accessType": "api",
+      "polarity": "higher_is_better",
+      "polarityJustification": "Higher WGI estimates mean stronger rule of law and lower perceived corruption — unambiguously better for governance quality.",
+      "weight": 0.142857,
+      "_seriesIdCorrection": "The brief's original assumed codes (RL.EST, CC.EST) are dead on the current World Bank API — confirmed via live test call, they return 'indicator not found'. The correct current codes, verified live 2026-07-14, are GOV_WGI_RL.EST and GOV_WGI_CC.EST under World Bank source 3 (Worldwide Governance Indicators, last updated 2026-03-18). Documented per the brief's instruction to log series ID corrections here and in METHODOLOGY.md.",
+      "source": {
+        "institution": "World Bank (Worldwide Governance Indicators)",
+        "seriesId": "GOV_WGI_RL.EST + GOV_WGI_CC.EST (averaged)",
+        "seriesName": "Rule of Law & Control of Corruption, governance estimates",
+        "url": "https://databank.worldbank.org/source/worldwide-governance-indicators",
+        "componentSeriesIds": [
+          { "id": "GOV_WGI_RL.EST", "name": "Rule of Law - Governance estimate (approx. -2.5 to +2.5)" },
+          { "id": "GOV_WGI_CC.EST", "name": "Control of Corruption - Governance estimate (approx. -2.5 to +2.5)" }
+        ]
+      },
+      "oneLiner": "How strong legal institutions are and how well corruption is controlled."
+    },
+    {
+      "id": "demographic-momentum",
+      "name": "Demographic momentum",
+      "shortName": "Demographic momentum",
+      "unit": "Working-age population (15-64) growth, % per year",
+      "historyStartYear": 1980,
+      "accessType": "api",
+      "polarity": "higher_is_better",
+      "polarityJustification": "Faster working-age population growth means a larger future labour supply and growth potential — several peers in this set (Japan, South Korea, Germany) face the opposite problem of a shrinking working-age population straining growth and pensions, which this gauge is meant to surface.",
+      "weight": 0.142857,
+      "source": {
+        "institution": "World Bank",
+        "seriesId": "SP.POP.1564.TO",
+        "seriesName": "Population ages 15-64, total (pipeline derives year-over-year % growth from this level series)",
+        "url": "https://data.worldbank.org/indicator/SP.POP.1564.TO"
+      },
+      "oneLiner": "How fast the working-age population is growing or shrinking."
     }
   ]
 }

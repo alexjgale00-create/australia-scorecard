@@ -1,0 +1,3 @@
+[DRAFT — edit freely]
+
+A country's working-age population is its economic engine room: it's the pool of people available to work, pay tax, and support both younger and older dependents. Several of Australia's peers in this comparison — Japan, South Korea, and Germany — are already grappling with a shrinking working-age population, which drags on growth and strains pension systems even when other fundamentals are healthy. Australia's comparatively higher migration intake has historically kept its working-age population growing faster than most peers; this gauge tracks whether that continues to hold.

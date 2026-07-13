@@ -1,0 +1,3 @@
+[DRAFT — edit freely]
+
+The current account balance measures whether a country is, on net, lending to or borrowing from the rest of the world. Australia has run current account deficits for most of the post-war era, historically financed by foreign investment in mining and resources — a pattern very different from surplus economies like Germany or South Korea. Persistent deficits mean a growing stock of foreign-owned assets and debt, which can matter a great deal during a global credit squeeze. This gauge's "which direction is better" call is genuinely contestable — see the Methodology page — and is flagged there for review rather than asserted as settled.

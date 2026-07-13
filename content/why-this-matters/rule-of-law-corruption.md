@@ -1,0 +1,3 @@
+[DRAFT — edit freely]
+
+The World Bank's Worldwide Governance Indicators are the most widely used cross-country measure of institutional quality, built from dozens of underlying surveys and expert assessments rather than a single source. Strong rule of law and low corruption aren't just abstract goods — they're a precondition for the other gauges on this Scorecard to mean anything: foreign investment, R&D spending, and trade all depend on investors and citizens trusting that contracts will be enforced and rules applied evenly. This gauge averages two separate WGI estimates (rule of law, control of corruption) into one score.
