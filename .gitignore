@@ -36,6 +36,10 @@ yarn-error.log*
 # vercel
 .vercel
 
+# generated copy of /data/processed/ for the site's download-data links —
+# regenerated automatically by scripts/sync-public-data.mjs before dev/build
+/public/data/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

@@ -1,0 +1,311 @@
+{
+  "gaugeId": "education",
+  "provenance": {
+    "status": "SAMPLE_DATA",
+    "institution": "OECD PISA",
+    "seriesId": "PISA_MEAN",
+    "seriesName": "PISA mean score (maths + reading + science average)",
+    "url": "https://www.oecd.org/en/about/programmes/pisa.html",
+    "retrievedAt": null,
+    "note": "Illustrative placeholder values for the Phase A skeleton — NOT real published statistics. PISA is only published every 3 years; the live pipeline will ingest it via the manual-source lane in Phase C."
+  },
+  "countries": {
+    "AUS": {
+      "name": "Australia",
+      "series": [
+        {
+          "year": 2003,
+          "value": 519
+        },
+        {
+          "year": 2006,
+          "value": 516
+        },
+        {
+          "year": 2009,
+          "value": 513
+        },
+        {
+          "year": 2012,
+          "value": 510
+        },
+        {
+          "year": 2015,
+          "value": 508
+        },
+        {
+          "year": 2018,
+          "value": 505
+        },
+        {
+          "year": 2022,
+          "value": 501
+        }
+      ]
+    },
+    "CAN": {
+      "name": "Canada",
+      "series": [
+        {
+          "year": 2003,
+          "value": 528
+        },
+        {
+          "year": 2006,
+          "value": 527
+        },
+        {
+          "year": 2009,
+          "value": 526
+        },
+        {
+          "year": 2012,
+          "value": 525
+        },
+        {
+          "year": 2015,
+          "value": 524
+        },
+        {
+          "year": 2018,
+          "value": 523
+        },
+        {
+          "year": 2022,
+          "value": 522
+        }
+      ]
+    },
+    "GBR": {
+      "name": "United Kingdom",
+      "series": [
+        {
+          "year": 2003,
+          "value": 504
+        },
+        {
+          "year": 2006,
+          "value": 503
+        },
+        {
+          "year": 2009,
+          "value": 503
+        },
+        {
+          "year": 2012,
+          "value": 503
+        },
+        {
+          "year": 2015,
+          "value": 502
+        },
+        {
+          "year": 2018,
+          "value": 502
+        },
+        {
+          "year": 2022,
+          "value": 502
+        }
+      ]
+    },
+    "NZL": {
+      "name": "New Zealand",
+      "series": [
+        {
+          "year": 2003,
+          "value": 526
+        },
+        {
+          "year": 2006,
+          "value": 522
+        },
+        {
+          "year": 2009,
+          "value": 519
+        },
+        {
+          "year": 2012,
+          "value": 516
+        },
+        {
+          "year": 2015,
+          "value": 512
+        },
+        {
+          "year": 2018,
+          "value": 509
+        },
+        {
+          "year": 2022,
+          "value": 505
+        }
+      ]
+    },
+    "KOR": {
+      "name": "South Korea",
+      "series": [
+        {
+          "year": 2003,
+          "value": 522
+        },
+        {
+          "year": 2006,
+          "value": 521
+        },
+        {
+          "year": 2009,
+          "value": 521
+        },
+        {
+          "year": 2012,
+          "value": 520
+        },
+        {
+          "year": 2015,
+          "value": 520
+        },
+        {
+          "year": 2018,
+          "value": 519
+        },
+        {
+          "year": 2022,
+          "value": 518
+        }
+      ]
+    },
+    "NLD": {
+      "name": "Netherlands",
+      "series": [
+        {
+          "year": 2003,
+          "value": 512
+        },
+        {
+          "year": 2006,
+          "value": 510
+        },
+        {
+          "year": 2009,
+          "value": 508
+        },
+        {
+          "year": 2012,
+          "value": 507
+        },
+        {
+          "year": 2015,
+          "value": 505
+        },
+        {
+          "year": 2018,
+          "value": 503
+        },
+        {
+          "year": 2022,
+          "value": 501
+        }
+      ]
+    },
+    "USA": {
+      "name": "United States",
+      "series": [
+        {
+          "year": 2003,
+          "value": 494
+        },
+        {
+          "year": 2006,
+          "value": 494
+        },
+        {
+          "year": 2009,
+          "value": 494
+        },
+        {
+          "year": 2012,
+          "value": 494
+        },
+        {
+          "year": 2015,
+          "value": 495
+        },
+        {
+          "year": 2018,
+          "value": 495
+        },
+        {
+          "year": 2022,
+          "value": 495
+        }
+      ]
+    },
+    "DEU": {
+      "name": "Germany",
+      "series": [
+        {
+          "year": 2003,
+          "value": 506
+        },
+        {
+          "year": 2006,
+          "value": 505
+        },
+        {
+          "year": 2009,
+          "value": 504
+        },
+        {
+          "year": 2012,
+          "value": 502
+        },
+        {
+          "year": 2015,
+          "value": 501
+        },
+        {
+          "year": 2018,
+          "value": 500
+        },
+        {
+          "year": 2022,
+          "value": 498
+        }
+      ]
+    },
+    "JPN": {
+      "name": "Japan",
+      "series": [
+        {
+          "year": 2003,
+          "value": 529
+        },
+        {
+          "year": 2006,
+          "value": 529
+        },
+        {
+          "year": 2009,
+          "value": 529
+        },
+        {
+          "year": 2012,
+          "value": 529
+        },
+        {
+          "year": 2015,
+          "value": 529
+        },
+        {
+          "year": 2018,
+          "value": 529
+        },
+        {
+          "year": 2022,
+          "value": 529
+        }
+      ]
+    }
+  }
+}

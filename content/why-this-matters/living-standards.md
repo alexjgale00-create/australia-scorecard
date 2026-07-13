@@ -1,0 +1,3 @@
+[DRAFT — edit freely]
+
+GDP per capita, adjusted for purchasing power, is the closest single number to "how much material comfort does an average person here have." It's not a wellbeing measure on its own — it says nothing about how income is distributed, how many hours people work to earn it, or what it costs to live — but it sets the ceiling on what a country can spend on everything else: healthcare, education, defence, leisure. When Australia's living-standards score slips against peers, it means the average Australian's slice of the economic pie is growing slower than a comparable slice elsewhere, even if the overall economy is still growing.

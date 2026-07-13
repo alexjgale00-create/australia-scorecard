@@ -1,0 +1,12 @@
+{
+  "_readme": "Editable copy for the site. Nothing here is code — edit freely and redeploy.",
+  "factOfRelease": {
+    "headline": "[PLACEHOLDER] Fact of the release goes here",
+    "body": "This slot is hand-edited by the site owner ahead of each release — a single striking, sourced fact about Australia's trajectory. Replace this placeholder before publishing. Example shape: 'Australia's productivity growth has averaged X% a year over the past decade, ranking Nth of 9 peer countries.'"
+  },
+  "about": {
+    "mission": "[PLACEHOLDER] Write the mission statement here — why this Scorecard exists, who it's for, and what it is trying to make legible that isn't already.",
+    "independence": "[PLACEHOLDER] Write the independence statement here — funding, affiliations (or lack thereof), and how methodology decisions are made and disclosed.",
+    "contact": "[PLACEHOLDER] contact@example.com"
+  }
+}

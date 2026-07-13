@@ -1,0 +1,3 @@
+[DRAFT — edit freely]
+
+PISA tests a representative sample of 15-year-olds across maths, reading, and science every three years, using the same instrument in every participating country — making it one of the few genuinely comparable measures of what school systems are producing. It's a leading indicator: today's PISA scores are a preview of the skills entering the workforce over the next decade, which feeds directly into future productivity and innovation gauges elsewhere on this Scorecard. Australia's scores have drifted down across multiple PISA cycles, a trend worth watching independent of any single year's result.

@@ -1,0 +1,419 @@
+{
+  "gaugeId": "living-standards",
+  "provenance": {
+    "status": "SAMPLE_DATA",
+    "institution": "World Bank",
+    "seriesId": "NY.GDP.PCAP.PP.KD",
+    "seriesName": "GDP per capita, PPP (constant 2021 international $)",
+    "url": "https://data.worldbank.org/indicator/NY.GDP.PCAP.PP.KD",
+    "retrievedAt": null,
+    "note": "Illustrative placeholder values for the Phase A skeleton — NOT real published statistics. Will be replaced by live World Bank API data in Phase B."
+  },
+  "countries": {
+    "AUS": {
+      "name": "Australia",
+      "series": [
+        {
+          "year": 2014,
+          "value": 48000
+        },
+        {
+          "year": 2015,
+          "value": 48528
+        },
+        {
+          "year": 2016,
+          "value": 49061.81
+        },
+        {
+          "year": 2017,
+          "value": 49601.49
+        },
+        {
+          "year": 2018,
+          "value": 50147.1
+        },
+        {
+          "year": 2019,
+          "value": 50698.72
+        },
+        {
+          "year": 2020,
+          "value": 51256.41
+        },
+        {
+          "year": 2021,
+          "value": 51820.23
+        },
+        {
+          "year": 2022,
+          "value": 52390.25
+        },
+        {
+          "year": 2023,
+          "value": 52966.54
+        }
+      ]
+    },
+    "CAN": {
+      "name": "Canada",
+      "series": [
+        {
+          "year": 2014,
+          "value": 46000
+        },
+        {
+          "year": 2015,
+          "value": 46322
+        },
+        {
+          "year": 2016,
+          "value": 46646.25
+        },
+        {
+          "year": 2017,
+          "value": 46972.78
+        },
+        {
+          "year": 2018,
+          "value": 47301.59
+        },
+        {
+          "year": 2019,
+          "value": 47632.7
+        },
+        {
+          "year": 2020,
+          "value": 47966.13
+        },
+        {
+          "year": 2021,
+          "value": 48301.89
+        },
+        {
+          "year": 2022,
+          "value": 48640
+        },
+        {
+          "year": 2023,
+          "value": 48980.48
+        }
+      ]
+    },
+    "GBR": {
+      "name": "United Kingdom",
+      "series": [
+        {
+          "year": 2014,
+          "value": 42000
+        },
+        {
+          "year": 2015,
+          "value": 42252
+        },
+        {
+          "year": 2016,
+          "value": 42505.51
+        },
+        {
+          "year": 2017,
+          "value": 42760.55
+        },
+        {
+          "year": 2018,
+          "value": 43017.11
+        },
+        {
+          "year": 2019,
+          "value": 43275.21
+        },
+        {
+          "year": 2020,
+          "value": 43534.86
+        },
+        {
+          "year": 2021,
+          "value": 43796.07
+        },
+        {
+          "year": 2022,
+          "value": 44058.85
+        },
+        {
+          "year": 2023,
+          "value": 44323.2
+        }
+      ]
+    },
+    "NZL": {
+      "name": "New Zealand",
+      "series": [
+        {
+          "year": 2014,
+          "value": 40000
+        },
+        {
+          "year": 2015,
+          "value": 40200
+        },
+        {
+          "year": 2016,
+          "value": 40401
+        },
+        {
+          "year": 2017,
+          "value": 40603
+        },
+        {
+          "year": 2018,
+          "value": 40806.02
+        },
+        {
+          "year": 2019,
+          "value": 41010.05
+        },
+        {
+          "year": 2020,
+          "value": 41215.1
+        },
+        {
+          "year": 2021,
+          "value": 41421.18
+        },
+        {
+          "year": 2022,
+          "value": 41628.28
+        },
+        {
+          "year": 2023,
+          "value": 41836.42
+        }
+      ]
+    },
+    "KOR": {
+      "name": "South Korea",
+      "series": [
+        {
+          "year": 2014,
+          "value": 38000
+        },
+        {
+          "year": 2015,
+          "value": 38684
+        },
+        {
+          "year": 2016,
+          "value": 39380.31
+        },
+        {
+          "year": 2017,
+          "value": 40089.16
+        },
+        {
+          "year": 2018,
+          "value": 40810.76
+        },
+        {
+          "year": 2019,
+          "value": 41545.36
+        },
+        {
+          "year": 2020,
+          "value": 42293.17
+        },
+        {
+          "year": 2021,
+          "value": 43054.45
+        },
+        {
+          "year": 2022,
+          "value": 43829.43
+        },
+        {
+          "year": 2023,
+          "value": 44618.36
+        }
+      ]
+    },
+    "NLD": {
+      "name": "Netherlands",
+      "series": [
+        {
+          "year": 2014,
+          "value": 53000
+        },
+        {
+          "year": 2015,
+          "value": 53530
+        },
+        {
+          "year": 2016,
+          "value": 54065.3
+        },
+        {
+          "year": 2017,
+          "value": 54605.95
+        },
+        {
+          "year": 2018,
+          "value": 55152.01
+        },
+        {
+          "year": 2019,
+          "value": 55703.53
+        },
+        {
+          "year": 2020,
+          "value": 56260.57
+        },
+        {
+          "year": 2021,
+          "value": 56823.17
+        },
+        {
+          "year": 2022,
+          "value": 57391.41
+        },
+        {
+          "year": 2023,
+          "value": 57965.32
+        }
+      ]
+    },
+    "USA": {
+      "name": "United States",
+      "series": [
+        {
+          "year": 2014,
+          "value": 58000
+        },
+        {
+          "year": 2015,
+          "value": 58812
+        },
+        {
+          "year": 2016,
+          "value": 59635.37
+        },
+        {
+          "year": 2017,
+          "value": 60470.26
+        },
+        {
+          "year": 2018,
+          "value": 61316.85
+        },
+        {
+          "year": 2019,
+          "value": 62175.28
+        },
+        {
+          "year": 2020,
+          "value": 63045.74
+        },
+        {
+          "year": 2021,
+          "value": 63928.38
+        },
+        {
+          "year": 2022,
+          "value": 64823.37
+        },
+        {
+          "year": 2023,
+          "value": 65730.9
+        }
+      ]
+    },
+    "DEU": {
+      "name": "Germany",
+      "series": [
+        {
+          "year": 2014,
+          "value": 51000
+        },
+        {
+          "year": 2015,
+          "value": 51408
+        },
+        {
+          "year": 2016,
+          "value": 51819.26
+        },
+        {
+          "year": 2017,
+          "value": 52233.82
+        },
+        {
+          "year": 2018,
+          "value": 52651.69
+        },
+        {
+          "year": 2019,
+          "value": 53072.9
+        },
+        {
+          "year": 2020,
+          "value": 53497.49
+        },
+        {
+          "year": 2021,
+          "value": 53925.47
+        },
+        {
+          "year": 2022,
+          "value": 54356.87
+        },
+        {
+          "year": 2023,
+          "value": 54791.72
+        }
+      ]
+    },
+    "JPN": {
+      "name": "Japan",
+      "series": [
+        {
+          "year": 2014,
+          "value": 41000
+        },
+        {
+          "year": 2015,
+          "value": 41164
+        },
+        {
+          "year": 2016,
+          "value": 41328.66
+        },
+        {
+          "year": 2017,
+          "value": 41493.97
+        },
+        {
+          "year": 2018,
+          "value": 41659.95
+        },
+        {
+          "year": 2019,
+          "value": 41826.59
+        },
+        {
+          "year": 2020,
+          "value": 41993.89
+        },
+        {
+          "year": 2021,
+          "value": 42161.87
+        },
+        {
+          "year": 2022,
+          "value": 42330.52
+        },
+        {
+          "year": 2023,
+          "value": 42499.84
+        }
+      ]
+    }
+  }
+}

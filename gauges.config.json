@@ -1,0 +1,98 @@
+{
+  "_readme": "This file defines every gauge on the Scorecard: its data source, its polarity (which direction counts as 'better'), and its weight in the composite verdict. Every polarity choice must be signed off by the site owner before use — see polarityJustification on each gauge. This is Phase A: only 3 of the eventual 16 gauges are populated, using hand-written sample data (see data/processed/*.json, each marked SAMPLE_DATA).",
+  "peerCountries": [
+    {
+      "code": "AUS",
+      "name": "Australia"
+    },
+    {
+      "code": "CAN",
+      "name": "Canada"
+    },
+    {
+      "code": "GBR",
+      "name": "United Kingdom"
+    },
+    {
+      "code": "NZL",
+      "name": "New Zealand"
+    },
+    {
+      "code": "KOR",
+      "name": "South Korea"
+    },
+    {
+      "code": "NLD",
+      "name": "Netherlands"
+    },
+    {
+      "code": "USA",
+      "name": "United States"
+    },
+    {
+      "code": "DEU",
+      "name": "Germany"
+    },
+    {
+      "code": "JPN",
+      "name": "Japan"
+    }
+  ],
+  "directionThresholdPctPerYear": 0.3,
+  "gauges": [
+    {
+      "id": "living-standards",
+      "name": "Living standards",
+      "shortName": "Living standards",
+      "unit": "GDP per capita, PPP (constant 2021 international $)",
+      "historyStartYear": 1990,
+      "accessType": "api",
+      "polarity": "higher_is_better",
+      "polarityJustification": "Higher GDP per capita, PPP-adjusted, means more real purchasing power per person — an unambiguous 'more is better' metric.",
+      "weight": 0.3333,
+      "source": {
+        "institution": "World Bank",
+        "seriesId": "NY.GDP.PCAP.PP.KD",
+        "seriesName": "GDP per capita, PPP (constant 2021 international $)",
+        "url": "https://data.worldbank.org/indicator/NY.GDP.PCAP.PP.KD"
+      },
+      "oneLiner": "How much real economic output there is per person, adjusted for prices."
+    },
+    {
+      "id": "productivity",
+      "name": "Productivity",
+      "shortName": "Productivity",
+      "unit": "GDP per hour worked (USD, constant prices, 2015 PPPs)",
+      "historyStartYear": 1990,
+      "accessType": "api",
+      "polarity": "higher_is_better",
+      "polarityJustification": "Higher output per hour worked means the economy generates more value for the same labour input — the standard productivity definition.",
+      "weight": 0.3333,
+      "source": {
+        "institution": "OECD",
+        "seriesId": "PDB_LV",
+        "seriesName": "GDP per hour worked",
+        "url": "https://stats.oecd.org/"
+      },
+      "oneLiner": "How much economic value an hour of work produces."
+    },
+    {
+      "id": "education",
+      "name": "Education",
+      "shortName": "Education",
+      "unit": "PISA mean score (maths, reading, science average)",
+      "historyStartYear": 2000,
+      "accessType": "manual",
+      "polarity": "higher_is_better",
+      "polarityJustification": "A higher average PISA score reflects stronger measured student performance across the three tested domains.",
+      "weight": 0.3334,
+      "source": {
+        "institution": "OECD PISA",
+        "seriesId": "PISA_MEAN",
+        "seriesName": "PISA mean score (maths + reading + science average)",
+        "url": "https://www.oecd.org/en/about/programmes/pisa.html"
+      },
+      "oneLiner": "How well 15-year-olds perform on a standardised international test."
+    }
+  ]
+}
