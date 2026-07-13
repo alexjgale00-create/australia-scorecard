@@ -31,14 +31,27 @@ export default function MethodologyPage() {
       <section className="mt-4 rounded-lg border border-[var(--gridline)] bg-[var(--surface-1)] p-5">
         <h2 className="text-lg font-semibold">How direction is calculated</h2>
         <p className="mt-2 text-[var(--text-secondary)]">
-          Australia&rsquo;s own series is compared between its latest value and the value
-          roughly 10 years earlier (or the earliest available point, if the series is
-          shorter). The annualised percentage change is classified{" "}
+          The direction shown everywhere on this site (gauge cards, dot strips, the
+          What&rsquo;s Moving callout) is <strong>peer-relative</strong>: it classifies the
+          trend in Australia&rsquo;s <em>level score</em>{" "}— its position within the 9-country
+          peer set — not the trend in the raw published number. Australia&rsquo;s level
+          score is compared between its latest year and roughly 10 years earlier (or the
+          earliest available point, if the series is shorter). The annualised score-point
+          change is classified{" "}
           <strong>improving</strong>{" "}if it exceeds +
-          {gaugesConfig.directionThresholdPctPerYear}% per year,{" "}
+          {gaugesConfig.directionThresholdScorePointsPerYear} points per year,{" "}
           <strong>deteriorating</strong>{" "}if it falls below &minus;
-          {gaugesConfig.directionThresholdPctPerYear}% per year, and{" "}
+          {gaugesConfig.directionThresholdScorePointsPerYear} points per year, and{" "}
           <strong>flat</strong> otherwise.
+        </p>
+        <p className="mt-3 text-[var(--text-secondary)]">
+          This can disagree with Australia&rsquo;s own raw-value trend — a raw number can
+          rise while the country still loses ground to faster-improving peers, or vice
+          versa. That raw-value trend is calculated separately (annualised % change vs a{" "}
+          {gaugesConfig.directionThresholdPctPerYear}%-per-year threshold) and shown only
+          in the &ldquo;Two ways to read this&rdquo; block on each gauge&rsquo;s detail
+          page, specifically so the two are never presented as if they were the same
+          number.
         </p>
       </section>
 
@@ -51,6 +64,39 @@ export default function MethodologyPage() {
           weight is excluded and the remaining weights are renormalised &mdash; missing
           data is never estimated or substituted.
         </p>
+      </section>
+
+      <section className="mt-4 rounded-lg border border-[var(--gridline)] bg-[var(--surface-1)] p-5">
+        <h2 className="text-lg font-semibold">Score bands (the verdict label)</h2>
+        <p className="mt-2 text-[var(--text-secondary)]">
+          The composite score is also shown as a plain-English band, so &ldquo;37.1 / 100&rdquo;
+          reads as &ldquo;Australia is Slipping.&rdquo; Bands apply to any 0&ndash;100 score on
+          this site: the composite verdict, an individual gauge, or a peer country.
+        </p>
+        <div
+          className="mt-4 rounded-md border p-3 text-sm"
+          style={{ borderColor: "var(--status-warning)", color: "var(--text-secondary)" }}
+        >
+          ⚠ <strong>Placeholder thresholds.</strong>{" "}The boundaries below (24/44/59/79) were
+          picked for a clean 5-way split of 0&ndash;100 and have <strong>not</strong>{" "}been
+          calibrated against real data. They must be reviewed at Phase D, once all 16 gauges
+          are live with real numbers, before any public release.
+        </div>
+        <div className="mt-4 space-y-2">
+          {gaugesConfig.scoreBands.map((b) => (
+            <div key={b.id} className="flex items-center gap-3 text-sm">
+              <span
+                className="inline-block h-3 w-3 shrink-0 rounded-full"
+                style={{ background: b.color }}
+                aria-hidden="true"
+              />
+              <span className="w-32 shrink-0 font-medium">{b.label}</span>
+              <span className="tabular-nums text-[var(--text-muted)]">
+                {b.min}&ndash;{b.max}
+              </span>
+            </div>
+          ))}
+        </div>
       </section>
 
       <section className="mt-10">

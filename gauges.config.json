@@ -38,7 +38,17 @@
       "name": "Japan"
     }
   ],
+  "_directionBasisNote": "Direction (improving/flat/deteriorating) shown everywhere on the site — cards, dot strips, What's Moving — is peer-relative: it classifies the trend in Australia's level SCORE (position vs the 9-country peer set), not the trend in the raw published number. The raw-value trend is still shown, separately, in the 'Two ways to read this' block on each gauge detail page. See METHODOLOGY.md.",
   "directionThresholdPctPerYear": 0.3,
+  "directionThresholdScorePointsPerYear": 0.5,
+  "_scoreBandsTodo": "TODO(Phase D): the thresholds below (24/44/59/79) are placeholders picked for a clean 5-way split of 0-100. They have NOT been calibrated against real data and MUST be reviewed before any public release, once all 16 gauges are live with real numbers.",
+  "scoreBands": [
+    { "id": "falling-behind", "label": "Falling Behind", "min": 0, "max": 24, "color": "#d03b3b" },
+    { "id": "slipping", "label": "Slipping", "min": 25, "max": 44, "color": "#ec835a" },
+    { "id": "holding", "label": "Holding", "min": 45, "max": 59, "color": "#898781" },
+    { "id": "strengthening", "label": "Strengthening", "min": 60, "max": 79, "color": "#0ca30c" },
+    { "id": "leading", "label": "Leading", "min": 80, "max": 100, "color": "#008300" }
+  ],
   "gauges": [
     {
       "id": "living-standards",

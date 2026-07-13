@@ -1,9 +1,15 @@
 import type {
   CountryCode,
+  CountryScorePoint,
   Direction,
   GaugeConfig,
   GaugeData,
   GaugeScore,
+  LevelScoreDelta,
+  PeerRelativeTrend,
+  RawDirection,
+  RawValueTrend,
+  ScoreBand,
 } from "@/lib/types";
 
 /**
@@ -11,7 +17,14 @@ import type {
  * position within the peer set on the latest shared year) and a direction
  * classification (trailing ~10y annualised change vs a fixed threshold).
  * The composite verdict is a straight weighted average of level scores.
- * See METHODOLOGY.md for the full write-up and the threshold's justification.
+ *
+ * "Direction" everywhere on the site (cards, dot strips, What's Moving) is
+ * PEER-RELATIVE — it classifies the trend in Australia's level SCORE, not
+ * the trend in the raw published number. The two can disagree (e.g. a raw
+ * number can rise while the country still loses ground to faster-improving
+ * peers). The raw-value trend is computed separately (computeRawValueTrend)
+ * and only surfaced in the "Two ways to read this" block on gauge detail
+ * pages. See METHODOLOGY.md.
  */
 
 export function latestSharedYear(data: GaugeData): number | null {
@@ -71,45 +84,232 @@ export function computeRank(
   return { rank: idx + 1, of: sorted.length };
 }
 
-export function classifyDirection(
+/**
+ * The trailing-~10y comparison point: the latest point at or before
+ * (latestYear - windowYears), falling back to the earliest point on record
+ * if the series doesn't go back that far. Shared by computeRawValueTrend
+ * (raw-value % change) and computeLevelScoreDelta (level-score points).
+ */
+function trailingStartYear(
+  series: { year: number; value: number }[],
+  latestYear: number,
+  windowYears = 10
+): number | null {
+  if (series.length === 0) return null;
+  const targetStartYear = latestYear - windowYears;
+  const candidates = series.filter((p) => p.year <= targetStartYear);
+  const startPoint =
+    candidates.length > 0
+      ? candidates.reduce((a, b) => (b.year > a.year ? b : a))
+      : series.reduce((a, b) => (a.year < b.year ? a : b));
+  return startPoint.year;
+}
+
+/**
+ * The trend in Australia's own raw published number — purely descriptive
+ * (up/down/flat), no good/bad judgment, since that depends on polarity.
+ * Used only for the "Two ways to read this" block on gauge detail pages.
+ */
+export function computeRawValueTrend(
   data: GaugeData,
   code: CountryCode,
   latestYear: number,
   thresholdPctPerYear: number
-): Direction | null {
+): RawValueTrend | null {
   const country = data.countries[code];
   if (!country) return null;
 
-  const targetStartYear = latestYear - 10;
-  const candidates = country.series.filter((p) => p.year <= targetStartYear);
-  const startPoint =
-    candidates.length > 0
-      ? candidates.reduce((a, b) => (b.year > a.year ? b : a))
-      : country.series.reduce((a, b) => (a.year < b.year ? a : b));
+  const startYear = trailingStartYear(country.series, latestYear);
+  const startPoint = startYear ? country.series.find((p) => p.year === startYear) : null;
   const endPoint = country.series.find((p) => p.year === latestYear);
-  if (!endPoint || startPoint.year === endPoint.year || startPoint.value === 0) {
-    return "flat";
+  if (!startPoint || !endPoint || startPoint.year === endPoint.year || startPoint.value === 0) {
+    return null;
   }
 
   const years = endPoint.year - startPoint.year;
-  const totalPctChange = (endPoint.value - startPoint.value) / Math.abs(startPoint.value);
-  const annualizedPct = (totalPctChange / years) * 100;
+  const totalPctChange = ((endPoint.value - startPoint.value) / Math.abs(startPoint.value)) * 100;
+  const annualizedPct = totalPctChange / years;
 
-  if (annualizedPct > thresholdPctPerYear) return "improving";
-  if (annualizedPct < -thresholdPctPerYear) return "deteriorating";
-  return "flat";
+  const direction: RawDirection =
+    annualizedPct > thresholdPctPerYear ? "up" : annualizedPct < -thresholdPctPerYear ? "down" : "flat";
+
+  return {
+    startYear: startPoint.year,
+    endYear: endPoint.year,
+    startValue: startPoint.value,
+    endValue: endPoint.value,
+    totalPctChange: Math.round(totalPctChange * 10) / 10,
+    annualizedPct: Math.round(annualizedPct * 100) / 100,
+    direction,
+  };
+}
+
+/**
+ * The trend in Australia's level SCORE (peer-relative position) — this is
+ * the site's primary "direction" basis, used everywhere except the "Two
+ * ways to read this" block.
+ */
+export function computePeerRelativeTrend(
+  data: GaugeData,
+  config: GaugeConfig,
+  code: CountryCode,
+  latestYear: number,
+  thresholdScorePointsPerYear: number
+): PeerRelativeTrend | null {
+  const delta = computeLevelScoreDelta(data, config, code, latestYear);
+  if (!delta) return null;
+
+  const years = delta.endYear - delta.startYear;
+  const annualizedDelta = years > 0 ? delta.delta / years : 0;
+  const direction: Direction =
+    annualizedDelta > thresholdScorePointsPerYear
+      ? "improving"
+      : annualizedDelta < -thresholdScorePointsPerYear
+        ? "deteriorating"
+        : "flat";
+
+  return {
+    ...delta,
+    annualizedDelta: Math.round(annualizedDelta * 100) / 100,
+    direction,
+  };
+}
+
+const TWO_WAYS_TEMPLATES: Record<string, (years: number, shortName: string) => string> = {
+  up_improving: (y, n) =>
+    `Australia's own ${n} figure and its position relative to peers both improved over the ${y} years.`,
+  down_deteriorating: (y, n) =>
+    `Australia's own ${n} figure and its position relative to peers both declined over the ${y} years.`,
+  flat_flat: (y, n) =>
+    `Australia's own ${n} figure and its position relative to peers were both roughly flat over the ${y} years.`,
+  up_flat: (y, n) =>
+    `Australia's own ${n} figure rose over the ${y} years, while its position relative to peers held roughly steady.`,
+  up_deteriorating: (y, n) =>
+    `Australia's own ${n} figure rose over the ${y} years, but slower than its peers — so its relative position fell.`,
+  down_improving: (y, n) =>
+    `Australia's own ${n} figure fell over the ${y} years, but its peers fell further — so its relative position improved.`,
+  down_flat: (y, n) =>
+    `Australia's own ${n} figure fell over the ${y} years, roughly matching the pace of decline among its peers — its relative position held steady.`,
+  flat_improving: (y, n) =>
+    `Australia's own ${n} figure was roughly flat over the ${y} years, but its peers fell further behind — so its relative position improved.`,
+  flat_deteriorating: (y, n) =>
+    `Australia's own ${n} figure was roughly flat over the ${y} years, but its peers pulled ahead — so its relative position fell.`,
+};
+
+export function describeTwoWaysToRead(
+  rawTrend: RawValueTrend,
+  peerTrend: PeerRelativeTrend,
+  gaugeShortName: string
+): string {
+  const years = peerTrend.endYear - peerTrend.startYear;
+  const key = `${rawTrend.direction}_${peerTrend.direction}`;
+  const template = TWO_WAYS_TEMPLATES[key];
+  return template
+    ? template(years, gaugeShortName)
+    : `Australia's own ${gaugeShortName} figure and its position relative to peers moved differently over the ${years} years — see the charts below for the detail.`;
+}
+
+/**
+ * Level-score-point movement over the trailing ~10 years (e.g. "-12" means
+ * Australia's peer-relative position dropped 12 points on the 0-100 scale)
+ * — used for the homepage "what's moving" callout and computePeerRelativeTrend.
+ */
+export function computeLevelScoreDelta(
+  data: GaugeData,
+  config: GaugeConfig,
+  code: CountryCode,
+  latestYear: number
+): LevelScoreDelta | null {
+  const country = data.countries[code];
+  if (!country) return null;
+
+  const startYear = trailingStartYear(country.series, latestYear);
+  if (!startYear || startYear === latestYear) return null;
+
+  const startScore = computeLevelScore(data, config, code, startYear);
+  const endScore = computeLevelScore(data, config, code, latestYear);
+  if (startScore === null || endScore === null) return null;
+
+  return {
+    startYear,
+    endYear: latestYear,
+    delta: Math.round((endScore - startScore) * 10) / 10,
+  };
+}
+
+export function bandForScore(score: number, bands: ScoreBand[]): ScoreBand | null {
+  return bands.find((b) => score >= b.min && score <= b.max) ?? null;
+}
+
+export function computeLevelScoreForAllCountries(
+  data: GaugeData,
+  config: GaugeConfig,
+  year: number
+): CountryScorePoint[] {
+  return Object.entries(data.countries)
+    .map(([code, country]) => {
+      const score = computeLevelScore(data, config, code as CountryCode, year);
+      return score === null ? null : { code: code as CountryCode, name: country.name, score };
+    })
+    .filter((p): p is CountryScorePoint => p !== null);
+}
+
+export function computeCompositeForAllCountries(
+  gaugesData: { data: GaugeData; config: GaugeConfig }[]
+): CountryScorePoint[] {
+  const allCodes = new Set<CountryCode>();
+  for (const { data } of gaugesData) {
+    for (const code of Object.keys(data.countries)) allCodes.add(code as CountryCode);
+  }
+
+  const points: CountryScorePoint[] = [];
+  for (const code of allCodes) {
+    let name: string | null = null;
+    const weighted: { score: number; weight: number }[] = [];
+    for (const { data, config } of gaugesData) {
+      const country = data.countries[code];
+      if (!country) continue;
+      name = country.name;
+      const year = latestSharedYear(data);
+      const score = year ? computeLevelScore(data, config, code, year) : null;
+      if (score !== null) weighted.push({ score, weight: config.weight });
+    }
+    if (!name || weighted.length === 0) continue;
+    const totalWeight = weighted.reduce((sum, w) => sum + w.weight, 0);
+    const composite =
+      Math.round(
+        (weighted.reduce((sum, w) => sum + w.score * w.weight, 0) / totalWeight) * 10
+      ) / 10;
+    points.push({ code, name, score: composite });
+  }
+  return points;
+}
+
+export function computeGaugeHistoricalLevelScores(
+  data: GaugeData,
+  config: GaugeConfig,
+  code: CountryCode = "AUS"
+): { year: number; score: number }[] {
+  const country = data.countries[code];
+  if (!country) return [];
+  return country.series
+    .map((p) => {
+      const score = computeLevelScore(data, config, code, p.year);
+      return score === null ? null : { year: p.year, score };
+    })
+    .filter((p): p is { year: number; score: number } => p !== null);
 }
 
 export function computeGaugeScore(
   data: GaugeData,
   config: GaugeConfig,
-  thresholdPctPerYear: number,
+  thresholdScorePointsPerYear: number,
   code: CountryCode = "AUS"
 ): GaugeScore {
   const year = latestSharedYear(data);
   const levelScore = year ? computeLevelScore(data, config, code, year) : null;
   const direction = year
-    ? classifyDirection(data, code, year, thresholdPctPerYear)
+    ? (computePeerRelativeTrend(data, config, code, year, thresholdScorePointsPerYear)?.direction ?? "flat")
     : null;
   const rankInfo = year ? computeRank(data, config, code, year) : null;
 

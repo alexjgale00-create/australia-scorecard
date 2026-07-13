@@ -1,14 +1,26 @@
 import Link from "next/link";
-import type { GaugeConfig, GaugeScore } from "@/lib/types";
+import type { GaugeConfig, GaugeData, GaugeScore, ScoreBand } from "@/lib/types";
 import DirectionArrow from "@/components/DirectionArrow";
+import DotStrip from "@/components/DotStrip";
+import AnchoredSparkline from "@/components/AnchoredSparkline";
+import { computeGaugeHistoricalLevelScores, computeLevelScoreForAllCountries } from "@/lib/scoring";
 
 export default function GaugeCard({
   config,
+  data,
   score,
+  bands,
 }: {
   config: GaugeConfig;
+  data: GaugeData;
   score: GaugeScore;
+  bands: ScoreBand[];
 }) {
+  const dotStripPoints = score.latestYear
+    ? computeLevelScoreForAllCountries(data, config, score.latestYear)
+    : [];
+  const historicalScores = computeGaugeHistoricalLevelScores(data, config, "AUS");
+
   return (
     <Link
       href={`/gauges/${config.id}`}
@@ -20,15 +32,24 @@ export default function GaugeCard({
           {score.levelScore !== null ? Math.round(score.levelScore) : "—"}
         </div>
       </div>
-      <p className="mt-1 text-sm text-[var(--text-secondary)]">{config.oneLiner}</p>
-      <div className="mt-4 flex items-center justify-between">
+
+      <div className="mt-2">
         <DirectionArrow direction={score.direction} />
-        {score.australiaRank !== null && (
-          <span className="text-xs text-[var(--text-muted)]">
-            Rank {score.australiaRank} of {score.peerCount}
-          </span>
-        )}
       </div>
+
+      {dotStripPoints.length > 0 && (
+        <div className="mt-3">
+          <DotStrip points={dotStripPoints} bands={bands} size="card" />
+        </div>
+      )}
+
+      {historicalScores.length > 1 && (
+        <div className="mt-3">
+          <AnchoredSparkline points={historicalScores} bands={bands} size="mini" />
+        </div>
+      )}
+
+      <p className="mt-3 text-sm text-[var(--text-secondary)]">{config.oneLiner}</p>
     </Link>
   );
 }
