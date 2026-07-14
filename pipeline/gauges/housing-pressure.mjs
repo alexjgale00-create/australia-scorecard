@@ -1,13 +1,14 @@
 // Coordinates verified live 2026-07-14 (dataflow exists under this exact
 // agency/id/version — matches the brief's own "OECD Analytical House Price"
-// description). Uses the "all" key for the same reason as productivity.mjs:
-// dimension order was never confirmed against a real response before
-// sdmx.oecd.org's Cloudflare bot-protection blocked further requests.
+// description).
 //
-// A live run returned HTTP 500 with "all" + only startPeriod bounded (no
-// endPeriod) — see the matching note in productivity.mjs. Bounding the
-// query end date is a safe, corruption-free change worth ruling out first.
-import { fetchOecdSdmxData } from "../lib/oecd.mjs";
+// The bare "all" key crashed OECD's server (HTTP 500, garbled resource-
+// lookup error) on a live run — see the matching note in productivity.mjs.
+// Now discovers the real dimension list and builds a correctly-shaped key
+// (REF_AREA pinned, everything else explicitly blank) via
+// fetchOecdCountryData, with the parser's duplicate-value check as a
+// safety net against an under-constrained query silently mixing series.
+import { fetchOecdCountryData } from "../lib/oecd.mjs";
 import { writeGaugeData } from "../lib/writeGaugeData.mjs";
 import { buildMissingCountries } from "../lib/worldbank.mjs";
 
@@ -15,7 +16,7 @@ export const gaugeId = "housing-pressure";
 const DATAFLOW = "OECD.ECO.MPD,DSD_AN_HOUSE_PRICES@DF_HOUSE_PRICES,1.0";
 
 export async function run(config, report) {
-  const { byCountry, missingCountries } = await fetchOecdSdmxData(DATAFLOW, "all", {
+  const { byCountry, missingCountries } = await fetchOecdCountryData(DATAFLOW, {
     startPeriod: config.historyStartYear,
     endPeriod: new Date().getFullYear(),
   });

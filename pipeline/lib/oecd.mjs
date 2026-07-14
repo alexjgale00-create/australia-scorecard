@@ -19,6 +19,47 @@ function sleep(ms) {
 }
 
 /**
+ * Fetches a dataflow's data structure definition and returns its dimension
+ * IDs in order (e.g. ["REF_AREA", "SEX", "AGE", ...]) — this is what lets
+ * us build a correctly-shaped key instead of guessing a dimension count.
+ * `dataflowPath` is the comma-separated "AGENCY,ID,VERSION" form used
+ * throughout this file; the structure endpoint wants it slash-separated.
+ */
+export async function fetchOecdDataflowDimensions(dataflowPath) {
+  const [agency, id, version] = dataflowPath.split(",");
+  const url = `https://sdmx.oecd.org/public/rest/dataflow/${agency}/${id}/${version}?references=children`;
+
+  const res = await fetch(url, { signal: AbortSignal.timeout(30000), headers: BROWSER_HEADERS });
+  const text = await res.text();
+
+  if (res.status === 403 && (text.includes("Just a moment") || text.trim().startsWith("<!DOCTYPE"))) {
+    throw new Error(
+      `OECD's SDMX API returned a Cloudflare bot-protection challenge page instead of the data structure ` +
+        `(HTTP 403) for "${dataflowPath}". This is an IP/network-reputation block — see CLAUDE.md.`
+    );
+  }
+  if (!res.ok) {
+    throw new Error(
+      `OECD SDMX API returned HTTP ${res.status} fetching the data structure for "${dataflowPath}": ${snippet(text)}`
+    );
+  }
+
+  const dimensionRe = /<structure:Dimension\s+[^>]*\bid="([^"]+)"/g;
+  const dims = [];
+  let m;
+  while ((m = dimensionRe.exec(text)) !== null) {
+    dims.push(m[1]);
+  }
+  if (dims.length === 0) {
+    throw new Error(
+      `OECD SDMX API returned a data structure for "${dataflowPath}" with no dimensions found — the ` +
+        `response shape may differ from what this was written against: ${snippet(text)}`
+    );
+  }
+  return dims;
+}
+
+/**
  * Fetches one OECD SDMX dataflow, retrying server errors (500/502/503/504)
  * and network failures with backoff — those are plausibly transient. 4xx
  * responses (403, 404, etc.) are never retried: a wrong dataflow/key or a
@@ -89,6 +130,28 @@ export async function fetchOecdSdmxData(dataflowPath, key, { startPeriod, endPer
   throw lastErr;
 }
 
+/**
+ * Discovers a dataflow's real dimension list, then queries it with REF_AREA
+ * pinned to our 9 peers and every other dimension left blank (SDMX's
+ * "all values" wildcard for that position) — instead of the bare "all" key,
+ * which triggered a server-side crash (HTTP 500, .NET-style null-reference
+ * and resource-lookup errors) on two OECD dataflows in production. A
+ * correctly-dimensioned key with explicit blanks is the properly-formed
+ * request; "all" alone apparently isn't well-supported by this deployment.
+ */
+export async function fetchOecdCountryData(dataflowPath, { startPeriod, endPeriod } = {}) {
+  const dims = await fetchOecdDataflowDimensions(dataflowPath);
+  const refAreaIndex = dims.indexOf("REF_AREA");
+  if (refAreaIndex === -1) {
+    throw new Error(
+      `OECD dataflow "${dataflowPath}" has no REF_AREA dimension in its structure — cannot build a country-scoped key.`
+    );
+  }
+
+  const key = dims.map((_, i) => (i === refAreaIndex ? PEER_COUNTRY_KEY : "")).join(".");
+  return fetchOecdSdmxData(dataflowPath, key, { startPeriod, endPeriod });
+}
+
 // Standard SDMX-JSON 2.0 structure. Written from the SDMX-JSON spec, not
 // validated against a real successful OECD response yet. If OECD's actual
 // shape differs, this throws rather than silently misreading it.
@@ -113,7 +176,15 @@ function parseSdmxJson(json) {
   const timeValues = obsDims[timeDimIndex].values ?? [];
 
   const byCountry = {};
-  for (const code of PEER_COUNTRY_CODES) byCountry[code] = { name: COUNTRY_NAMES[code], series: [] };
+  // Tracks year -> value already recorded per country, so that if a loosely
+  // (wildcard-)filtered query returns more than one series per country (e.g.
+  // two different underlying collections), a genuine conflict is caught
+  // loudly instead of one silently overwriting the other.
+  const seenByCountry = {};
+  for (const code of PEER_COUNTRY_CODES) {
+    byCountry[code] = { name: COUNTRY_NAMES[code], series: [] };
+    seenByCountry[code] = new Map();
+  }
 
   const series = dataSet.series ?? {};
   for (const [seriesKey, seriesData] of Object.entries(series)) {
@@ -128,7 +199,20 @@ function parseSdmxJson(json) {
       const year = Number(String(timeLabel).slice(0, 4));
       const value = Array.isArray(obsValue) ? obsValue[0] : obsValue;
       if (value === null || value === undefined || Number.isNaN(year)) continue;
-      byCountry[refAreaCode].series.push({ year, value });
+
+      const seen = seenByCountry[refAreaCode];
+      if (seen.has(year) && seen.get(year) !== value) {
+        throw new Error(
+          `OECD SDMX API returned conflicting values for ${refAreaCode} in ${year} (${seen.get(year)} vs ` +
+            `${value}) — the query key is under-constrained (likely a wildcarded dimension picking up more ` +
+            `than one underlying series) and this data is too ambiguous to trust. Narrowing the key is required, ` +
+            `not silently picking one value.`
+        );
+      }
+      if (!seen.has(year)) {
+        seen.set(year, value);
+        byCountry[refAreaCode].series.push({ year, value });
+      }
     }
   }
 

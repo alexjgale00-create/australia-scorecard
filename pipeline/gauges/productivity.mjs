@@ -1,18 +1,16 @@
 // Coordinates verified live 2026-07-14 (the dataflow exists, under this
 // exact agency/id/version — found via OECD's dataflow catalog before
 // sdmx.oecd.org's Cloudflare bot-protection blocked further requests).
-// The "all" key (no dimension filter) is used because PDB_LV's dimension
-// order was never confirmed against a real response — safer to fetch
-// broadly and filter by country client-side than guess a positional key
-// and silently mis-slice it.
 //
-// A live run returned HTTP 500 with "all" + only startPeriod bounded (no
-// endPeriod) — plausibly a query too large/expensive for OECD's server,
-// since PDB_LV likely spans many countries x measures x industries. Adding
-// an endPeriod bound shrinks the response; this doesn't fix a wrong key,
-// but it's a safe change (can only reduce what comes back, never corrupt
-// it) worth ruling out before assuming the cause is something else.
-import { fetchOecdSdmxData } from "../lib/oecd.mjs";
+// The bare "all" key crashed OECD's server (HTTP 500, .NET-style
+// null-reference error) on a live run — apparently not well-supported by
+// this deployment, regardless of bounding by date. Now discovers PDB_LV's
+// real dimension list and builds a correctly-shaped key (REF_AREA pinned to
+// our 9 peers, every other dimension explicitly blank) via
+// fetchOecdCountryData. If PDB_LV bundles multiple measures/subjects into
+// one series per country/year, the parser's duplicate-value check will
+// throw a clear "ambiguous data" error rather than silently pick one.
+import { fetchOecdCountryData } from "../lib/oecd.mjs";
 import { writeGaugeData } from "../lib/writeGaugeData.mjs";
 import { buildMissingCountries } from "../lib/worldbank.mjs";
 
@@ -20,7 +18,7 @@ export const gaugeId = "productivity";
 const DATAFLOW = "OECD.SDD.TPS,DSD_PDB@DF_PDB_LV,1.0";
 
 export async function run(config, report) {
-  const { byCountry, missingCountries } = await fetchOecdSdmxData(DATAFLOW, "all", {
+  const { byCountry, missingCountries } = await fetchOecdCountryData(DATAFLOW, {
     startPeriod: config.historyStartYear,
     endPeriod: new Date().getFullYear(),
   });
