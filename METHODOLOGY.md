@@ -156,31 +156,37 @@ B/C.
 
 ## Current build status
 
-Phase B, Groups 1/2/3/5 complete, Group 4 (OECD) resolved by a split
-decision: 12 of 16 planned gauges are configured. 8 are **live**
-(`living-standards`, `innovation`, `external-position`,
-`rule-of-law-corruption`, `demographic-momentum`, `trade`,
-`economic-output`, `debt-burden`). 1 is still **hand-written sample data**
-pending Phase C (`education`, manual PISA lane). `housing-pressure` gets
-one final automated attempt (`FREQ` pinned to Annual, per OECD's own docs
-confirming that series is published independently) — a fresh-eyes review
-on 2026-07-14 found its debugging history to be genuinely convergent (four
-real bugs found and fixed in a row, none recurring), unlike the other two
-OECD gauges. `productivity` and `human-capital-depth` have both moved to a
-manual lane: `human-capital-depth` after three distinct query keys against
-the same dataflow failed with no actionable diagnostic; `productivity`
-after the same review found its dataflow carries OECD's own
-`NonProductionDataflow=true` annotation and redirects to an archive
-endpoint that throws a generic unhandled server exception — infrastructure
-OECD itself flags as not meant for automated queries, not a solvable key
-problem. See `data/manual/` for each manual gauge's download template and
-instructions, and "OECD SDMX trio" in `CLAUDE.md` for the full reasoning.
-Every gauge's real status is in its own `data/processed/*.json` file's
-`provenance.status` field (`SAMPLE_DATA` or `LIVE`, or no file at all for
-"awaiting data") — the site badges each one individually, plus a
-page-level note whenever the set is mixed. Weights are currently equal
-(1/12 each) as a placeholder; the site owner will tune real weights once
-all 16 gauges are live with real data (Phase D).
+**Phase B is complete as of 2026-07-14.** 12 of 16 planned gauges are
+configured; 9 fetch automatically every month, 2 sit in a manual download
+lane, 1 is still Phase A sample data. The remaining 4 gauges aren't
+configured yet at all. Every gauge's real status is in its own
+`data/processed/*.json` file's `provenance.status` field (`SAMPLE_DATA` or
+`LIVE`, or no file at all for "awaiting data") — the site badges each one
+individually, plus a page-level note whenever the set is mixed. Weights
+are currently equal (1/12 each, for the 12 configured) as a placeholder;
+the site owner will tune real weights once all 16 gauges are live with
+real data (Phase D).
+
+| Gauge | Status | Source | Notes |
+|---|---|---|---|
+| Living standards | 🟢 Live | World Bank | |
+| Innovation | 🟢 Live | World Bank | |
+| External position | 🟢 Live | World Bank | |
+| Rule of law & corruption | 🟢 Live | World Bank (WGI) | Two series averaged |
+| Demographic momentum | 🟢 Live | World Bank | Derived growth rate |
+| Trade | 🟢 Live | World Bank | Share of world total |
+| Economic output | 🟢 Live | IMF (WEO) | Standing limitation: IMF blocks GitHub Actions' IP range specifically (works locally, always). Disclosed as a known limitation in the pipeline report, not a red failure — see `pipeline/lib/report.mjs` |
+| Debt burden | 🟢 Live, ⚠ gap | BIS | No data for New Zealand (nominal-vs-market-value gap, disclosed on-page) |
+| Housing pressure | 🟢 Live | OECD (SDMX) | Landed 2026-07-14 after a 5-round debugging arc — see "OECD SDMX trio" in `CLAUDE.md` |
+| Productivity | 🟡 Manual lane | OECD | Dataflow flagged `NonProductionDataflow=true` by OECD itself; automated route abandoned by design, not oversight. See `data/manual/README.md` |
+| Human capital depth | 🟡 Manual lane | OECD | Automated API never returned data across 3 attempts. See `data/manual/README.md` |
+| Education | 🟠 Sample data | OECD PISA | Phase A placeholder numbers; real manual entry is Phase C |
+| *(4 more, not yet configured)* | ⚪ Not started | SIPRI, V-Dem, Harvard Atlas, WID | Sources named in `README.md`; exact gauge definitions, polarity, and weight not yet finalised — Phase C |
+
+See `data/manual/README.md` for each manual gauge's download template and
+instructions, and "OECD SDMX trio" in `CLAUDE.md` for the full reasoning
+behind the OECD split (why one of the three landed automated and two
+didn't).
 
 ### Corrections made while building Group 1 (2026-07-14)
 

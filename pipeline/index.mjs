@@ -118,7 +118,17 @@ for (const gaugeId of GAUGE_IDS) {
     const gaugeModule = await import(`./gauges/${gaugeId}.mjs`);
     await gaugeModule.run(config, report);
   } catch (err) {
-    report.failure(gaugeId, describeFailure(err, config, gaugeId));
+    // err.knownLimitation is set only for the exact documented shape of a
+    // standing, accepted environment limitation (currently: IMF blocking
+    // GitHub Actions specifically — see pipeline/lib/imf.mjs and
+    // CLAUDE.md). Anything else — including this same source failing for a
+    // *different* reason, or from a *different* environment — is a genuine,
+    // unexpected failure and stays red.
+    if (err.knownLimitation) {
+      report.knownLimitation(gaugeId, describeFailure(err, config, gaugeId));
+    } else {
+      report.failure(gaugeId, describeFailure(err, config, gaugeId));
+    }
   }
 }
 

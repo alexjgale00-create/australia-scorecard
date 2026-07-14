@@ -54,12 +54,19 @@ export async function fetchImfDataMapperIndicator(indicatorId) {
     }
 
     if (res.status === 403) {
-      throw new Error(
+      const err = new Error(
         `IMF DataMapper API returned HTTP 403 for indicator "${indicatorId}". This has been observed specifically ` +
           `when running from GitHub Actions while the same request succeeds from a local machine — likely a WAF ` +
           `rule against cloud/datacenter IP ranges, not a wrong indicator ID and not retryable from this network. ` +
           `See CLAUDE.md.`
       );
+      // Only the documented shape counts as the known, accepted standing
+      // limitation: HTTP 403, from GitHub Actions specifically. A 403 from a
+      // local run would be new and unexpected — the whole documented quirk
+      // is that Actions is the one blocked — so it's never silently
+      // downgraded there; it stays a genuine (red) failure.
+      if (process.env.GITHUB_ACTIONS === "true") err.knownLimitation = true;
+      throw err;
     }
 
     if (RETRYABLE_STATUSES.has(res.status) && attempt < RETRY_DELAYS_MS.length) {

@@ -6,6 +6,32 @@ See `README.md` (how to run this) and `METHODOLOGY.md` (full scoring
 write-up) for detail. This file records durable project decisions that
 should survive across sessions.
 
+## Phase B: complete (2026-07-14)
+
+12 of 16 gauges configured; 9 fetch automatically (World Bank × 6, IMF,
+BIS, OECD), 2 sit in a manual download lane (`data/manual/README.md`), 1
+is still Phase A sample data pending Phase C. Full per-gauge state table
+is in `METHODOLOGY.md`'s "Current build status" section — that's the
+authoritative source, kept there so it doesn't drift out of sync with this
+file. The OECD trio's split resolution (why `housing-pressure` is
+automated but `productivity` and `human-capital-depth` aren't) is recorded
+in full below, under "OECD SDMX trio."
+
+The monthly pipeline report distinguishes a genuinely unexpected failure
+(red, fails the GitHub Actions run) from a documented, accepted standing
+limitation (green, disclosed but not penalised) — see `report.knownLimitation()`
+in `pipeline/lib/report.mjs`. Currently the only gauge using this is
+`economic-output`, for IMF's confirmed GitHub-Actions-only 403 block (see
+"Pipeline environment quirks" below). The marker is scoped tightly: only
+the exact documented shape (HTTP 403, from Actions specifically) is
+treated as known — the same source failing any other way, or failing from
+a different environment, is still a genuine red failure, on purpose.
+
+**Next session starts Phase C**: the manual-source lane for Education
+(already stubbed, still sample data) plus the 4 not-yet-configured gauges
+(sources named in README.md: SIPRI, V-Dem, Harvard Atlas, WID — exact
+gauge definitions not yet finalised).
+
 ## Scoring
 
 - **Direction is peer-relative, everywhere on the site** (gauge cards, dot
@@ -131,8 +157,8 @@ don't keep pushing attempts past that):
 - `human-capital-depth` **moved to the manual lane** — three distinct,
   reasoned attempts against the same dataflow with no traction and no
   actionable diagnostic is past the point where guessing is worth another
-  round-trip. See `data/manual/human-capital-depth-INSTRUCTIONS.md` and
-  `gauges.config.json`'s `dataPolicy` for this gauge. Removed from
+  round-trip. See `data/manual/README.md` and `gauges.config.json`'s
+  `dataPolicy` for this gauge. Removed from
   `pipeline/index.mjs`'s `GAUGE_IDS`; `pipeline/gauges/human-capital-depth.mjs`
   (the retired API fetcher) was deleted rather than left as dead code.
 - `productivity` and `housing-pressure` were **paused** (not abandoned)
@@ -196,3 +222,8 @@ a real difference the "OECD trio" framing had been hiding:
   *format*), and for `housing-pressure` the well-evidenced `FREQ=A` fix is
   lower-cost and higher-confidence than switching formats. Revisit only if
   `housing-pressure`'s `FREQ=A` fix also fails.
+
+**Result, confirmed live 2026-07-14:** `housing-pressure`'s `FREQ=A` fix
+landed clean on the very next Actions run — 9 countries, no gaps. This
+closes the OECD trio: `housing-pressure` live, `productivity` and
+`human-capital-depth` in the manual lane. See "Phase B complete" below.
