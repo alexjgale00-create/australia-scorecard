@@ -6,7 +6,7 @@
     "seriesId": "NE.EXP.GNFS.CD",
     "seriesName": "Exports of goods and services, share of world total (derived: country ÷ WLD aggregate)",
     "url": "https://data.worldbank.org/indicator/NE.EXP.GNFS.CD",
-    "retrievedAt": "2026-07-14T04:02:52.264Z",
+    "retrievedAt": "2026-07-14T04:13:26.124Z",
     "note": "Derived: each country's NE.EXP.GNFS.CD divided by the World Bank's WLD (world total) aggregate for the same indicator, for years where both are published.",
     "missingCountries": []
   },
