@@ -28,6 +28,12 @@ const GAUGE_IDS = [
   "economic-output",
   // Group 5 (BIS, bulk-style CSV, ISO2 country codes, quarterly->annual):
   "debt-burden",
+  // Group 4 (OECD SDMX — sdmx.oecd.org is Cloudflare-blocked for automated
+  // requests as of 2026-07-14; these are expected to fail loudly until
+  // that's resolved. See CLAUDE.md.):
+  "productivity",
+  "housing-pressure",
+  "human-capital-depth",
 ];
 
 const report = createReport();

@@ -1,0 +1,50 @@
+name: Refresh data pipeline
+
+# Runs automatically on the 1st of every month, and can also be triggered
+# manually from the Actions tab (see README.md for exact steps). Commits
+# whatever gauges succeeded even if some sources failed — but still marks
+# the workflow run itself as failed when the pipeline report isn't clean,
+# so a red X (and GitHub's own notification email) is the "fail loudly"
+# signal at this layer, on top of the pipeline's own plain-English report.
+on:
+  schedule:
+    - cron: "0 3 1 * *" # 03:00 UTC on the 1st of every month
+  workflow_dispatch: {}
+
+jobs:
+  pipeline:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run the data pipeline
+        id: pipeline
+        run: npm run pipeline
+        continue-on-error: true
+
+      - name: Commit any updated data files
+        run: |
+          git config user.name "australia-scorecard-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add data/processed/
+          if git diff --cached --quiet; then
+            echo "No data changes to commit."
+          else
+            git commit -m "Automated data refresh via GitHub Actions"
+            git push
+          fi
+
+      - name: Fail the workflow if the pipeline report wasn't clean
+        if: steps.pipeline.outcome == 'failure'
+        run: |
+          echo "The pipeline run was NOT CLEAN — see the 'Run the data pipeline' step's log above for the full plain-English report (which source failed, why, and what to do about it)."
+          exit 1

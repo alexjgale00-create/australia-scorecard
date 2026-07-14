@@ -1,5 +1,5 @@
 {
-  "_readme": "This file defines every gauge on the Scorecard: its data source, its polarity (which direction counts as 'better'), and its weight in the composite verdict. Every polarity choice must be signed off by the site owner before use — see polarityJustification on each gauge. Phase B in progress: 10 of 16 gauges configured. 'accessType: api' gauges are fetched by /pipeline (run `npm run pipeline`); until that's run, or if a fetch fails, a gauge's data file keeps its SAMPLE_DATA status and the site shows it as sample. See CLAUDE.md and METHODOLOGY.md.",
+  "_readme": "This file defines every gauge on the Scorecard: its data source, its polarity (which direction counts as 'better'), and its weight in the composite verdict. Every polarity choice must be signed off by the site owner before use — see polarityJustification on each gauge. Phase B in progress: 12 of 16 gauges configured. 'accessType: api' gauges are fetched by /pipeline (run `npm run pipeline`); until that's run, or if a fetch fails, a gauge's data file keeps its SAMPLE_DATA status and the site shows it as sample. See CLAUDE.md and METHODOLOGY.md.",
   "peerCountries": [
     {
       "code": "AUS",
@@ -89,7 +89,7 @@
       "accessType": "api",
       "polarity": "higher_is_better",
       "polarityJustification": "Higher GDP per capita, PPP-adjusted, means more real purchasing power per person — an unambiguous 'more is better' metric.",
-      "weight": 0.1,
+      "weight": 0.076923,
       "source": {
         "institution": "World Bank",
         "seriesId": "NY.GDP.PCAP.PP.KD",
@@ -107,14 +107,15 @@
       "accessType": "api",
       "polarity": "higher_is_better",
       "polarityJustification": "Higher output per hour worked means the economy generates more value for the same labour input — the standard productivity definition.",
-      "weight": 0.1,
+      "weight": 0.076923,
       "source": {
         "institution": "OECD",
-        "seriesId": "PDB_LV",
-        "seriesName": "GDP per hour worked",
-        "url": "https://stats.oecd.org/"
+        "seriesId": "OECD.SDD.TPS,DSD_PDB@DF_PDB_LV,1.0",
+        "seriesName": "GDP per hour worked (Productivity Database)",
+        "url": "https://data-explorer.oecd.org/"
       },
-      "oneLiner": "How much economic value an hour of work produces."
+      "oneLiner": "How much economic value an hour of work produces.",
+      "_seriesIdCorrection": "The brief-assumed code (PDB_LV alone, via stats.oecd.org) is dead — OECD retired OECD.Stat / the old SDMX API in favour of a new SDMX API at sdmx.oecd.org with restructured agency/dataflow/version coordinates. Verified live 2026-07-14: the dataflow still exists as OECD.SDD.TPS,DSD_PDB@DF_PDB_LV,1.0. However sdmx.oecd.org is behind Cloudflare bot-protection that blocks automated requests (confirmed via two independent network paths) — see CLAUDE.md."
     },
     {
       "id": "education",
@@ -125,7 +126,7 @@
       "accessType": "manual",
       "polarity": "higher_is_better",
       "polarityJustification": "A higher average PISA score reflects stronger measured student performance across the three tested domains.",
-      "weight": 0.1,
+      "weight": 0.076923,
       "source": {
         "institution": "OECD PISA",
         "seriesId": "PISA_MEAN",
@@ -143,7 +144,7 @@
       "accessType": "api",
       "polarity": "higher_is_better",
       "polarityJustification": "Higher R&D spending as a share of GDP means more of the economy's resources are going toward developing new products, processes, and technologies.",
-      "weight": 0.1,
+      "weight": 0.076923,
       "source": {
         "institution": "World Bank",
         "seriesId": "GB.XPD.RSDV.GD.ZS",
@@ -162,7 +163,7 @@
       "polarity": "higher_is_better",
       "_polarityDecision": "SIGNED OFF by site owner, 2026-07-14: 'surplus = better' is a deliberate framework choice, not a claim of settled economics — see the Methodology page for the explicit caveat that this is contestable.",
       "polarityJustification": "This Scorecard treats external self-sufficiency — a stronger surplus / smaller deficit, i.e. less reliance on foreign capital — as the 'better' end of the scale. Economists legitimately debate current account polarity (a deficit can also reflect healthy foreign investment inflows); this is a stated framework choice, not an assertion that surpluses are objectively superior. See the Methodology page.",
-      "weight": 0.1,
+      "weight": 0.076923,
       "source": {
         "institution": "World Bank",
         "seriesId": "BN.CAB.XOKA.GD.ZS",
@@ -180,7 +181,7 @@
       "accessType": "api",
       "polarity": "higher_is_better",
       "polarityJustification": "Higher WGI estimates mean stronger rule of law and lower perceived corruption — unambiguously better for governance quality.",
-      "weight": 0.1,
+      "weight": 0.076923,
       "_seriesIdCorrection": "The brief's original assumed codes (RL.EST, CC.EST) are dead on the current World Bank API — confirmed via live test call, they return 'indicator not found'. The correct current codes, verified live 2026-07-14, are GOV_WGI_RL.EST and GOV_WGI_CC.EST under World Bank source 3 (Worldwide Governance Indicators, last updated 2026-03-18). Documented per the brief's instruction to log series ID corrections here and in METHODOLOGY.md.",
       "source": {
         "institution": "World Bank (Worldwide Governance Indicators)",
@@ -209,7 +210,7 @@
       "accessType": "api",
       "polarity": "higher_is_better",
       "polarityJustification": "Faster working-age population growth means a larger future labour supply and growth potential — several peers in this set (Japan, South Korea, Germany) face the opposite problem of a shrinking working-age population straining growth and pensions, which this gauge is meant to surface.",
-      "weight": 0.1,
+      "weight": 0.076923,
       "source": {
         "institution": "World Bank",
         "seriesId": "SP.POP.1564.TO",
@@ -227,7 +228,7 @@
       "accessType": "api",
       "polarity": "higher_is_better",
       "polarityJustification": "A larger share of world exports reflects greater economic weight and competitiveness in global trade — a size/influence metric, not a policy tradeoff like the external-position gauge.",
-      "weight": 0.1,
+      "weight": 0.076923,
       "source": {
         "institution": "World Bank",
         "seriesId": "NE.EXP.GNFS.CD",
@@ -245,7 +246,7 @@
       "accessType": "api",
       "polarity": "higher_is_better",
       "polarityJustification": "A larger share of world GDP (PPP) reflects greater economic weight — a size/influence metric like Trade, not a policy tradeoff.",
-      "weight": 0.1,
+      "weight": 0.076923,
       "dataPolicy": "IMF's World Economic Outlook mixes its own forward projections into the published series, with no machine-readable flag in this API to tell an actual from a projection. Policy: any year from the current calendar year onward is excluded, so a forecast is never presented on this site as an achieved fact.",
       "source": {
         "institution": "IMF",
@@ -264,7 +265,7 @@
       "accessType": "api",
       "polarity": "lower_is_better",
       "polarityJustification": "A lower combined household and government debt burden relative to GDP means less financial fragility and less exposure to a rise in interest rates or a credit shock.",
-      "weight": 0.1,
+      "weight": 0.076923,
       "source": {
         "institution": "Bank for International Settlements (BIS)",
         "seriesId": "WS_TC (Total Credit), borrower sectors H+G summed",
@@ -272,6 +273,42 @@
         "url": "https://data.bis.org/topics/TOTAL_CREDIT"
       },
       "oneLiner": "How much combined household and government debt there is relative to the size of the economy."
+    },
+    {
+      "id": "housing-pressure",
+      "name": "Housing pressure",
+      "shortName": "Housing pressure",
+      "unit": "House price-to-income ratio, index",
+      "historyStartYear": 1990,
+      "accessType": "api",
+      "polarity": "lower_is_better",
+      "polarityJustification": "A lower (or slower-rising) price-to-income ratio means housing is more affordable relative to earnings — higher values mean it takes more years of income to buy a home.",
+      "weight": 0.076923,
+      "source": {
+        "institution": "OECD",
+        "seriesId": "OECD.ECO.MPD,DSD_AN_HOUSE_PRICES@DF_HOUSE_PRICES,1.0",
+        "seriesName": "Analytical House Price Indicators — price-to-income ratio",
+        "url": "https://data-explorer.oecd.org/"
+      },
+      "oneLiner": "How expensive housing is relative to income."
+    },
+    {
+      "id": "human-capital-depth",
+      "name": "Human capital depth",
+      "shortName": "Human capital",
+      "unit": "Tertiary attainment, 25-34 year-olds (%)",
+      "historyStartYear": 2000,
+      "accessType": "api",
+      "polarity": "higher_is_better",
+      "polarityJustification": "A higher share of 25-34 year-olds with tertiary education means a more highly-skilled incoming workforce.",
+      "weight": 0.076923,
+      "source": {
+        "institution": "OECD",
+        "seriesId": "OECD.EDU.IMEP,DSD_EAG_LSO_EA@DF_LSO_NEAC_DISTR_EA,1.0",
+        "seriesName": "Educational attainment distribution — tertiary, 25-34 year-olds, % of age group",
+        "url": "https://data-explorer.oecd.org/"
+      },
+      "oneLiner": "What share of young adults have completed tertiary education."
     }
   ]
 }

@@ -6,7 +6,7 @@
     "seriesId": "WS_TC (Total Credit), borrower sectors H+G summed",
     "seriesName": "Credit to households & NPISHs + credit to general government, % of GDP",
     "url": "https://data.bis.org/topics/TOTAL_CREDIT",
-    "retrievedAt": "2026-07-14T01:32:49.086Z",
+    "retrievedAt": "2026-07-14T01:44:03.616Z",
     "note": "Sum of two BIS Total Credit series — household & NPISH debt, and general government debt, both % of GDP, market value, adjusted for breaks — year-end (Q4) snapshots only. No data available for: New Zealand.",
     "missingCountries": [
       {
