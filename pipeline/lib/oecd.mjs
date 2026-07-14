@@ -45,13 +45,15 @@ function sleep(ms) {
  * `dataflowPath` is the comma-separated "AGENCY,ID,VERSION" form used
  * throughout this file; the structure endpoint wants it slash-separated.
  */
-export async function fetchOecdDataflowDimensions(dataflowPath) {
+export async function fetchOecdDataflowDimensions(dataflowPath, _redirected = false) {
   const [agency, id, version] = dataflowPath.split(",");
   // references=all, not "children": confirmed live (pre-block, manual testing)
   // that "all" reliably includes the embedded DSD/dimension list; "children"
   // returned a real structure response for this same dataflow shape with
   // zero dimensions found — apparently not equivalent for every dataflow.
-  const url = `https://sdmx.oecd.org/public/rest/dataflow/${agency}/${id}/${version}?references=all`;
+  const url = _redirected
+    ? dataflowPath // already a full URL, see the isExternalReference branch below
+    : `https://sdmx.oecd.org/public/rest/dataflow/${agency}/${id}/${version}?references=all`;
 
   const res = await fetch(url, { signal: AbortSignal.timeout(30000), headers: STRUCTURE_HEADERS });
   const text = await res.text();
@@ -66,6 +68,20 @@ export async function fetchOecdDataflowDimensions(dataflowPath) {
     throw new Error(
       `OECD SDMX API returned HTTP ${res.status} fetching the data structure for "${dataflowPath}": ${snippet(text)}`
     );
+  }
+
+  // Some dataflows are stubs pointing elsewhere: isExternalReference="true"
+  // plus a structureURL attribute meaning "the real definition (with its
+  // dimension list) lives at this other URL, usually an /archive/ path for
+  // a deprecated-but-still-listed dataflow." Confirmed live for
+  // DF_PDB_LV. Follow it once rather than hardcode an "archive" path
+  // rewrite, since this generalises to any dataflow with the same stub
+  // pattern, archived or not.
+  if (!_redirected && /isExternalReference="true"/.test(text)) {
+    const structureUrlMatch = text.match(/structureURL="([^"]+)"/);
+    if (structureUrlMatch) {
+      return fetchOecdDataflowDimensions(structureUrlMatch[1], true);
+    }
   }
 
   // Prefix-agnostic: DF_PDB_LV's structure response found zero matches
@@ -107,7 +123,24 @@ async function fetchAvailableConstraintSnippet(dataflowPath, key) {
     const res = await fetch(url, { signal: AbortSignal.timeout(15000), headers: STRUCTURE_HEADERS });
     const text = await res.text();
     if (!res.ok) return `(also failed: HTTP ${res.status}: ${snippet(text, 200)})`;
-    return snippet(text, 600);
+
+    // Best-effort structured extraction: a Constraint response lists valid
+    // codes per dimension as <KeyValue id="DIM"><Value>CODE</Value>...
+    // (namespace-prefix-agnostic, same reasoning as the dimension regex
+    // above). Falls back to a much larger raw snippet if that shape isn't
+    // found — either way, more than enough to actually read this time.
+    const keyValueRe = /<(?:[a-zA-Z0-9]+:)?KeyValue\s+[^>]*\bid="([^"]+)"[^>]*>([\s\S]*?)<\/(?:[a-zA-Z0-9]+:)?KeyValue>/g;
+    const valueRe = /<(?:[a-zA-Z0-9]+:)?Value>([^<]*)<\/(?:[a-zA-Z0-9]+:)?Value>/g;
+    const parts = [];
+    let km;
+    while ((km = keyValueRe.exec(text)) !== null) {
+      const values = [];
+      let vm;
+      valueRe.lastIndex = 0;
+      while ((vm = valueRe.exec(km[2])) !== null) values.push(vm[1]);
+      parts.push(`${km[1]}=[${values.join(",")}]`);
+    }
+    return parts.length > 0 ? `valid combinations: ${parts.join("; ")}` : snippet(text, 4000);
   } catch (err) {
     return `(also failed: ${err.message})`;
   }
@@ -265,8 +298,17 @@ function parseSdmxJson(json) {
     const observations = seriesData.observations ?? {};
     for (const [obsKey, obsValue] of Object.entries(observations)) {
       const obsIndex = Number(obsKey.split(":")[0]);
-      const timeLabel = timeValues[obsIndex]?.id;
-      const year = Number(String(timeLabel).slice(0, 4));
+      const timeLabel = String(timeValues[obsIndex]?.id ?? "");
+      // Sub-annual periods ("1990-Q1".."1990-Q4", "1990-01".."1990-12") all
+      // truncate to the same year — naively taking every one of them isn't
+      // ambiguous data, it's this code conflating real quarterly/monthly
+      // observations into one bucket (confirmed: DEU 1990's "conflict" was
+      // Q1 vs Q4 of the same FREQ=Q series, not two different series at
+      // all). Only take annual observations, or the year-end snapshot
+      // (Q4 / December) for sub-annual frequencies — same convention as
+      // the BIS fetcher's Q4-only rule.
+      if (timeLabel.includes("-") && !timeLabel.endsWith("-Q4") && !timeLabel.endsWith("-12")) continue;
+      const year = Number(timeLabel.slice(0, 4));
       const value = Array.isArray(obsValue) ? obsValue[0] : obsValue;
       if (value === null || value === undefined || Number.isNaN(year)) continue;
 
