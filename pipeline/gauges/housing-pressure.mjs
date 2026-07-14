@@ -3,6 +3,10 @@
 // description). Uses the "all" key for the same reason as productivity.mjs:
 // dimension order was never confirmed against a real response before
 // sdmx.oecd.org's Cloudflare bot-protection blocked further requests.
+//
+// A live run returned HTTP 500 with "all" + only startPeriod bounded (no
+// endPeriod) — see the matching note in productivity.mjs. Bounding the
+// query end date is a safe, corruption-free change worth ruling out first.
 import { fetchOecdSdmxData } from "../lib/oecd.mjs";
 import { writeGaugeData } from "../lib/writeGaugeData.mjs";
 import { buildMissingCountries } from "../lib/worldbank.mjs";
@@ -13,6 +17,7 @@ const DATAFLOW = "OECD.ECO.MPD,DSD_AN_HOUSE_PRICES@DF_HOUSE_PRICES,1.0";
 export async function run(config, report) {
   const { byCountry, missingCountries } = await fetchOecdSdmxData(DATAFLOW, "all", {
     startPeriod: config.historyStartYear,
+    endPeriod: new Date().getFullYear(),
   });
 
   writeGaugeData({

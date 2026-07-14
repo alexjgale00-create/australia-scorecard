@@ -31,10 +31,11 @@ function sleep(ms) {
  * not challenge pages. So a 403-with-challenge-page is reported distinctly
  * from an ordinary HTTP error, since the two have different fixes.
  */
-export async function fetchOecdSdmxData(dataflowPath, key, { startPeriod } = {}) {
+export async function fetchOecdSdmxData(dataflowPath, key, { startPeriod, endPeriod } = {}) {
   const url =
-    `https://sdmx.oecd.org/public/rest/data/${dataflowPath}/${key}` +
-    `?format=jsondata${startPeriod ? `&startPeriod=${startPeriod}` : ""}`;
+    `https://sdmx.oecd.org/public/rest/data/${dataflowPath}/${key}?format=jsondata` +
+    `${startPeriod ? `&startPeriod=${startPeriod}` : ""}` +
+    `${endPeriod ? `&endPeriod=${endPeriod}` : ""}`;
 
   let lastErr;
   for (let attempt = 0; attempt <= RETRY_DELAYS_MS.length; attempt++) {
