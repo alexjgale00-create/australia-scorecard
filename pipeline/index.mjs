@@ -132,5 +132,39 @@ for (const gaugeId of GAUGE_IDS) {
   }
 }
 
+// Manual-lane gauges (accessType: "manual") are never fetched by this run
+// — there's no API to call — but their freshness is still checked and
+// disclosed every run, per-gauge cadence, so a gauge going stale is never
+// silently invisible just because it sits outside GAUGE_IDS.
+const DEFAULT_STALE_AFTER_MONTHS = 15;
+
+for (const config of gaugesConfig.gauges) {
+  if (config.accessType !== "manual") continue;
+
+  const existing = describeExistingData(config.id);
+  const staleAfterMonths = config.staleAfterMonths ?? DEFAULT_STALE_AFTER_MONTHS;
+
+  if (!existing?.retrievedAt) {
+    report.manualAwaiting(
+      config.id,
+      `No entry yet — see data/manual/README.md for the download template and instructions.`
+    );
+    continue;
+  }
+
+  const ageMonths = (Date.now() - new Date(existing.retrievedAt).getTime()) / (30.44 * 86_400_000);
+  const ageDescription = `last entered ${existing.retrievedAt.slice(0, 10)} (~${Math.round(ageMonths)} month${Math.round(ageMonths) === 1 ? "" : "s"} ago)`;
+
+  if (ageMonths > staleAfterMonths) {
+    report.manualStale(
+      config.id,
+      `Due for a refresh: ${ageDescription}, past this gauge's ${staleAfterMonths}-month cadence. ` +
+        `See data/manual/README.md to re-download and hand the update to Claude Code.`
+    );
+  } else {
+    report.manualFresh(config.id, `Current: ${ageDescription}, within this gauge's ${staleAfterMonths}-month cadence.`);
+  }
+}
+
 const clean = report.print();
 process.exitCode = clean ? 0 : 1;

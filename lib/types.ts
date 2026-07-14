@@ -26,6 +26,14 @@ export interface GaugeConfig {
   weight: number;
   /** A source-specific data-handling rule worth surfacing (e.g. excluding forecast years) — shown on the Methodology page alongside polarity. */
   dataPolicy?: string;
+  /**
+   * For accessType "manual" gauges only: how many months old this gauge's
+   * data can get before the monthly pipeline report flags it as due for a
+   * refresh. Deliberately per-gauge, not a blanket rule — a 3-4-yearly
+   * source (PISA) and an annual one (SIPRI) have very different "stale"
+   * thresholds. Falls back to 15 months if omitted.
+   */
+  staleAfterMonths?: number;
   source: {
     institution: string;
     seriesId: string;

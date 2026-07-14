@@ -108,6 +108,7 @@
       "polarity": "higher_is_better",
       "polarityJustification": "Higher output per hour worked means the economy generates more value for the same labour input — the standard productivity definition.",
       "weight": 0.083333,
+      "staleAfterMonths": 15,
       "dataPolicy": "OECD's live SDMX endpoint for this dataflow (DF_PDB_LV) redirects to an archive endpoint carrying the annotation NonProductionDataflow=true — OECD's own metadata flagging it as not intended for automated production queries. After three fix attempts (missing Accept headers, missing references=all on the redirect, a generic unhandled server exception on the archive endpoint itself) the query never returned data. Moved to a manual lane rather than continuing to debug infrastructure OECD itself has marked non-production — see CLAUDE.md for the full history. The same numbers are downloaded by hand from data-explorer.oecd.org using the template and instructions in data/manual/, then entered into data/processed/productivity.json directly. Not fetched automatically — update it by hand periodically.",
       "source": {
         "institution": "OECD",
@@ -128,6 +129,8 @@
       "polarity": "higher_is_better",
       "polarityJustification": "A higher average PISA score reflects stronger measured student performance across the three tested domains.",
       "weight": 0.083333,
+      "staleAfterMonths": 45,
+      "dataPolicy": "PISA publishes three separate domain scores (reading, mathematics, science), never a pre-blended figure — this gauge's value is the average of the three, computed from OECD's own published per-domain numbers, not sourced pre-averaged. Cadence was 3-yearly through 2022; OECD is moving to a 4-year cycle from PISA 2025 onward (results due 8 Sept 2026) — staleAfterMonths is set to 45 (3.75 years) to give a realistic publication-lag grace period without nagging monthly for a source that only updates every 3-4 years.",
       "source": {
         "institution": "OECD PISA",
         "seriesId": "PISA_MEAN",
@@ -303,6 +306,7 @@
       "polarity": "higher_is_better",
       "polarityJustification": "A higher share of 25-34 year-olds with tertiary education means a more highly-skilled incoming workforce.",
       "weight": 0.083333,
+      "staleAfterMonths": 15,
       "dataPolicy": "OECD's SDMX API for this series returned no matching data after three attempts with different dimension keys (see CLAUDE.md for the full debugging history). Moved to a manual lane: the same numbers are downloaded by hand from data-explorer.oecd.org using the template and instructions in data/manual/, then entered into data/processed/human-capital-depth.json directly. Not fetched automatically, so it won't refresh on the monthly pipeline run — update it by hand periodically.",
       "source": {
         "institution": "OECD",

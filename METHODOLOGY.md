@@ -149,10 +149,16 @@ different things on the same page.
 
 ## Manual-source staleness
 
-Any gauge with `accessType: "manual"` is flagged by the pipeline report as
-stale if its data is more than 15 months old, per the project brief. This
-check is not yet implemented — the pipeline itself doesn't exist until Phase
-B/C.
+Implemented in Phase C. Every `accessType: "manual"` gauge is checked on
+each pipeline run (even though it's never fetched) against its own
+`staleAfterMonths` in `gauges.config.json` — not one blanket rule for
+every manual gauge, since a 3-4-yearly source (PISA) and an annual one
+(SIPRI, OECD series) have genuinely different "overdue" thresholds. Falls
+back to 15 months (the project brief's original default) if a gauge
+doesn't set its own. A gauge past its threshold is flagged as "due for a
+refresh" in the report — disclosed, but never counted as a pipeline
+failure, since re-running the pipeline can't fix a manual gauge (see
+`pipeline/index.mjs` and `pipeline/lib/report.mjs`).
 
 ## Current build status
 

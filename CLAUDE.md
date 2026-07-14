@@ -27,6 +27,47 @@ the exact documented shape (HTTP 403, from Actions specifically) is
 treated as known — the same source failing any other way, or failing from
 a different environment, is still a genuine red failure, on purpose.
 
+## Phase C: in progress (started 2026-07-14)
+
+Manual-source lane for Education plus 4 new gauges. Methodology decisions
+made by the site owner — record these here so they're never re-derived or
+re-litigated from scratch in a later session:
+
+- **Military capability (SIPRI)**: tracks spending as **% of GDP**, not
+  absolute USD or per-capita — chosen for consistency with this project's
+  existing pattern (external-position, trade, debt-burden all use
+  %GDP/share-based metrics, comparable across differently-sized
+  economies). **Polarity: higher is better** — spending is read as
+  capability/deterrence/alliance credibility, not militarization. This was
+  a genuine values choice, not a factual one; a future site owner could
+  reasonably flip it, but it should be a deliberate re-decision, not a
+  silent drift.
+- **Inequality**: scored from **OECD Gini only**. WID's top-wealth-share
+  figure is shown on the gauge detail page as context, but does **not**
+  feed the composite score — keeps the original 16-gauge plan and the
+  existing one-gauge-one-raw-series scoring engine unchanged, rather than
+  building new multi-component scoring machinery for one gauge. If a
+  future phase wants wealth inequality scored too, the brief's own logic
+  ("Income inequality" + "Wealth concentration" as two separate gauges)
+  is the cleaner path, not retrofitting this one.
+- **Internal cohesion**: tracks V-Dem's **Civil Society Participation
+  Index (`v2x_cspart`)** — chosen over the more famous
+  `v2x_polyarchy` (Electoral Democracy Index) because "cohesion" reads as
+  a participatory/lived concept, not institutional design quality. Two
+  other real V-Dem variables were considered and rejected for this slot:
+  `v2x_polyarchy` and `v2x_egaldem` (Egalitarian Democracy Index).
+- **Economic complexity (Harvard Atlas ECI)**: **higher is better**
+  (uncontroversial — a more diversified, higher-value-add export base is
+  the standard reading), no open question on this one.
+
+Per-gauge manual-lane staleness thresholds (`staleAfterMonths` in
+`gauges.config.json`) are set from each source's real publication cadence,
+verified live before use — not the brief's flat 15-month default applied
+everywhere: Education (PISA) 45 months (3-4-yearly cycle plus a
+publication-lag grace period), the OECD-sourced gauges and other annual
+sources 15 months, Inequality (OECD Gini's uneven multi-year lag per
+country) 24 months.
+
 **Next session starts Phase C**: the manual-source lane for Education
 (already stubbed, still sample data) plus the 4 not-yet-configured gauges
 (sources named in README.md: SIPRI, V-Dem, Harvard Atlas, WID — exact

@@ -6,7 +6,7 @@
     "seriesId": "OECD.ECO.MPD,DSD_AN_HOUSE_PRICES@DF_HOUSE_PRICES,1.0",
     "seriesName": "Analytical House Price Indicators — price-to-income ratio",
     "url": "https://data-explorer.oecd.org/",
-    "retrievedAt": "2026-07-14T05:31:54.904Z",
+    "retrievedAt": "2026-07-14T07:02:45.383Z",
     "note": "Live data from OECD, Analytical House Price Indicators (price-to-income ratio).",
     "missingCountries": []
   },
