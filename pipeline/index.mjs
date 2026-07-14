@@ -33,9 +33,17 @@ const GAUGE_IDS = [
   // a GitHub Actions runner got real API responses (404/500) where this
   // project's own sandbox got a bot-protection challenge page. Access
   // behaviour is genuinely environment-dependent; see CLAUDE.md.
+  //
+  // human-capital-depth removed 2026-07-14 after three distinct dimension
+  // keys against the same dataflow all failed (two 404s, no actionable
+  // diagnostic) — moved to the manual lane (data/manual/), see
+  // gauges.config.json's dataPolicy for this gauge and CLAUDE.md for the
+  // full debugging history. productivity and housing-pressure stay here:
+  // each got measurably further this round (a different, more specific
+  // failure than before) rather than repeating the same error, so paused
+  // for a fresh-eyes review rather than abandoned.
   "productivity",
   "housing-pressure",
-  "human-capital-depth",
 ];
 
 /** Reads a gauge's currently-saved provenance, if any, without touching it. */

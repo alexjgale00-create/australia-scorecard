@@ -5,11 +5,14 @@ internationally benchmarked verdict on Australia's national trajectory —
 readable in 60 seconds, with full drill-down for sceptics.
 
 **Where things stand right now (Phase B):** 12 of 16 gauges are configured.
-8 are **live**, fetched automatically from World Bank, IMF, and BIS. 3 more
-(Productivity, Housing pressure, Human capital depth — all OECD) are built
-but currently blocked by OECD's bot-protection (see "The OECD blocker"
-below). 1 (Education) is still sample data, pending Phase C. Every page
-shows exactly which gauges are live vs. sample — never silently.
+8 are **live**, fetched automatically from World Bank, IMF, and BIS. 2 more
+(Productivity, Housing pressure — both OECD) are built and partially
+working but paused for a fresh-eyes review (see "The OECD blocker" below).
+1 (Human capital depth) moved to a manual download lane after OECD's API
+never returned usable data across three attempts — see `data/manual/` for
+the template and instructions. 1 (Education) is still sample data, pending
+Phase C. Every page shows exactly which gauges are live vs. sample vs.
+awaiting data — never silently.
 
 You don't need to know how to code to run any of this. The three commands
 below are all you need.
@@ -101,15 +104,28 @@ but nothing can trigger it.
 
 ## The OECD blocker
 
-Three gauges (Productivity, Housing pressure, Human capital depth) are
-fully built — correct source coordinates, correct fetch logic — but
-`sdmx.oecd.org` is currently behind Cloudflare bot-protection that blocks
-automated requests from this machine, confirmed via two independent network
-paths. Running the GitHub Actions workflow (above) will tell us whether a
-GitHub-hosted runner's IP fares differently. If it's also blocked, the
-plan is to move these three gauges to a manual-download lane instead
-(you download a CSV from OECD's website by hand periodically, the pipeline
-validates and ingests it) — see `METHODOLOGY.md` for the up-to-date status.
+`sdmx.oecd.org` is not blocked from a GitHub Actions runner the way it is
+from this project's own sandbox (confirmed: Actions gets real API
+responses, not a bot-protection page) — but two of the three OECD gauges
+still aren't returning usable data, for source-side reasons rather than a
+network block:
+
+- **Productivity, Housing pressure:** each debugging round has fixed a
+  real, confirmed bug (a missing `references=all` on a redirect follow, an
+  under-constrained query key matching two different measures) and
+  surfaced a *new*, more specific failure underneath it — genuine
+  progress, not the same error repeating. Paused as of 2026-07-14 for a
+  fresh-eyes review before another attempt, rather than continuing to
+  chase it round after round.
+- **Human capital depth:** moved to a manual-download lane. Three distinct
+  query keys against the same OECD dataflow all failed, the last two with
+  no actionable diagnostic (the server reported zero valid combinations
+  for the key, with no hint which dimension was wrong). See
+  `data/manual/human-capital-depth-INSTRUCTIONS.md` for the download
+  template and step-by-step instructions — this one now needs a human to
+  pull the numbers from data-explorer.oecd.org by hand.
+
+Full history of what was tried and why is in `CLAUDE.md`.
 
 ## Getting the site online
 
@@ -133,7 +149,7 @@ every time you push to the `main` branch. To finish connecting it:
 See `METHODOLOGY.md` for exactly what's implemented vs. placeholder right
 now, and `CLAUDE.md` for durable decisions (scoring rules, data policies)
 that should survive across sessions. Short version: **Phase A and most of
-Phase B are done** — skeleton site, real data pipeline, 8 of 11
-API-accessible gauges live, the rest blocked or pending. Phase C (the
-manual-source lane for Education, SIPRI, V-Dem, Harvard Atlas, WID, and
-possibly OECD) is next.
+Phase B are done** — skeleton site, real data pipeline, 8 of 10
+API-accessible gauges live, 2 (OECD) paused for review. Phase C (the
+manual-source lane for Education, Human capital depth, SIPRI, V-Dem,
+Harvard Atlas, and WID) is next.

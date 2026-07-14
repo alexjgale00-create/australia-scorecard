@@ -83,3 +83,63 @@ not just "failed") rather than presented as a bug each time Actions runs.
 If this needs a permanent fix rather than a standing limitation, the options
 are: a proxy/self-hosted runner with a non-flagged IP, or moving
 `economic-output` to a manual-download lane like the OECD gauges may need.
+
+## OECD SDMX trio — debugging history and 2026-07-14 checkpoint decision
+
+Three gauges (`productivity`, `housing-pressure`, `human-capital-depth`)
+went through several rounds of live debugging against `sdmx.oecd.org`
+from a GitHub Actions runner (this project's own sandbox is Cloudflare-
+blocked from reaching that host at all, confirmed via two independent
+network paths — so every round depended on the user triggering Actions
+and pasting back the log). Each round fixed a real, confirmed bug:
+
+- HTTP 406 on the structure endpoint → wrong `Accept` header for that
+  endpoint (data vs. structure endpoints negotiate content type
+  independently).
+- HTTP 500 on a bare "all" key → OECD's server doesn't handle it for these
+  dataflows; switched to discovering real dimensions and building a
+  correctly-shaped key with `REF_AREA` pinned, everything else explicit
+  SDMX wildcard.
+- `productivity` zero-dimensions error → `DF_PDB_LV` is archived
+  (`isExternalReference="true"` + `structureURL` pointing at
+  `/archive/rest/...`); fixed by following that redirect.
+- `productivity` "no dimensions found" *again* after the redirect fix
+  landed → the redirect follow forwarded the bare URL without
+  `references=all`, so the archive endpoint returned a stub with no
+  embedded DSD; fixed by appending the param to the redirected URL too.
+- `housing-pressure` false "conflicting values" for DEU 1990 → the
+  parser's own duplicate-value safety net was truncating quarterly
+  observations to year-only, colliding Q1 vs Q4 of the *same* series;
+  fixed to only take annual or year-end (Q4/December) observations.
+- `housing-pressure` **genuine** conflicting values for DEU 2015 (a second,
+  different bug) → `MEASURE` was left as an SDMX wildcard, so both
+  `HPI` (nominal index) and `HPI_YDH` (price-to-income ratio) matched;
+  `gauges.config.json` is explicit this gauge wants price-to-income, so
+  `MEASURE=HPI_YDH` is now pinned. **Unresolved as of 2026-07-14**: the
+  same run then surfaced a *third* ambiguity underneath that one — FREQ=Q
+  vs FREQ=A both matching for the same country/year — not yet fixed.
+- `human-capital-depth` 404s across three different dimension-value
+  guesses (fully pinned → collection-process dims blanked → `MEASURE`
+  also blanked), the last two with an `availableconstraint` diagnostic
+  that came back empty (`TIME_PERIOD=[]`, no per-dimension detail) —
+  never pointed at an actionable next guess.
+
+**Decision at the 2026-07-14 checkpoint**, per standing rule (stop after
+any round where a "high confidence" fix doesn't result in a green gauge —
+don't keep pushing attempts past that):
+
+- `productivity` and `housing-pressure` are **paused**, not abandoned —
+  each round made real, verifiable progress (a different, more specific
+  failure each time, never the same error twice), so this is a "come back
+  with fresh eyes" pause, not a dead end. Next step if resumed: pin `FREQ`
+  on `housing-pressure` (the newest ambiguity), and get a fresh diagnostic
+  read on `productivity`'s current HTTP 500 (a *different* 500 than the
+  original bare-"all"-key crash — this one survives the structure fetch
+  and fails on the actual data request).
+- `human-capital-depth` **moved to the manual lane** — three distinct,
+  reasoned attempts against the same dataflow with no traction and no
+  actionable diagnostic is past the point where guessing is worth another
+  round-trip. See `data/manual/human-capital-depth-INSTRUCTIONS.md` and
+  `gauges.config.json`'s `dataPolicy` for this gauge. Removed from
+  `pipeline/index.mjs`'s `GAUGE_IDS`; `pipeline/gauges/human-capital-depth.mjs`
+  (the retired API fetcher) was deleted rather than left as dead code.

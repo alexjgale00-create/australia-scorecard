@@ -298,10 +298,11 @@
       "shortName": "Human capital",
       "unit": "Tertiary attainment, 25-34 year-olds (%)",
       "historyStartYear": 2000,
-      "accessType": "api",
+      "accessType": "manual",
       "polarity": "higher_is_better",
       "polarityJustification": "A higher share of 25-34 year-olds with tertiary education means a more highly-skilled incoming workforce.",
       "weight": 0.083333,
+      "dataPolicy": "OECD's SDMX API for this series returned no matching data after three attempts with different dimension keys (see CLAUDE.md for the full debugging history). Moved to a manual lane: the same numbers are downloaded by hand from data-explorer.oecd.org using the template and instructions in data/manual/, then entered into data/processed/human-capital-depth.json directly. Not fetched automatically, so it won't refresh on the monthly pipeline run — update it by hand periodically.",
       "source": {
         "institution": "OECD",
         "seriesId": "OECD.EDU.IMEP,DSD_EAG_LSO_EA@DF_LSO_NEAC_DISTR_EA,1.0",

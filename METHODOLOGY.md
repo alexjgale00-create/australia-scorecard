@@ -156,21 +156,25 @@ B/C.
 
 ## Current build status
 
-Phase B, Groups 1/2/3/5 complete, Group 4 (OECD) in progress: 12 of 16
-planned gauges are configured. 8 are **live** (`living-standards`,
+Phase B, Groups 1/2/3/5 complete, Group 4 (OECD) paused for review: 12 of
+16 planned gauges are configured. 8 are **live** (`living-standards`,
 `innovation`, `external-position`, `rule-of-law-corruption`,
 `demographic-momentum`, `trade`, `economic-output`, `debt-burden`). 1 is
 still **hand-written sample data** pending Phase C (`education`, manual PISA
-lane). 3 are built but not yet live (`productivity`, `housing-pressure`,
-`human-capital-depth`) — see "Pipeline environment quirks" in `CLAUDE.md` for
-why: OECD's API behaves differently depending on which network the pipeline
-runs from, and the specific failures (a 404 and two 500s, seen from a GitHub
-Actions runner) are still being diagnosed as of 2026-07-14. Every gauge's
+lane). 2 (`productivity`, `housing-pressure`) are built but not yet live —
+each round of fixing OECD's API surfaced a new, more specific failure
+rather than repeating the same one (see "Pipeline environment quirks" in
+`CLAUDE.md`), so as of 2026-07-14 these are paused for a fresh-eyes review
+rather than another guess. 1 (`human-capital-depth`) has moved to a manual
+lane after three distinct query keys against the same OECD dataflow all
+failed with no actionable diagnostic — see `data/manual/` for the download
+template and instructions; it awaits its first hand entry. Every gauge's
 real status is in its own `data/processed/*.json` file's
-`provenance.status` field (`SAMPLE_DATA` or `LIVE`) — the site badges each
-one individually, plus a page-level note whenever the set is mixed. Weights
-are currently equal (1/12 each) as a placeholder; the site owner will tune
-real weights once all 16 gauges are live with real data (Phase D).
+`provenance.status` field (`SAMPLE_DATA` or `LIVE`, or no file at all for
+"awaiting data") — the site badges each one individually, plus a
+page-level note whenever the set is mixed. Weights are currently equal
+(1/12 each) as a placeholder; the site owner will tune real weights once
+all 16 gauges are live with real data (Phase D).
 
 ### Corrections made while building Group 1 (2026-07-14)
 
