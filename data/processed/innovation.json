@@ -6,8 +6,9 @@
     "seriesId": "GB.XPD.RSDV.GD.ZS",
     "seriesName": "Research and development expenditure (% of GDP)",
     "url": "https://data.worldbank.org/indicator/GB.XPD.RSDV.GD.ZS",
-    "retrievedAt": "2026-07-13T22:02:07.458Z",
-    "note": "Live data from World Bank, all 9 peer countries."
+    "retrievedAt": "2026-07-14T01:32:46.517Z",
+    "note": "Live data from World Bank, all 9 peer countries.",
+    "missingCountries": []
   },
   "countries": {
     "AUS": {

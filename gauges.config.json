@@ -1,5 +1,5 @@
 {
-  "_readme": "This file defines every gauge on the Scorecard: its data source, its polarity (which direction counts as 'better'), and its weight in the composite verdict. Every polarity choice must be signed off by the site owner before use — see polarityJustification on each gauge. Phase B in progress: 7 of 16 gauges configured. 'accessType: api' gauges are fetched by /pipeline (run `npm run pipeline`); until that's run, or if a fetch fails, a gauge's data file keeps its SAMPLE_DATA status and the site shows it as sample. See CLAUDE.md and METHODOLOGY.md.",
+  "_readme": "This file defines every gauge on the Scorecard: its data source, its polarity (which direction counts as 'better'), and its weight in the composite verdict. Every polarity choice must be signed off by the site owner before use — see polarityJustification on each gauge. Phase B in progress: 10 of 16 gauges configured. 'accessType: api' gauges are fetched by /pipeline (run `npm run pipeline`); until that's run, or if a fetch fails, a gauge's data file keeps its SAMPLE_DATA status and the site shows it as sample. See CLAUDE.md and METHODOLOGY.md.",
   "peerCountries": [
     {
       "code": "AUS",
@@ -43,11 +43,41 @@
   "directionThresholdScorePointsPerYear": 0.5,
   "_scoreBandsTodo": "TODO(Phase D): the thresholds below (24/44/59/79) are placeholders picked for a clean 5-way split of 0-100. They have NOT been calibrated against real data and MUST be reviewed before any public release, once all 16 gauges are live with real numbers.",
   "scoreBands": [
-    { "id": "falling-behind", "label": "Falling Behind", "min": 0, "max": 24, "color": "#d03b3b" },
-    { "id": "slipping", "label": "Slipping", "min": 25, "max": 44, "color": "#ec835a" },
-    { "id": "holding", "label": "Holding", "min": 45, "max": 59, "color": "#898781" },
-    { "id": "strengthening", "label": "Strengthening", "min": 60, "max": 79, "color": "#0ca30c" },
-    { "id": "leading", "label": "Leading", "min": 80, "max": 100, "color": "#008300" }
+    {
+      "id": "falling-behind",
+      "label": "Falling Behind",
+      "min": 0,
+      "max": 24,
+      "color": "#d03b3b"
+    },
+    {
+      "id": "slipping",
+      "label": "Slipping",
+      "min": 25,
+      "max": 44,
+      "color": "#ec835a"
+    },
+    {
+      "id": "holding",
+      "label": "Holding",
+      "min": 45,
+      "max": 59,
+      "color": "#898781"
+    },
+    {
+      "id": "strengthening",
+      "label": "Strengthening",
+      "min": 60,
+      "max": 79,
+      "color": "#0ca30c"
+    },
+    {
+      "id": "leading",
+      "label": "Leading",
+      "min": 80,
+      "max": 100,
+      "color": "#008300"
+    }
   ],
   "gauges": [
     {
@@ -59,7 +89,7 @@
       "accessType": "api",
       "polarity": "higher_is_better",
       "polarityJustification": "Higher GDP per capita, PPP-adjusted, means more real purchasing power per person — an unambiguous 'more is better' metric.",
-      "weight": 0.142857,
+      "weight": 0.1,
       "source": {
         "institution": "World Bank",
         "seriesId": "NY.GDP.PCAP.PP.KD",
@@ -77,7 +107,7 @@
       "accessType": "api",
       "polarity": "higher_is_better",
       "polarityJustification": "Higher output per hour worked means the economy generates more value for the same labour input — the standard productivity definition.",
-      "weight": 0.142857,
+      "weight": 0.1,
       "source": {
         "institution": "OECD",
         "seriesId": "PDB_LV",
@@ -95,7 +125,7 @@
       "accessType": "manual",
       "polarity": "higher_is_better",
       "polarityJustification": "A higher average PISA score reflects stronger measured student performance across the three tested domains.",
-      "weight": 0.142857,
+      "weight": 0.1,
       "source": {
         "institution": "OECD PISA",
         "seriesId": "PISA_MEAN",
@@ -113,7 +143,7 @@
       "accessType": "api",
       "polarity": "higher_is_better",
       "polarityJustification": "Higher R&D spending as a share of GDP means more of the economy's resources are going toward developing new products, processes, and technologies.",
-      "weight": 0.142857,
+      "weight": 0.1,
       "source": {
         "institution": "World Bank",
         "seriesId": "GB.XPD.RSDV.GD.ZS",
@@ -132,7 +162,7 @@
       "polarity": "higher_is_better",
       "_polarityDecision": "SIGNED OFF by site owner, 2026-07-14: 'surplus = better' is a deliberate framework choice, not a claim of settled economics — see the Methodology page for the explicit caveat that this is contestable.",
       "polarityJustification": "This Scorecard treats external self-sufficiency — a stronger surplus / smaller deficit, i.e. less reliance on foreign capital — as the 'better' end of the scale. Economists legitimately debate current account polarity (a deficit can also reflect healthy foreign investment inflows); this is a stated framework choice, not an assertion that surpluses are objectively superior. See the Methodology page.",
-      "weight": 0.142857,
+      "weight": 0.1,
       "source": {
         "institution": "World Bank",
         "seriesId": "BN.CAB.XOKA.GD.ZS",
@@ -150,7 +180,7 @@
       "accessType": "api",
       "polarity": "higher_is_better",
       "polarityJustification": "Higher WGI estimates mean stronger rule of law and lower perceived corruption — unambiguously better for governance quality.",
-      "weight": 0.142857,
+      "weight": 0.1,
       "_seriesIdCorrection": "The brief's original assumed codes (RL.EST, CC.EST) are dead on the current World Bank API — confirmed via live test call, they return 'indicator not found'. The correct current codes, verified live 2026-07-14, are GOV_WGI_RL.EST and GOV_WGI_CC.EST under World Bank source 3 (Worldwide Governance Indicators, last updated 2026-03-18). Documented per the brief's instruction to log series ID corrections here and in METHODOLOGY.md.",
       "source": {
         "institution": "World Bank (Worldwide Governance Indicators)",
@@ -158,8 +188,14 @@
         "seriesName": "Rule of Law & Control of Corruption, governance estimates",
         "url": "https://databank.worldbank.org/source/worldwide-governance-indicators",
         "componentSeriesIds": [
-          { "id": "GOV_WGI_RL.EST", "name": "Rule of Law - Governance estimate (approx. -2.5 to +2.5)" },
-          { "id": "GOV_WGI_CC.EST", "name": "Control of Corruption - Governance estimate (approx. -2.5 to +2.5)" }
+          {
+            "id": "GOV_WGI_RL.EST",
+            "name": "Rule of Law - Governance estimate (approx. -2.5 to +2.5)"
+          },
+          {
+            "id": "GOV_WGI_CC.EST",
+            "name": "Control of Corruption - Governance estimate (approx. -2.5 to +2.5)"
+          }
         ]
       },
       "oneLiner": "How strong legal institutions are and how well corruption is controlled."
@@ -173,7 +209,7 @@
       "accessType": "api",
       "polarity": "higher_is_better",
       "polarityJustification": "Faster working-age population growth means a larger future labour supply and growth potential — several peers in this set (Japan, South Korea, Germany) face the opposite problem of a shrinking working-age population straining growth and pensions, which this gauge is meant to surface.",
-      "weight": 0.142857,
+      "weight": 0.1,
       "source": {
         "institution": "World Bank",
         "seriesId": "SP.POP.1564.TO",
@@ -181,6 +217,61 @@
         "url": "https://data.worldbank.org/indicator/SP.POP.1564.TO"
       },
       "oneLiner": "How fast the working-age population is growing or shrinking."
+    },
+    {
+      "id": "trade",
+      "name": "Trade",
+      "shortName": "Trade",
+      "unit": "Share of world exports of goods & services (%)",
+      "historyStartYear": 1990,
+      "accessType": "api",
+      "polarity": "higher_is_better",
+      "polarityJustification": "A larger share of world exports reflects greater economic weight and competitiveness in global trade — a size/influence metric, not a policy tradeoff like the external-position gauge.",
+      "weight": 0.1,
+      "source": {
+        "institution": "World Bank",
+        "seriesId": "NE.EXP.GNFS.CD",
+        "seriesName": "Exports of goods and services, share of world total (derived: country ÷ WLD aggregate)",
+        "url": "https://data.worldbank.org/indicator/NE.EXP.GNFS.CD"
+      },
+      "oneLiner": "How much of world trade in goods and services Australia accounts for."
+    },
+    {
+      "id": "economic-output",
+      "name": "Economic output",
+      "shortName": "Economic output",
+      "unit": "Share of world GDP, PPP (%)",
+      "historyStartYear": 1980,
+      "accessType": "api",
+      "polarity": "higher_is_better",
+      "polarityJustification": "A larger share of world GDP (PPP) reflects greater economic weight — a size/influence metric like Trade, not a policy tradeoff.",
+      "weight": 0.1,
+      "dataPolicy": "IMF's World Economic Outlook mixes its own forward projections into the published series, with no machine-readable flag in this API to tell an actual from a projection. Policy: any year from the current calendar year onward is excluded, so a forecast is never presented on this site as an achieved fact.",
+      "source": {
+        "institution": "IMF",
+        "seriesId": "PPPSH",
+        "seriesName": "GDP based on PPP, share of world (World Economic Outlook)",
+        "url": "https://www.imf.org/external/datamapper/PPPSH@WEO"
+      },
+      "oneLiner": "How much of the world economy Australia accounts for, adjusted for prices."
+    },
+    {
+      "id": "debt-burden",
+      "name": "Debt burden",
+      "shortName": "Debt burden",
+      "unit": "Household + government debt, % of GDP (BIS Total Credit)",
+      "historyStartYear": 1990,
+      "accessType": "api",
+      "polarity": "lower_is_better",
+      "polarityJustification": "A lower combined household and government debt burden relative to GDP means less financial fragility and less exposure to a rise in interest rates or a credit shock.",
+      "weight": 0.1,
+      "source": {
+        "institution": "Bank for International Settlements (BIS)",
+        "seriesId": "WS_TC (Total Credit), borrower sectors H+G summed",
+        "seriesName": "Credit to households & NPISHs + credit to general government, % of GDP",
+        "url": "https://data.bis.org/topics/TOTAL_CREDIT"
+      },
+      "oneLiner": "How much combined household and government debt there is relative to the size of the economy."
     }
   ]
 }

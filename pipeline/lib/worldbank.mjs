@@ -19,11 +19,20 @@ export const COUNTRY_NAMES = {
   JPN: "Japan",
 };
 
-export async function fetchWorldBankSeries(indicatorId, { startYear = 1980, endYear } = {}) {
+/**
+ * Builds the structured missingCountries provenance list every gauge module
+ * should attach whenever it can't cover all 9 peers — never just a code
+ * list, since the site must name each one and say why, not just show 8
+ * dots with no explanation.
+ */
+export function buildMissingCountries(codes, reason) {
+  return codes.map((code) => ({ code, name: COUNTRY_NAMES[code], reason }));
+}
+
+async function fetchWorldBankRaw(indicatorId, countryCodes, { startYear = 1980, endYear } = {}) {
   const finalEndYear = endYear ?? new Date().getFullYear();
-  const countries = PEER_COUNTRY_CODES.join(";");
   const url =
-    `https://api.worldbank.org/v2/country/${countries}/indicator/${encodeURIComponent(indicatorId)}` +
+    `https://api.worldbank.org/v2/country/${countryCodes}/indicator/${encodeURIComponent(indicatorId)}` +
     `?format=json&per_page=20000&date=${startYear}:${finalEndYear}`;
 
   let res;
@@ -51,9 +60,18 @@ export async function fetchWorldBankSeries(indicatorId, { startYear = 1980, endY
   const [, records] = json;
   if (!records || records.length === 0) {
     throw new Error(
-      `World Bank API returned zero records for indicator "${indicatorId}" across the peer country set — the indicator ID is likely wrong, deprecated, or archived.`
+      `World Bank API returned zero records for indicator "${indicatorId}" (countries: ${countryCodes}) — the indicator ID is likely wrong, deprecated, or archived.`
     );
   }
+
+  return records;
+}
+
+export async function fetchWorldBankSeries(indicatorId, { startYear = 1980, endYear } = {}) {
+  const records = await fetchWorldBankRaw(indicatorId, PEER_COUNTRY_CODES.join(";"), {
+    startYear,
+    endYear,
+  });
 
   const byCountry = {};
   for (const code of PEER_COUNTRY_CODES) {
@@ -74,4 +92,27 @@ export async function fetchWorldBankSeries(indicatorId, { startYear = 1980, endY
   const missingCountries = PEER_COUNTRY_CODES.filter((c) => byCountry[c].series.length === 0);
 
   return { byCountry, missingCountries };
+}
+
+/**
+ * World Bank publishes a "WLD" aggregate for many indicators — the sum
+ * across all reporting countries — which lets us compute "Australia's
+ * share of the world total" without summing ~200 countries ourselves.
+ * Returns a year -> value map; throws if the WLD aggregate isn't published
+ * for this indicator (never silently falls back to summing peers only,
+ * which would understate the true world total).
+ */
+export async function fetchWorldBankWorldTotal(indicatorId, { startYear = 1980, endYear } = {}) {
+  const records = await fetchWorldBankRaw(indicatorId, "WLD", { startYear, endYear });
+  const byYear = new Map();
+  for (const r of records) {
+    if (r.value === null || r.value === undefined) continue;
+    byYear.set(Number(r.date), r.value);
+  }
+  if (byYear.size === 0) {
+    throw new Error(
+      `World Bank has no "WLD" (world total) aggregate values for indicator "${indicatorId}" — cannot compute a share of world total.`
+    );
+  }
+  return byYear;
 }

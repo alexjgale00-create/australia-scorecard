@@ -3,7 +3,7 @@
 // extra year before the display range so the first displayed year still
 // gets a real year-over-year growth number, and only compute growth
 // between genuinely consecutive years (never bridge a gap).
-import { fetchWorldBankSeries } from "../lib/worldbank.mjs";
+import { buildMissingCountries, fetchWorldBankSeries } from "../lib/worldbank.mjs";
 import { writeGaugeData } from "../lib/writeGaugeData.mjs";
 
 export const gaugeId = "demographic-momentum";
@@ -45,6 +45,10 @@ export async function run(config, report) {
         `Derived: year-over-year % growth computed from ${config.source.institution}'s working-age ` +
         `population LEVEL series (${seriesId}), not published directly as a growth rate.` +
         (allMissing.length > 0 ? ` No data available for: ${allMissing.join(", ")}.` : ""),
+      missingCountries: buildMissingCountries(
+        allMissing,
+        `${config.source.institution} has not published enough consecutive years of working-age population data for this country to compute a growth rate.`
+      ),
     },
     countries: growthByCountry,
   });

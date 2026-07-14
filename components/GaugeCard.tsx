@@ -50,7 +50,12 @@ export default function GaugeCard({
 
       {dotStripPoints.length > 0 && (
         <div className="mt-3">
-          <DotStrip points={dotStripPoints} bands={bands} size="card" />
+          <DotStrip
+            points={dotStripPoints}
+            bands={bands}
+            size="card"
+            missingCountries={data.provenance.missingCountries}
+          />
         </div>
       )}
 

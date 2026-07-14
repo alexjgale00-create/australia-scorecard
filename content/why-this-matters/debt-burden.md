@@ -1,0 +1,3 @@
+[DRAFT — edit freely]
+
+Australia is a genuine outlier here: household debt relative to income and GDP is among the highest of any developed economy, driven mostly by mortgage debt in a housing market with persistently high prices (see the Housing pressure gauge). Government debt, by contrast, is comparatively low by international standards — Australia entered recent global shocks (the pandemic, rate hikes) with more fiscal room than most peers, even as households carried more leverage than most peers. Summing the two into one number trades away that nuance for comparability; the "why this matters" is really two different stories, one per sector, and the detail charts below are where to see them separately.

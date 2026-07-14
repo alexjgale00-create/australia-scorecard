@@ -1,7 +1,7 @@
 // This gauge averages two separate World Bank WGI governance estimates
 // (Rule of Law, Control of Corruption) into a single value per country per
 // year — only for years where BOTH component series have a real value.
-import { fetchWorldBankSeries } from "../lib/worldbank.mjs";
+import { buildMissingCountries, fetchWorldBankSeries } from "../lib/worldbank.mjs";
 import { writeGaugeData } from "../lib/writeGaugeData.mjs";
 
 export const gaugeId = "rule-of-law-corruption";
@@ -53,6 +53,10 @@ export async function run(config, report) {
         `Average of two World Bank WGI governance estimates: ${ruleOfLawId} (Rule of Law) and ` +
         `${corruptionId} (Control of Corruption), averaged only for years where both are available.` +
         (missingCountries.length > 0 ? ` No overlapping data for: ${missingCountries.join(", ")}.` : ""),
+      missingCountries: buildMissingCountries(
+        missingCountries,
+        "World Bank has no year where both the Rule of Law and Control of Corruption WGI estimates are available for this country."
+      ),
     },
     countries: combined,
   });

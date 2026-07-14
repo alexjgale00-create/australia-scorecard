@@ -24,6 +24,8 @@ export interface GaugeConfig {
   polarity: Polarity;
   polarityJustification: string;
   weight: number;
+  /** A source-specific data-handling rule worth surfacing (e.g. excluding forecast years) — shown on the Methodology page alongside polarity. */
+  dataPolicy?: string;
   source: {
     institution: string;
     seriesId: string;
@@ -64,6 +66,12 @@ export interface CountrySeries {
   series: SeriesPoint[];
 }
 
+export interface MissingCountry {
+  code: CountryCode;
+  name: string;
+  reason: string;
+}
+
 export interface GaugeData {
   gaugeId: string;
   provenance: {
@@ -74,6 +82,13 @@ export interface GaugeData {
     url: string;
     retrievedAt: string | null;
     note: string;
+    /**
+     * Structured record of any of the 9 peer countries this gauge has no
+     * usable data for, with a specific reason each. A dot strip or detail
+     * page rendering this gauge must surface every entry here — never
+     * render a "9-country" visual that's silently missing one.
+     */
+    missingCountries?: MissingCountry[];
   };
   countries: Partial<Record<CountryCode, CountrySeries>>;
 }

@@ -146,6 +146,15 @@ export default function MethodologyPage() {
                 <span className="text-[var(--text-muted)]">Polarity justification: </span>
                 {g.polarityJustification}
               </p>
+              {g.dataPolicy && (
+                <p
+                  className="mt-3 rounded-md border p-2.5 text-sm"
+                  style={{ borderColor: "var(--status-warning)", color: "var(--text-secondary)" }}
+                >
+                  <span style={{ color: "var(--status-warning)" }}>⚠ Data policy: </span>
+                  {g.dataPolicy}
+                </p>
+              )}
             </div>
           ))}
         </div>
@@ -162,11 +171,13 @@ export default function MethodologyPage() {
       <section className="mt-4 rounded-lg border border-[var(--gridline)] bg-[var(--surface-1)] p-5">
         <h2 className="text-lg font-semibold">Current build status</h2>
         <p className="mt-2 text-[var(--text-secondary)]">
-          This is Phase A: {gaugesConfig.gauges.length} of 16 planned gauges are live,
-          all using hand-written <strong>sample data</strong> (clearly marked{" "}
-          <code>SAMPLE_DATA</code> in each gauge&rsquo;s provenance) so the site
-          structure can be reviewed before the real data pipeline is built in Phase B.
-          No number on this site currently reflects real published statistics.
+          This is Phase B: {gaugesConfig.gauges.length} of 16 planned gauges are configured.
+          Each one&rsquo;s own provenance block states whether it&rsquo;s <strong>live</strong>{" "}
+          (fetched by <code>/pipeline</code> from its named source) or still{" "}
+          <strong>sample data</strong> (hand-written and clearly marked{" "}
+          <code>SAMPLE_DATA</code>) pending a later phase. Every gauge card on the homepage
+          carries its own Sample tag when applicable, and a page-level note appears whenever
+          the set is mixed.
         </p>
       </section>
     </div>

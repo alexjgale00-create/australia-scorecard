@@ -118,6 +118,7 @@ export default async function GaugeDetailPage({
             points={dotStripPoints}
             bands={gaugesConfig.scoreBands}
             size="detail"
+            missingCountries={data.provenance.missingCountries}
           />
         </section>
       )}

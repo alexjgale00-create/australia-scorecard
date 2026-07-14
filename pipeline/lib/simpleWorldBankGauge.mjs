@@ -1,6 +1,6 @@
 // Shared logic for any gauge that's just one World Bank indicator, fetched
 // and written as-is (no derived calculation, no combining multiple series).
-import { fetchWorldBankSeries } from "./worldbank.mjs";
+import { buildMissingCountries, fetchWorldBankSeries } from "./worldbank.mjs";
 import { writeGaugeData } from "./writeGaugeData.mjs";
 
 export async function runSimpleWorldBankGauge(gaugeId, config, report) {
@@ -22,6 +22,10 @@ export async function runSimpleWorldBankGauge(gaugeId, config, report) {
         missingCountries.length > 0
           ? `Live data from ${config.source.institution}. No data available for: ${missingCountries.join(", ")}.`
           : `Live data from ${config.source.institution}, all 9 peer countries.`,
+      missingCountries: buildMissingCountries(
+        missingCountries,
+        `${config.source.institution} has not published this indicator for this country.`
+      ),
     },
     countries: byCountry,
   });

@@ -1,9 +1,9 @@
-// Phase B, Group 1: fetches every API-accessible gauge that's been wired up
-// so far. Each gauge is isolated — one source failing does not stop the
-// others from being attempted — but the run overall exits non-zero if any
-// source failed, so this should never be mistaken for a clean run.
+// Phase B: fetches every API-accessible gauge that's been wired up so far.
+// Each gauge is isolated — one source failing does not stop the others from
+// being attempted — but the run overall exits non-zero if any source
+// failed, so this should never be mistaken for a clean run.
 //
-// Gauges not yet in GAUGE_IDS (Groups 2-5, plus the manual-source lane)
+// Gauges not yet in GAUGE_IDS (later groups, plus the manual-source lane)
 // aren't touched by this run — their existing data files are left as-is.
 import { readFileSync } from "fs";
 import { fileURLToPath } from "url";
@@ -14,14 +14,20 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const configPath = join(__dirname, "..", "gauges.config.json");
 const gaugesConfig = JSON.parse(readFileSync(configPath, "utf-8"));
 
-// Phase B, Group 1. Add a gauge id here once its pipeline/gauges/<id>.mjs
-// module exists — Groups 2-5 will extend this list, not replace it.
+// Add a gauge id here once its pipeline/gauges/<id>.mjs module exists.
+// Group 1 (World Bank, single/dual indicators):
 const GAUGE_IDS = [
   "living-standards",
   "innovation",
   "external-position",
   "rule-of-law-corruption",
   "demographic-momentum",
+  // Group 2 (World Bank, share-of-world-total pattern):
+  "trade",
+  // Group 3 (IMF, hardest access layer):
+  "economic-output",
+  // Group 5 (BIS, bulk-style CSV, ISO2 country codes, quarterly->annual):
+  "debt-burden",
 ];
 
 const report = createReport();
