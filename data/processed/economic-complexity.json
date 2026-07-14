@@ -1,13 +1,13 @@
 {
-  "gaugeId": "innovation",
+  "gaugeId": "economic-complexity",
   "provenance": {
     "status": "LIVE",
-    "institution": "World Bank",
-    "seriesId": "GB.XPD.RSDV.GD.ZS",
-    "seriesName": "Research and development expenditure (% of GDP)",
-    "url": "https://data.worldbank.org/indicator/GB.XPD.RSDV.GD.ZS",
-    "retrievedAt": "2026-07-14T11:00:58.407Z",
-    "note": "Live data from World Bank, all 9 peer countries.",
+    "institution": "Harvard Growth Lab",
+    "seriesId": "ECI",
+    "seriesName": "Economic Complexity Index",
+    "url": "https://atlas.hks.harvard.edu/data-downloads/",
+    "retrievedAt": "2026-07-14T11:01:09.873Z",
+    "note": "Live data: automated fetch of the Economic Complexity Index via the Atlas's public GraphQL API.",
     "missingCountries": []
   },
   "countries": {
@@ -15,60 +15,124 @@
       "name": "Australia",
       "series": [
         {
+          "year": 1995,
+          "value": 0.7790989
+        },
+        {
           "year": 1996,
-          "value": 1.66218
+          "value": 0.7709821
+        },
+        {
+          "year": 1997,
+          "value": 0.7174584
         },
         {
           "year": 1998,
-          "value": 1.51351
+          "value": 0.67375976
+        },
+        {
+          "year": 1999,
+          "value": 0.6847497
         },
         {
           "year": 2000,
-          "value": 1.57198
+          "value": 0.6522645
+        },
+        {
+          "year": 2001,
+          "value": 0.648488
         },
         {
           "year": 2002,
-          "value": 1.74654
+          "value": 0.6425519
+        },
+        {
+          "year": 2003,
+          "value": 0.6562088
         },
         {
           "year": 2004,
-          "value": 1.84802
+          "value": 0.592972
+        },
+        {
+          "year": 2005,
+          "value": 0.56557703
         },
         {
           "year": 2006,
-          "value": 2.17862
+          "value": 0.56424475
+        },
+        {
+          "year": 2007,
+          "value": 0.5559024
         },
         {
           "year": 2008,
-          "value": 2.39898
+          "value": 0.46923193
+        },
+        {
+          "year": 2009,
+          "value": 0.447544
         },
         {
           "year": 2010,
-          "value": 2.3702
+          "value": 0.32845008
         },
         {
           "year": 2011,
-          "value": 2.23459
+          "value": 0.3711122
+        },
+        {
+          "year": 2012,
+          "value": 0.35045937
         },
         {
           "year": 2013,
-          "value": 2.17733
+          "value": 0.29214182
+        },
+        {
+          "year": 2014,
+          "value": 0.251894
         },
         {
           "year": 2015,
-          "value": 1.91969
+          "value": 0.26219442
+        },
+        {
+          "year": 2016,
+          "value": 0.2407401
         },
         {
           "year": 2017,
-          "value": 1.88102
+          "value": 0.14358525
+        },
+        {
+          "year": 2018,
+          "value": 0.15122472
         },
         {
           "year": 2019,
-          "value": 1.82826
+          "value": 0.20330329
+        },
+        {
+          "year": 2020,
+          "value": 0.20991981
         },
         {
           "year": 2021,
-          "value": 1.85783
+          "value": 0.083272085
+        },
+        {
+          "year": 2022,
+          "value": 0.10780702
+        },
+        {
+          "year": 2023,
+          "value": 0.09082211
+        },
+        {
+          "year": 2024,
+          "value": 0.124939635
         }
       ]
     },
@@ -76,120 +140,124 @@
       "name": "Canada",
       "series": [
         {
+          "year": 1995,
+          "value": 1.1543925
+        },
+        {
           "year": 1996,
-          "value": 1.60682
+          "value": 1.1908895
         },
         {
           "year": 1997,
-          "value": 1.61386
+          "value": 1.183773
         },
         {
           "year": 1998,
-          "value": 1.71051
+          "value": 1.1176897
         },
         {
           "year": 1999,
-          "value": 1.74984
+          "value": 1.0844742
         },
         {
           "year": 2000,
-          "value": 1.85849
+          "value": 1.1164637
         },
         {
           "year": 2001,
-          "value": 2.02116
+          "value": 1.0650563
         },
         {
           "year": 2002,
-          "value": 1.9717
+          "value": 1.0909173
         },
         {
           "year": 2003,
-          "value": 1.96782
+          "value": 1.0958967
         },
         {
           "year": 2004,
-          "value": 1.99735
+          "value": 1.0283478
         },
         {
           "year": 2005,
-          "value": 1.97127
+          "value": 1.0020056
         },
         {
           "year": 2006,
-          "value": 1.94304
+          "value": 0.9668228
         },
         {
           "year": 2007,
-          "value": 1.90358
+          "value": 0.94388765
         },
         {
           "year": 2008,
-          "value": 1.85578
+          "value": 0.9521306
         },
         {
           "year": 2009,
-          "value": 1.91742
+          "value": 0.9709998
         },
         {
           "year": 2010,
-          "value": 1.82504
+          "value": 1.0119947
         },
         {
           "year": 2011,
-          "value": 1.78714
+          "value": 1.0477705
         },
         {
           "year": 2012,
-          "value": 1.77303
+          "value": 0.97636896
         },
         {
           "year": 2013,
-          "value": 1.70624
+          "value": 0.9660557
         },
         {
           "year": 2014,
-          "value": 1.71482
+          "value": 0.9409601
         },
         {
           "year": 2015,
-          "value": 1.6936
+          "value": 0.952598
         },
         {
           "year": 2016,
-          "value": 1.72903
+          "value": 0.942719
         },
         {
           "year": 2017,
-          "value": 1.68702
+          "value": 0.9379446
         },
         {
           "year": 2018,
-          "value": 1.7372
+          "value": 0.89255464
         },
         {
           "year": 2019,
-          "value": 1.75578
+          "value": 0.9161621
         },
         {
           "year": 2020,
-          "value": 1.93413
+          "value": 0.89362234
         },
         {
           "year": 2021,
-          "value": 1.87064
+          "value": 0.85784215
         },
         {
           "year": 2022,
-          "value": 1.81291
+          "value": 0.8670508
         },
         {
           "year": 2023,
-          "value": 1.81048
+          "value": 0.8257558
         },
         {
           "year": 2024,
-          "value": 1.7908
+          "value": 0.78133565
         }
       ]
     },
@@ -197,116 +265,124 @@
       "name": "United Kingdom",
       "series": [
         {
+          "year": 1995,
+          "value": 1.3470109
+        },
+        {
           "year": 1996,
-          "value": 1.5754
+          "value": 1.3599966
         },
         {
           "year": 1997,
-          "value": 1.53729
+          "value": 1.315767
         },
         {
           "year": 1998,
-          "value": 1.54777
+          "value": 1.3228586
         },
         {
           "year": 1999,
-          "value": 1.62268
+          "value": 1.3389884
         },
         {
           "year": 2000,
-          "value": 1.60963
+          "value": 1.4002688
         },
         {
           "year": 2001,
-          "value": 1.59544
+          "value": 1.4212921
         },
         {
           "year": 2002,
-          "value": 1.61383
+          "value": 1.4251486
         },
         {
           "year": 2003,
-          "value": 1.58131
+          "value": 1.3940898
         },
         {
           "year": 2004,
-          "value": 1.53089
+          "value": 1.362438
         },
         {
           "year": 2005,
-          "value": 1.55004
+          "value": 1.3033096
         },
         {
           "year": 2006,
-          "value": 1.57625
+          "value": 1.314834
         },
         {
           "year": 2007,
-          "value": 1.6183
+          "value": 1.3109396
         },
         {
           "year": 2008,
-          "value": 1.60901
+          "value": 1.3014268
         },
         {
           "year": 2009,
-          "value": 1.66991
+          "value": 1.3088094
         },
         {
           "year": 2010,
-          "value": 1.63887
+          "value": 1.3316274
         },
         {
           "year": 2011,
-          "value": 1.64681
+          "value": 1.3823847
         },
         {
           "year": 2012,
-          "value": 1.57587
+          "value": 1.3227196
         },
         {
           "year": 2013,
-          "value": 1.62096
+          "value": 1.3215936
         },
         {
           "year": 2014,
-          "value": 2.26488
+          "value": 1.3100004
         },
         {
           "year": 2015,
-          "value": 2.27566
+          "value": 1.3453162
         },
         {
           "year": 2016,
-          "value": 2.32051
+          "value": 1.3179493
         },
         {
           "year": 2017,
-          "value": 2.32602
+          "value": 1.2786565
         },
         {
           "year": 2018,
-          "value": 2.70889
+          "value": 1.2914243
         },
         {
           "year": 2019,
-          "value": 2.6707
+          "value": 1.3091004
         },
         {
           "year": 2020,
-          "value": 2.93993
+          "value": 1.2927299
         },
         {
           "year": 2021,
-          "value": 2.89968
+          "value": 1.378319
         },
         {
           "year": 2022,
-          "value": 2.75224
+          "value": 1.3974557
         },
         {
           "year": 2023,
-          "value": 2.67614
+          "value": 1.379004
+        },
+        {
+          "year": 2024,
+          "value": 1.2455887
         }
       ]
     },
@@ -314,60 +390,124 @@
       "name": "New Zealand",
       "series": [
         {
+          "year": 1995,
+          "value": 0.6595165
+        },
+        {
+          "year": 1996,
+          "value": 0.61027074
+        },
+        {
           "year": 1997,
-          "value": 1.05649
+          "value": 0.6290999
+        },
+        {
+          "year": 1998,
+          "value": 0.6687071
         },
         {
           "year": 1999,
-          "value": 0.96387
+          "value": 0.6428615
+        },
+        {
+          "year": 2000,
+          "value": 0.6229098
         },
         {
           "year": 2001,
-          "value": 1.10029
+          "value": 0.61047864
+        },
+        {
+          "year": 2002,
+          "value": 0.60428053
         },
         {
           "year": 2003,
-          "value": 1.14891
+          "value": 0.6152279
+        },
+        {
+          "year": 2004,
+          "value": 0.5976271
         },
         {
           "year": 2005,
-          "value": 1.12043
+          "value": 0.623489
+        },
+        {
+          "year": 2006,
+          "value": 0.6402435
         },
         {
           "year": 2007,
-          "value": 1.15764
+          "value": 0.58030164
+        },
+        {
+          "year": 2008,
+          "value": 0.62050873
         },
         {
           "year": 2009,
-          "value": 1.24916
+          "value": 0.5403421
+        },
+        {
+          "year": 2010,
+          "value": 0.53289026
         },
         {
           "year": 2011,
-          "value": 1.23083
+          "value": 0.5645913
+        },
+        {
+          "year": 2012,
+          "value": 0.5770638
         },
         {
           "year": 2013,
-          "value": 1.15275
+          "value": 0.5572039
+        },
+        {
+          "year": 2014,
+          "value": 0.528471
         },
         {
           "year": 2015,
-          "value": 1.22707
+          "value": 0.50334215
+        },
+        {
+          "year": 2016,
+          "value": 0.47684842
         },
         {
           "year": 2017,
-          "value": 1.34788
+          "value": 0.4841461
+        },
+        {
+          "year": 2018,
+          "value": 0.45953676
         },
         {
           "year": 2019,
-          "value": 1.4642
+          "value": 0.47215605
+        },
+        {
+          "year": 2020,
+          "value": 0.42921835
         },
         {
           "year": 2021,
-          "value": 1.48604
+          "value": 0.43859175
+        },
+        {
+          "year": 2022,
+          "value": 0.48457527
         },
         {
           "year": 2023,
-          "value": 1.54848
+          "value": 0.47278538
+        },
+        {
+          "year": 2024,
+          "value": 0.52264357
         }
       ]
     },
@@ -375,116 +515,124 @@
       "name": "South Korea",
       "series": [
         {
+          "year": 1995,
+          "value": 1.0847684
+        },
+        {
           "year": 1996,
-          "value": 2.14233
+          "value": 1.132327
         },
         {
           "year": 1997,
-          "value": 2.17409
+          "value": 1.1514864
         },
         {
           "year": 1998,
-          "value": 2.03608
+          "value": 1.138567
         },
         {
           "year": 1999,
-          "value": 1.9446
+          "value": 1.1459593
         },
         {
           "year": 2000,
-          "value": 2.0494
+          "value": 1.2866602
         },
         {
           "year": 2001,
-          "value": 2.19872
+          "value": 1.3380047
         },
         {
           "year": 2002,
-          "value": 2.13042
+          "value": 1.393114
         },
         {
           "year": 2003,
-          "value": 2.19657
+          "value": 1.4373155
         },
         {
           "year": 2004,
-          "value": 2.35292
+          "value": 1.4584527
         },
         {
           "year": 2005,
-          "value": 2.42725
+          "value": 1.447078
         },
         {
           "year": 2006,
-          "value": 2.61516
+          "value": 1.514221
         },
         {
           "year": 2007,
-          "value": 2.75895
+          "value": 1.5562034
         },
         {
           "year": 2008,
-          "value": 2.86774
+          "value": 1.5232947
         },
         {
           "year": 2009,
-          "value": 3.02145
+          "value": 1.5621942
         },
         {
           "year": 2010,
-          "value": 3.17913
+          "value": 1.621178
         },
         {
           "year": 2011,
-          "value": 3.44409
+          "value": 1.6880535
         },
         {
           "year": 2012,
-          "value": 3.6852
+          "value": 1.6245494
         },
         {
           "year": 2013,
-          "value": 3.77487
+          "value": 1.659364
         },
         {
           "year": 2014,
-          "value": 3.88983
+          "value": 1.6960464
         },
         {
           "year": 2015,
-          "value": 3.78907
+          "value": 1.7487648
         },
         {
           "year": 2016,
-          "value": 3.78638
+          "value": 1.787494
         },
         {
           "year": 2017,
-          "value": 4.07341
+          "value": 1.7554941
         },
         {
           "year": 2018,
-          "value": 4.27155
+          "value": 1.7976913
         },
         {
           "year": 2019,
-          "value": 4.36379
+          "value": 1.8069875
         },
         {
           "year": 2020,
-          "value": 4.5214
+          "value": 1.779833
         },
         {
           "year": 2021,
-          "value": 4.59673
+          "value": 1.7700119
         },
         {
           "year": 2022,
-          "value": 4.84753
+          "value": 1.7741512
         },
         {
           "year": 2023,
-          "value": 4.94352
+          "value": 1.7245412
+        },
+        {
+          "year": 2024,
+          "value": 1.5989811
         }
       ]
     },
@@ -492,116 +640,124 @@
       "name": "Netherlands",
       "series": [
         {
+          "year": 1995,
+          "value": 1.0513257
+        },
+        {
           "year": 1996,
-          "value": 1.83733
+          "value": 1.0432256
         },
         {
           "year": 1997,
-          "value": 1.84171
+          "value": 1.0222348
         },
         {
           "year": 1998,
-          "value": 1.73966
+          "value": 1.0040075
         },
         {
           "year": 1999,
-          "value": 1.81986
+          "value": 1.0463835
         },
         {
           "year": 2000,
-          "value": 1.78907
+          "value": 1.0773798
         },
         {
           "year": 2001,
-          "value": 1.79214
+          "value": 1.085752
         },
         {
           "year": 2002,
-          "value": 1.73931
+          "value": 1.0753791
         },
         {
           "year": 2003,
-          "value": 1.77665
+          "value": 1.078424
         },
         {
           "year": 2004,
-          "value": 1.78132
+          "value": 1.0296866
         },
         {
           "year": 2005,
-          "value": 1.7667
+          "value": 1.0019536
         },
         {
           "year": 2006,
-          "value": 1.73208
+          "value": 1.0104454
         },
         {
           "year": 2007,
-          "value": 1.66063
+          "value": 1.002041
         },
         {
           "year": 2008,
-          "value": 1.61247
+          "value": 0.99989134
         },
         {
           "year": 2009,
-          "value": 1.65161
+          "value": 1.0037905
         },
         {
           "year": 2010,
-          "value": 1.69388
+          "value": 1.0607564
         },
         {
           "year": 2011,
-          "value": 1.8651
+          "value": 1.0498031
         },
         {
           "year": 2012,
-          "value": 1.90094
+          "value": 1.0224255
         },
         {
           "year": 2013,
-          "value": 2.13953
+          "value": 1.0389457
         },
         {
           "year": 2014,
-          "value": 2.15067
+          "value": 1.0304811
         },
         {
           "year": 2015,
-          "value": 2.11792
+          "value": 1.0472115
         },
         {
           "year": 2016,
-          "value": 2.11546
+          "value": 1.0225257
         },
         {
           "year": 2017,
-          "value": 2.14167
+          "value": 0.9947931
         },
         {
           "year": 2018,
-          "value": 2.1027
+          "value": 1.0099024
         },
         {
           "year": 2019,
-          "value": 2.14036
+          "value": 1.0070516
         },
         {
           "year": 2020,
-          "value": 2.26514
+          "value": 1.0017203
         },
         {
           "year": 2021,
-          "value": 2.21542
+          "value": 1.0098852
         },
         {
           "year": 2022,
-          "value": 2.17529
+          "value": 0.99904525
         },
         {
           "year": 2023,
-          "value": 2.26719
+          "value": 0.99289936
+        },
+        {
+          "year": 2024,
+          "value": 0.9467194
         }
       ]
     },
@@ -609,116 +765,124 @@
       "name": "United States",
       "series": [
         {
+          "year": 1995,
+          "value": 1.2412097
+        },
+        {
           "year": 1996,
-          "value": 2.45013
+          "value": 1.2446252
         },
         {
           "year": 1997,
-          "value": 2.47714
+          "value": 1.260904
         },
         {
           "year": 1998,
-          "value": 2.49621
+          "value": 1.2240738
         },
         {
           "year": 1999,
-          "value": 2.54362
+          "value": 1.2636753
         },
         {
           "year": 2000,
-          "value": 2.61982
+          "value": 1.3277513
         },
         {
           "year": 2001,
-          "value": 2.63715
+          "value": 1.3126106
         },
         {
           "year": 2002,
-          "value": 2.54746
+          "value": 1.3311
         },
         {
           "year": 2003,
-          "value": 2.55014
+          "value": 1.3161243
         },
         {
           "year": 2004,
-          "value": 2.48685
+          "value": 1.2891644
         },
         {
           "year": 2005,
-          "value": 2.50192
+          "value": 1.2190759
         },
         {
           "year": 2006,
-          "value": 2.54545
+          "value": 1.2248285
         },
         {
           "year": 2007,
-          "value": 2.61516
+          "value": 1.2609999
         },
         {
           "year": 2008,
-          "value": 2.74481
+          "value": 1.2436528
         },
         {
           "year": 2009,
-          "value": 2.7918
+          "value": 1.2880646
         },
         {
           "year": 2010,
-          "value": 2.71443
+          "value": 1.316035
         },
         {
           "year": 2011,
-          "value": 2.73803
+          "value": 1.363185
         },
         {
           "year": 2012,
-          "value": 2.67272
+          "value": 1.295876
         },
         {
           "year": 2013,
-          "value": 2.69591
+          "value": 1.2949336
         },
         {
           "year": 2014,
-          "value": 2.70882
+          "value": 1.305361
         },
         {
           "year": 2015,
-          "value": 2.77328
+          "value": 1.3441975
         },
         {
           "year": 2016,
-          "value": 2.83677
+          "value": 1.3250993
         },
         {
           "year": 2017,
-          "value": 2.88315
+          "value": 1.267355
         },
         {
           "year": 2018,
-          "value": 2.98956
+          "value": 1.2798423
         },
         {
           "year": 2019,
-          "value": 3.14297
+          "value": 1.2940154
         },
         {
           "year": 2020,
-          "value": 3.41788
+          "value": 1.3228827
         },
         {
           "year": 2021,
-          "value": 3.4689
+          "value": 1.2744259
         },
         {
           "year": 2022,
-          "value": 3.48736
+          "value": 1.3038969
         },
         {
           "year": 2023,
-          "value": 3.44716
+          "value": 1.2321081
+        },
+        {
+          "year": 2024,
+          "value": 1.1211838
         }
       ]
     },
@@ -726,116 +890,124 @@
       "name": "Germany",
       "series": [
         {
+          "year": 1995,
+          "value": 1.5485603
+        },
+        {
           "year": 1996,
-          "value": 2.13663
+          "value": 1.5745378
         },
         {
           "year": 1997,
-          "value": 2.18161
+          "value": 1.525194
         },
         {
           "year": 1998,
-          "value": 2.20748
+          "value": 1.5148661
         },
         {
           "year": 1999,
-          "value": 2.32772
+          "value": 1.5157993
         },
         {
           "year": 2000,
-          "value": 2.38654
+          "value": 1.584254
         },
         {
           "year": 2001,
-          "value": 2.3792
+          "value": 1.5664499
         },
         {
           "year": 2002,
-          "value": 2.40856
+          "value": 1.6243033
         },
         {
           "year": 2003,
-          "value": 2.44232
+          "value": 1.6093795
         },
         {
           "year": 2004,
-          "value": 2.40278
+          "value": 1.567156
         },
         {
           "year": 2005,
-          "value": 2.40266
+          "value": 1.4839597
         },
         {
           "year": 2006,
-          "value": 2.43043
+          "value": 1.4834443
         },
         {
           "year": 2007,
-          "value": 2.41918
+          "value": 1.5249524
         },
         {
           "year": 2008,
-          "value": 2.57152
+          "value": 1.4759789
         },
         {
           "year": 2009,
-          "value": 2.68864
+          "value": 1.4872506
         },
         {
           "year": 2010,
-          "value": 2.67632
+          "value": 1.5233983
         },
         {
           "year": 2011,
-          "value": 2.75016
+          "value": 1.5717866
         },
         {
           "year": 2012,
-          "value": 2.82499
+          "value": 1.5058233
         },
         {
           "year": 2013,
-          "value": 2.78067
+          "value": 1.5370995
         },
         {
           "year": 2014,
-          "value": 2.82218
+          "value": 1.5453546
         },
         {
           "year": 2015,
-          "value": 2.87725
+          "value": 1.5857214
         },
         {
           "year": 2016,
-          "value": 2.88393
+          "value": 1.5917509
         },
         {
           "year": 2017,
-          "value": 2.9886
+          "value": 1.5375761
         },
         {
           "year": 2018,
-          "value": 3.05057
+          "value": 1.5426904
         },
         {
           "year": 2019,
-          "value": 3.11256
+          "value": 1.5439792
         },
         {
           "year": 2020,
-          "value": 3.0897
+          "value": 1.5075061
         },
         {
           "year": 2021,
-          "value": 3.0786
+          "value": 1.5193007
         },
         {
           "year": 2022,
-          "value": 3.07096
+          "value": 1.5204942
         },
         {
           "year": 2023,
-          "value": 3.1539
+          "value": 1.4994507
+        },
+        {
+          "year": 2024,
+          "value": 1.3547833
         }
       ]
     },
@@ -843,116 +1015,124 @@
       "name": "Japan",
       "series": [
         {
+          "year": 1995,
+          "value": 1.9331962
+        },
+        {
           "year": 1996,
-          "value": 2.64303
+          "value": 1.988122
         },
         {
           "year": 1997,
-          "value": 2.72177
+          "value": 1.908045
         },
         {
           "year": 1998,
-          "value": 2.82745
+          "value": 1.8973805
         },
         {
           "year": 1999,
-          "value": 2.84672
+          "value": 1.9324377
         },
         {
           "year": 2000,
-          "value": 2.85841
+          "value": 2.0853076
         },
         {
           "year": 2001,
-          "value": 2.92348
+          "value": 2.006585
         },
         {
           "year": 2002,
-          "value": 2.96514
+          "value": 2.0969388
         },
         {
           "year": 2003,
-          "value": 2.99319
+          "value": 2.057475
         },
         {
           "year": 2004,
-          "value": 2.98125
+          "value": 2.039376
         },
         {
           "year": 2005,
-          "value": 3.13092
+          "value": 1.9117568
         },
         {
           "year": 2006,
-          "value": 3.22766
+          "value": 1.926204
         },
         {
           "year": 2007,
-          "value": 3.29257
+          "value": 1.9695681
         },
         {
           "year": 2008,
-          "value": 3.29224
+          "value": 1.9156348
         },
         {
           "year": 2009,
-          "value": 3.1959
+          "value": 1.9592347
         },
         {
           "year": 2010,
-          "value": 3.10495
+          "value": 2.0453317
         },
         {
           "year": 2011,
-          "value": 3.20537
+          "value": 2.0798502
         },
         {
           "year": 2012,
-          "value": 3.1737
+          "value": 2.0012414
         },
         {
           "year": 2013,
-          "value": 3.27895
+          "value": 2.016019
         },
         {
           "year": 2014,
-          "value": 3.36788
+          "value": 2.0142858
         },
         {
           "year": 2015,
-          "value": 3.24071
+          "value": 2.0913556
         },
         {
           "year": 2016,
-          "value": 3.10665
+          "value": 2.1002004
         },
         {
           "year": 2017,
-          "value": 3.16636
+          "value": 2.005802
         },
         {
           "year": 2018,
-          "value": 3.2192
+          "value": 2.0438285
         },
         {
           "year": 2019,
-          "value": 3.21824
+          "value": 2.0474443
         },
         {
           "year": 2020,
-          "value": 3.26556
+          "value": 2.0048342
         },
         {
           "year": 2021,
-          "value": 3.27383
+          "value": 2.020814
         },
         {
           "year": 2022,
-          "value": 3.40053
+          "value": 1.992992
         },
         {
           "year": 2023,
-          "value": 3.44125
+          "value": 1.9165636
+        },
+        {
+          "year": 2024,
+          "value": 1.7302567
         }
       ]
     }

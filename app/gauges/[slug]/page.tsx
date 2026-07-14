@@ -176,6 +176,39 @@ export default async function GaugeDetailPage({
         <p className="whitespace-pre-line text-[var(--text-secondary)]">{whyThisMatters}</p>
       </section>
 
+      {data.contextSeries && (
+        <section className="mt-8 rounded-lg border border-dashed border-[var(--gridline)] bg-[var(--surface-1)] p-5">
+          <h2 className="mb-1 text-lg font-semibold">For context: {data.contextSeries.label}</h2>
+          <p className="mb-3 text-xs uppercase tracking-wide text-[var(--text-muted)]">
+            Shown for context only — not part of this gauge&rsquo;s score
+          </p>
+          {data.contextSeries.note && (
+            <p className="mb-3 text-sm text-[var(--text-secondary)]">{data.contextSeries.note}</p>
+          )}
+          <dl className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm sm:grid-cols-3">
+            {Object.entries(data.contextSeries.countries).map(([code, series]) => {
+              const latest = series && series.series.length > 0 ? series.series[series.series.length - 1] : null;
+              return (
+                <div key={code} className="flex items-baseline justify-between gap-2">
+                  <dt className="text-[var(--text-muted)]">{series?.name ?? code}</dt>
+                  <dd className="tabular-nums text-[var(--text-primary)]">
+                    {latest ? `${latest.value} (${latest.year})` : "—"}
+                  </dd>
+                </div>
+              );
+            })}
+          </dl>
+          <p className="mt-4 text-xs text-[var(--text-muted)]">
+            {data.contextSeries.institution}
+            {data.contextSeries.retrievedAt && ` · retrieved ${data.contextSeries.retrievedAt.slice(0, 10)}`}
+            {" · "}
+            <a href={data.contextSeries.url} className="underline" target="_blank" rel="noreferrer">
+              source
+            </a>
+          </p>
+        </section>
+      )}
+
       <section className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-[var(--gridline)] pt-4">
         <SourceFooter provenance={data.provenance} />
         <a

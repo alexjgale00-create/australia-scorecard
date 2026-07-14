@@ -2,15 +2,18 @@
 
 This folder holds the download template and instructions for every gauge
 that isn't fetched automatically by `npm run pipeline`. As of Phase C,
-that's 7 gauges: **Productivity** and **Human capital depth** (OECD series
+that's 5 gauges: **Productivity** and **Human capital depth** (OECD series
 where the automated SDMX API route didn't pan out — full reasoning in
 `CLAUDE.md`); **Education** (PISA, only published every 3-4 years, never
-fetched automatically by design); and four gauges new to Phase C —
-**Military capability** (SIPRI), **Economic complexity** (Harvard Atlas),
-**Inequality** (OECD Gini), and **Internal cohesion** (V-Dem) — none of
-which have an OECD/World Bank/IMF/BIS-style API this project already
-knows how to query, so manual was the plan from the start for these four,
-not a fallback.
+fetched automatically by design); and **Inequality** (OECD Gini — blocked
+from this environment every attempt, see below) and **Internal cohesion**
+(V-Dem — the real dataset is gated behind a registration form). Two other
+gauges originally planned for this lane — **Military capability** (SIPRI)
+and **Economic complexity** (Harvard Atlas) — turned out to be
+automatable after all: both publish direct, unauthenticated
+downloads/APIs, verified live 2026-07-14 and now fetched by
+`npm run pipeline` like any other gauge. See `CLAUDE.md` for the full
+per-gauge reasoning on which stayed manual and why.
 
 The process is the same for every gauge here — only the source website's
 filters, the template's columns, and the target file differ:
@@ -133,69 +136,32 @@ years available, all 9 countries."
 
 ---
 
-## Military capability
-
-**Measures:** military expenditure as a share of GDP.
-
-**Polarity note:** this gauge is configured **higher is better** —
-spending is read as capability/deterrence, not militarization. That's a
-values choice the site owner signed off on 2026-07-14, not a factual
-default (see `CLAUDE.md`) — worth knowing since it's the one gauge on this
-site where a thoughtful reader could reasonably want the opposite framing.
-
-**Download steps:**
-
-1. Go to **https://www.sipri.org/databases/milex** and download the
-   highlighted Excel file (SIPRI revises it periodically — the download
-   link always points to the current version).
-2. Open the **"Share of GDP"** tab specifically — the workbook has several
-   other tabs (constant USD, per-capita, share of government spending)
-   that are not what this gauge tracks.
-3. Pull out the 9 peer countries (SIPRI's own country list is much
-   longer) and fill in `military-capability-template.csv`.
-
-SIPRI's data isn't from an interactive filtered-export tool like OECD's —
-you're extracting rows from one wide spreadsheet by hand. Take care to
-match the right row (country name) to the right column (year) in that
-one tab.
-
----
-
-## Economic complexity
-
-**Measures:** the Economic Complexity Index (ECI) — how diversified and
-knowledge-intensive a country's exports are.
-
-**Download steps:**
-
-1. Go to **https://atlas.hks.harvard.edu/data-downloads/** and use the
-   bulk CSV download (not the rankings page — the Atlas's own
-   documentation notes the two can be refreshed at different times of
-   year and may not match to the decimal; pick one source and stick with
-   it).
-2. Filter/extract the 9 peer countries' ECI value per year.
-3. Fill in `economic-complexity-template.csv`.
-
----
-
 ## Inequality
 
 **Measures:** the Gini coefficient for disposable income (0-1 scale,
 higher = more unequal). **Only Gini feeds this gauge's score** — see
 below.
 
-**Two sources, one score — read this before downloading:** the original
-plan considered combining OECD's income Gini with the World Inequality
-Database's top-wealth-share figure into one number. The site owner
-decided (2026-07-14) to score this gauge from **OECD Gini only** — WID's
-wealth-share number is intended as supporting context on the gauge detail
-page, not part of the score, since income and wealth inequality are
-different things and forcing them into one blended number would obscure
-that. **The WID context display isn't built yet** — this batch only wires
-up the Gini score. If you download WID data now, hang onto it; the
-context-display feature is separate, smaller follow-up work.
+**Two sources, one score:** OECD Gini scores this gauge; the World
+Inequality Database's top-wealth-share figure is shown on the gauge
+detail page as context — a separate, dashed-border box below "Why this
+matters", clearly labelled "not part of this gauge's score" — since
+income and wealth inequality are different things and forcing them into
+one blended number would obscure that (site owner decision, 2026-07-14,
+see `CLAUDE.md`). **The display is now built** (`data.contextSeries` in
+`lib/types.ts`, rendered in `app/gauges/[slug]/page.tsx`) — it just has no
+data behind it yet for this gauge, so nothing shows until you fill in
+`inequality-wid-context-template.csv` below and hand it over.
 
-**Download steps (Gini — required):**
+**Attempted an automated fetch first (2026-07-14):** OECD's SDMX endpoint
+for the Income Distribution Database returned a Cloudflare
+bot-protection page on 3/3 attempts from this environment — the same
+intermittent block documented elsewhere in this project. Rather than
+build a fetcher against a dataflow whose actual structure was never
+verified, this stays manual. If a future session can reach
+`sdmx.oecd.org` reliably, this is worth re-attempting — see `CLAUDE.md`.
+
+**Download steps (Gini — required, scores the gauge):**
 
 1. Go to **https://data-explorer.oecd.org/** and search for the **Income
    Distribution Database** (dataflow `DSD_WISE_IDD@DF_IDD`, agency
@@ -207,12 +173,13 @@ context-display feature is separate, smaller follow-up work.
    uneven lag — some countries' latest available year may be 2-3 years
    behind others'. Leave those years blank; don't estimate a gap.
 
-**Download steps (WID wealth share — optional, for later use):**
+**Download steps (WID wealth share — optional, context only):**
 
 1. Go to **https://wid.world/**, find each of the 9 countries' page, and
-   note the top 1% (or top 10%) wealth share by year.
-2. Keep this data aside for now — there's no template or ingestion path
-   for it yet.
+   note the top 1% wealth share by year.
+2. Fill in `inequality-wid-context-template.csv` (same 4-column format as
+   every other template here) and hand it over whenever convenient — this
+   one never blocks the gauge's actual score, so there's no rush.
 
 ---
 

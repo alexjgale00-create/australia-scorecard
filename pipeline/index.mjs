@@ -48,6 +48,17 @@ const GAUGE_IDS = [
   // published independently) — if this doesn't land, it moves to the
   // manual lane too, per the same rule, with no further debugging.
   "housing-pressure",
+  // Phase C, verified-live automated fetches (2026-07-14): SIPRI publishes
+  // its full database as a direct .xlsx (pipeline/lib/sipri.mjs, parsed by
+  // pipeline/lib/xlsx.mjs); Harvard Growth Lab exposes a public,
+  // unauthenticated GraphQL API (pipeline/lib/harvardAtlas.mjs). Both
+  // confirmed working before being wired in here — not spun up
+  // speculatively. Inequality (OECD Gini) and Internal cohesion (V-Dem)
+  // stay manual: OECD's SDMX endpoint was Cloudflare-blocked on every
+  // attempt from this environment, and V-Dem's CSV is gated behind a
+  // registration form with only a binary R data file freely fetchable.
+  "military-capability",
+  "economic-complexity",
 ];
 
 /** Reads a gauge's currently-saved provenance, if any, without touching it. */

@@ -68,10 +68,77 @@ publication-lag grace period), the OECD-sourced gauges and other annual
 sources 15 months, Inequality (OECD Gini's uneven multi-year lag per
 country) 24 months.
 
-**Next session starts Phase C**: the manual-source lane for Education
-(already stubbed, still sample data) plus the 4 not-yet-configured gauges
-(sources named in README.md: SIPRI, V-Dem, Harvard Atlas, WID — exact
-gauge definitions not yet finalised).
+### Fetch-before-guessing pass on the 5 remaining manual gauges (2026-07-14)
+
+Before asking the site owner to do any manual downloads, every one of the
+5 remaining manual-lane gauges got a genuine, hard-ruled attempt to fetch
+from the real source first — zero cells ever filled from memory, a failed
+fetch always falls back to the manual lane rather than a guess. Two moved
+to fully automated; three didn't, for reasons specific to each, not a
+blanket "manual is easier":
+
+- **Education (PISA) — stays manual.** OECD's SDMX catalog has no PISA
+  dataflow at all; the indicator/legacy pages 403'd (Cloudflare) from this
+  environment; the actual PISA data tool (pisadataexplorer.oecd.org) is
+  reachable but is an ASP.NET postback wizard with no fetchable data
+  endpoint — not a network block, a genuine "not automatable without
+  simulating a multi-step form" case.
+- **Military capability (SIPRI) — now automated.** SIPRI publishes the
+  full Military Expenditure Database as a direct, un-gated `.xlsx`
+  download (confirmed live: `sipri.org/sites/default/files/SIPRI-Milex-data-*.xlsx`,
+  no login/API key). Fetched and parsed by `pipeline/lib/xlsx.mjs` (a
+  minimal, dependency-free ZIP+XML reader — no npm package added; the
+  format only needed reading named sheets and resolving shared strings)
+  and `pipeline/lib/sipri.mjs`. The download link's filename changes with
+  every SIPRI revision (year range, version suffix) — discovered from the
+  database page's HTML each run rather than hardcoded, same
+  "discover, don't hardcode" pattern as OECD's dimension lists.
+  **Real bug caught during this build**: `xlsx.mjs`'s first version
+  destructured a regex match array as `[name, rid]`, which actually reads
+  `m[0]`/`m[1]` (the full match and first capture group) not `m[1]`/`m[2]`
+  — silently produced zero usable sheets. Caught because the pipeline's
+  real fetch failed loudly (`No sheet named "Share of GDP"... available
+  sheets: ` — empty list) rather than silently writing wrong data; fixed
+  by destructuring the match array explicitly (`const [, name, rid] = m`).
+- **Economic complexity (Harvard Atlas ECI) — now automated.** The Growth
+  Lab exposes a public, unauthenticated GraphQL API
+  (`atlas.hks.harvard.edu/api/graphql`, documented at
+  github.com/harvard-growth-lab/api-docs) — confirmed live via schema
+  introspection (`{ __schema { queryType { fields { name } } } }`), not
+  assumed from the docs page. Country IDs are UN M49 numeric codes,
+  resolved dynamically via the API's own `locationCountry` query rather
+  than hardcoded. `pipeline/lib/harvardAtlas.mjs`.
+- **Inequality (OECD Gini) — stays manual.** Tried the same SDMX approach
+  that works for `housing-pressure` (dataflow `OECD.WISE.INE,DSD_WISE_IDD@DF_IDD`)
+  — Cloudflare-blocked on 3/3 attempts from this environment. Since the
+  dataflow's actual dimension structure and key shape were never
+  confirmed, building a fetcher would have been a guess dressed up as
+  automation — exactly the pattern this project already spent a full
+  debugging arc getting away from with the original OECD trio. Left
+  manual rather than repeat that.
+- **Internal cohesion (V-Dem) — stays manual.** The actual CSV download
+  is gated behind a registration form (data-node-name attributes indicate
+  a gravity-forms-style gate, no direct URL). The only freely-fetchable
+  file, via V-Dem Institute's own GitHub org
+  (github.com/vdeminstitute/vdemdata), is a 33MB R binary (`.RData`) —
+  parsing that from scratch without R or a library was judged too risky
+  to trust unverified, so this stays manual too.
+
+**WID context display**: built while touching the Inequality gauge, even
+though WID itself stayed manual and has no data yet.
+`GaugeData.contextSeries` (`lib/types.ts`) carries a supplementary,
+never-scored metric; rendered as a clearly-labelled dashed-border box on
+the gauge detail page (`app/gauges/[slug]/page.tsx`), only when present —
+verified by temporarily injecting real-shaped test data into a committed
+gauge, checking the rendered static HTML, then reverting (never
+committed). `data/manual/inequality-wid-context-template.csv` is ready
+whenever the site owner does that download; nothing renders until then.
+
+**Definitive state after this pass**: 11 of 16 gauges now fetch
+automatically (up from 9), 5 remain manual (Education, Productivity,
+Human capital depth, Inequality, Internal cohesion) — down from the 7
+manual gauges before this pass. See `METHODOLOGY.md`'s build-status table
+for the authoritative per-gauge list.
 
 ## Scoring
 

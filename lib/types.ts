@@ -80,6 +80,22 @@ export interface MissingCountry {
   reason: string;
 }
 
+/**
+ * A supplementary metric shown alongside a gauge for context — never
+ * scored, never part of the composite. Currently used by Inequality (OECD
+ * Gini scores the gauge; WID's wealth-share sits here as context) — see
+ * CLAUDE.md for why the two weren't blended into one score.
+ */
+export interface ContextSeries {
+  label: string;
+  unit: string;
+  institution: string;
+  url: string;
+  retrievedAt: string | null;
+  note?: string;
+  countries: Partial<Record<CountryCode, CountrySeries>>;
+}
+
 export interface GaugeData {
   gaugeId: string;
   provenance: {
@@ -99,6 +115,8 @@ export interface GaugeData {
     missingCountries?: MissingCountry[];
   };
   countries: Partial<Record<CountryCode, CountrySeries>>;
+  /** Optional, gauge-specific — see ContextSeries. Absent for every gauge except where explicitly wired up. */
+  contextSeries?: ContextSeries;
 }
 
 export type Direction = "improving" | "flat" | "deteriorating";

@@ -4,15 +4,14 @@ A free, public site that turns official statistics into one weighted,
 internationally benchmarked verdict on Australia's national trajectory —
 readable in 60 seconds, with full drill-down for sceptics.
 
-**Phase B is complete.** 12 of 16 gauges are configured. 9 are **live**,
-fetched automatically from World Bank, IMF, BIS, and OECD (see "The OECD
-blocker" below for how Housing pressure landed). 2 (Productivity, Human
-capital depth) are in a manual download lane after OECD's API never
-returned usable data — see `data/manual/README.md` for the templates and
-instructions. 1 (Education) is still sample data, pending Phase C. The
-remaining 4 gauges aren't configured yet — also Phase C. Every page shows
-exactly which gauges are live vs. sample vs. awaiting data — never
-silently.
+**Phase C in progress.** All 16 gauges are configured. 11 are **live**,
+fetched automatically every month from World Bank, IMF, BIS, OECD, SIPRI,
+and Harvard Growth Lab. 4 (Productivity, Human capital depth, Inequality,
+Internal cohesion) are in a manual download lane after their real sources
+turned out not to be safely automatable — see `data/manual/README.md` for
+the templates and instructions. 1 (Education) is still sample data,
+pending its first manual entry. Every page shows exactly which gauges are
+live vs. sample vs. awaiting data — never silently.
 
 You don't need to know how to code to run any of this. The three commands
 below are all you need.
@@ -126,7 +125,9 @@ split into two different outcomes, both now settled:
   automated API path that's affected.
 
 Full history of what was tried and why — including the reasoning behind
-the split — is in `CLAUDE.md`.
+the split — is in `CLAUDE.md`. (A fourth, unrelated OECD dataflow —
+Inequality's Gini series — was also attempted live in Phase C and also
+blocked; see "Fetch-before-guessing pass" in `CLAUDE.md`.)
 
 ## Getting the site online
 
@@ -150,8 +151,10 @@ every time you push to the `main` branch. To finish connecting it:
 See `METHODOLOGY.md` for exactly what's implemented vs. placeholder right
 now, and `CLAUDE.md` for durable decisions (scoring rules, data policies)
 that should survive across sessions. Short version: **Phase A and Phase B
-are done** — skeleton site, real data pipeline, 9 of 9 API-accessible
-gauges live. See `METHODOLOGY.md`'s "Current build status" for the full
-16-gauge state table. Phase C (the manual-source lane for Education plus
-the 4 not-yet-configured gauges — SIPRI, V-Dem, Harvard Atlas, WID) is
-next.
+are done, Phase C is in progress** — all 16 gauges configured, 11 fetch
+automatically (including Military capability and Economic complexity,
+originally planned as manual-lane gauges but found to be safely
+automatable), 5 remain manual. See `METHODOLOGY.md`'s "Current build
+status" for the full 16-gauge state table. Remaining Phase C work: the
+site owner's manual downloads for Education, Productivity, Human capital
+depth, Inequality, and Internal cohesion.

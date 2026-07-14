@@ -162,16 +162,15 @@ failure, since re-running the pipeline can't fix a manual gauge (see
 
 ## Current build status
 
-**Phase B is complete as of 2026-07-14.** 12 of 16 planned gauges are
-configured; 9 fetch automatically every month, 2 sit in a manual download
-lane, 1 is still Phase A sample data. The remaining 4 gauges aren't
-configured yet at all. Every gauge's real status is in its own
+**Phase C in progress, as of 2026-07-14.** All 16 planned gauges are now
+configured; **11 fetch automatically** every month, 5 sit in a manual
+download lane, 1 of those 5 is still Phase A sample data pending its first
+real entry. Every gauge's real status is in its own
 `data/processed/*.json` file's `provenance.status` field (`SAMPLE_DATA` or
 `LIVE`, or no file at all for "awaiting data") — the site badges each one
 individually, plus a page-level note whenever the set is mixed. Weights
-are currently equal (1/12 each, for the 12 configured) as a placeholder;
-the site owner will tune real weights once all 16 gauges are live with
-real data (Phase D).
+are equal (1/16 each) as a placeholder; the site owner will tune real
+weights once all 16 gauges are live with real data (Phase D).
 
 | Gauge | Status | Source | Notes |
 |---|---|---|---|
@@ -184,15 +183,18 @@ real data (Phase D).
 | Economic output | 🟢 Live | IMF (WEO) | Standing limitation: IMF blocks GitHub Actions' IP range specifically (works locally, always). Disclosed as a known limitation in the pipeline report, not a red failure — see `pipeline/lib/report.mjs` |
 | Debt burden | 🟢 Live, ⚠ gap | BIS | No data for New Zealand (nominal-vs-market-value gap, disclosed on-page) |
 | Housing pressure | 🟢 Live | OECD (SDMX) | Landed 2026-07-14 after a 5-round debugging arc — see "OECD SDMX trio" in `CLAUDE.md` |
+| Military capability | 🟢 Live | SIPRI | Direct `.xlsx` download, fetched and parsed automatically (`pipeline/lib/xlsx.mjs`, `pipeline/lib/sipri.mjs`) — verified live 2026-07-14, not originally planned as automatable |
+| Economic complexity | 🟢 Live | Harvard Growth Lab | Public GraphQL API, no auth required (`pipeline/lib/harvardAtlas.mjs`) — verified live 2026-07-14, not originally planned as automatable |
 | Productivity | 🟡 Manual lane | OECD | Dataflow flagged `NonProductionDataflow=true` by OECD itself; automated route abandoned by design, not oversight. See `data/manual/README.md` |
 | Human capital depth | 🟡 Manual lane | OECD | Automated API never returned data across 3 attempts. See `data/manual/README.md` |
-| Education | 🟠 Sample data | OECD PISA | Phase A placeholder numbers; real manual entry is Phase C |
-| *(4 more, not yet configured)* | ⚪ Not started | SIPRI, V-Dem, Harvard Atlas, WID | Sources named in `README.md`; exact gauge definitions, polarity, and weight not yet finalised — Phase C |
+| Inequality | 🟡 Manual lane | OECD (Gini) | SDMX endpoint Cloudflare-blocked on every attempt from this environment; dataflow structure never verified enough to trust an automated fetcher. WID wealth-share context display is built (`contextSeries`) and ready, awaiting its own data entry |
+| Internal cohesion | 🟡 Manual lane | V-Dem | Real dataset gated behind a registration form; the only freely-fetchable file is a 33MB R binary with no safe dependency-free parsing path |
+| Education | 🟠 Sample data | OECD PISA | Phase A placeholder numbers; PISA has no SDMX dataflow and its data tool has no fetchable endpoint (ASP.NET form wizard) — real manual entry pending |
 
 See `data/manual/README.md` for each manual gauge's download template and
-instructions, and "OECD SDMX trio" in `CLAUDE.md` for the full reasoning
-behind the OECD split (why one of the three landed automated and two
-didn't).
+instructions, and CLAUDE.md ("OECD SDMX trio" and "Fetch-before-guessing
+pass on the 5 remaining manual gauges") for the full reasoning behind
+every automated-vs-manual split on this site.
 
 ### Corrections made while building Group 1 (2026-07-14)
 
