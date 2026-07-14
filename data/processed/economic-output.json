@@ -6,7 +6,7 @@
     "seriesId": "PPPSH",
     "seriesName": "GDP based on PPP, share of world (World Economic Outlook)",
     "url": "https://www.imf.org/external/datamapper/PPPSH@WEO",
-    "retrievedAt": "2026-07-14T01:44:02.472Z",
+    "retrievedAt": "2026-07-14T02:06:01.514Z",
     "note": "Live data from IMF World Economic Outlook, published directly as a share of world GDP (PPP) — not derived by us. Years from the current calendar year onward are excluded: IMF's WEO dataset mixes its own forward projections in with actuals with no machine-readable flag to tell them apart in this API, so any year that could be a forecast is left out rather than risk presenting a projection as an achieved fact.",
     "missingCountries": []
   },

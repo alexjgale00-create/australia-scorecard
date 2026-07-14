@@ -54,3 +54,32 @@ should survive across sessions.
     for a gauge) — the assertion above is the matching disclosure at the
     *composite-calculation* layer, since the pipeline itself has no
     visibility into cross-gauge composite math.
+
+## Pipeline environment quirks (source access is NOT the same from every network)
+
+Two sources in this pipeline behave in *opposite* ways depending on where
+`npm run pipeline` runs from — this is real and confirmed, not a guess:
+
+- **OECD (`sdmx.oecd.org`)**: blocked from this project's own sandbox with
+  a Cloudflare bot-protection challenge page (HTTP 403). NOT blocked from a
+  GitHub Actions runner — Actions got real API responses (404s and 500s),
+  meaning OECD's block is IP/network-reputation-based, not a blanket ban.
+  The 404/500s themselves are separate, ordinary bugs to fix (wrong
+  dataflow key, or a genuinely transient server error) — see the gauge
+  files in `pipeline/gauges/{productivity,housing-pressure,human-capital-depth}.mjs`.
+- **IMF (DataMapper API)**: the reverse. Works fine from a local machine.
+  Returns HTTP 403 specifically when run from GitHub Actions — likely a WAF
+  rule against known cloud/datacenter IP ranges. Retrying doesn't help
+  (confirmed not transient); this is a standing environment limitation.
+
+**Practical consequence:** `economic-output` (the IMF gauge) can currently
+only be refreshed by running `npm run pipeline` **locally** — the automated
+monthly GitHub Actions job will always fail that one gauge specifically, no
+matter how healthy the rest of the pipeline is. It will keep showing
+(honestly, with its real retrieval date) whatever data was last fetched
+locally, which will age between manual local runs. This is disclosed in the
+pipeline report (environment + retained-data-age context on every failure,
+not just "failed") rather than presented as a bug each time Actions runs.
+If this needs a permanent fix rather than a standing limitation, the options
+are: a proxy/self-hosted runner with a non-flagged IP, or moving
+`economic-output` to a manual-download lane like the OECD gauges may need.

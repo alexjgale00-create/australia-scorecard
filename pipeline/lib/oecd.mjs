@@ -6,55 +6,90 @@ const BROWSER_HEADERS = {
   Accept: "application/vnd.sdmx.data+json",
 };
 
+const RETRYABLE_STATUSES = new Set([500, 502, 503, 504]);
+const RETRY_DELAYS_MS = [1000, 2000, 4000];
+
+function snippet(text, max = 400) {
+  const trimmed = text.trim().replace(/\s+/g, " ");
+  return trimmed.length > max ? `${trimmed.slice(0, max)}…` : trimmed;
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 /**
- * Fetches one OECD SDMX dataflow. sdmx.oecd.org sits behind Cloudflare
- * bot-protection that returns its JS-challenge page (HTTP 403) to any
- * non-browser client — verified live 2026-07-14 via two independent
- * network paths over ~25 minutes, not a transient rate limit. This
- * function detects that specific failure mode and reports it distinctly
- * from an ordinary HTTP or data error, because the fix is different (this
- * isn't a wrong series ID problem — see CLAUDE.md).
+ * Fetches one OECD SDMX dataflow, retrying server errors (500/502/503/504)
+ * and network failures with backoff — those are plausibly transient. 4xx
+ * responses (403, 404, etc.) are never retried: a wrong dataflow/key or a
+ * persistent block doesn't get better on attempt 2.
+ *
+ * sdmx.oecd.org sits behind Cloudflare bot-protection for at least some
+ * source IPs (confirmed from this repo's own sandbox: HTTP 403 with a JS
+ * challenge page). But it is NOT a blanket block — verified 2026-07,
+ * requests from a GitHub Actions runner got real API responses (404/500),
+ * not challenge pages. So a 403-with-challenge-page is reported distinctly
+ * from an ordinary HTTP error, since the two have different fixes.
  */
 export async function fetchOecdSdmxData(dataflowPath, key, { startPeriod } = {}) {
   const url =
     `https://sdmx.oecd.org/public/rest/data/${dataflowPath}/${key}` +
     `?format=jsondata${startPeriod ? `&startPeriod=${startPeriod}` : ""}`;
 
-  let res;
-  let text;
-  try {
-    res = await fetch(url, { signal: AbortSignal.timeout(30000), headers: BROWSER_HEADERS });
-    text = await res.text();
-  } catch (err) {
-    throw new Error(`Could not reach the OECD SDMX API (${err.message}).`);
+  let lastErr;
+  for (let attempt = 0; attempt <= RETRY_DELAYS_MS.length; attempt++) {
+    let res;
+    let text;
+    try {
+      res = await fetch(url, { signal: AbortSignal.timeout(30000), headers: BROWSER_HEADERS });
+      text = await res.text();
+    } catch (err) {
+      lastErr = new Error(`Could not reach the OECD SDMX API (${err.message}).`);
+      if (attempt < RETRY_DELAYS_MS.length) {
+        await sleep(RETRY_DELAYS_MS[attempt]);
+        continue;
+      }
+      throw lastErr;
+    }
+
+    if (res.status === 403 && (text.includes("Just a moment") || text.trim().startsWith("<!DOCTYPE"))) {
+      throw new Error(
+        `OECD's SDMX API returned a Cloudflare bot-protection challenge page instead of data (HTTP 403). ` +
+          `This is an IP/network-reputation block, not a wrong dataflow ID and not retryable — a request from a ` +
+          `different network may succeed where this one didn't. See CLAUDE.md and METHODOLOGY.md.`
+      );
+    }
+
+    if (RETRYABLE_STATUSES.has(res.status) && attempt < RETRY_DELAYS_MS.length) {
+      lastErr = new Error(`OECD SDMX API returned HTTP ${res.status}: ${snippet(text)}`);
+      await sleep(RETRY_DELAYS_MS[attempt]);
+      continue;
+    }
+
+    if (!res.ok) {
+      throw new Error(
+        `OECD SDMX API returned HTTP ${res.status} for dataflow "${dataflowPath}"` +
+          (attempt > 0 ? ` (after ${attempt} retr${attempt === 1 ? "y" : "ies"})` : "") +
+          `: ${snippet(text)}`
+      );
+    }
+
+    let json;
+    try {
+      json = JSON.parse(text);
+    } catch {
+      throw new Error(`OECD SDMX API response wasn't valid JSON: ${snippet(text)}`);
+    }
+
+    return parseSdmxJson(json);
   }
 
-  if (res.status === 403 || text.includes("Just a moment") || text.trim().startsWith("<!DOCTYPE")) {
-    throw new Error(
-      `OECD's SDMX API returned a Cloudflare bot-protection challenge page instead of data (HTTP ${res.status}). ` +
-        `This is a known, previously-verified access blocker, not a wrong series ID or a transient rate limit — ` +
-        `see CLAUDE.md and METHODOLOGY.md for what to try next (a different network's IP reputation, or moving ` +
-        `this gauge to the manual-source lane).`
-    );
-  }
-
-  if (!res.ok) {
-    throw new Error(`OECD SDMX API returned HTTP ${res.status}.`);
-  }
-
-  let json;
-  try {
-    json = JSON.parse(text);
-  } catch {
-    throw new Error("OECD SDMX API response wasn't valid JSON.");
-  }
-
-  return parseSdmxJson(json);
+  // Only reached if every retry hit a network error or a retryable status.
+  throw lastErr;
 }
 
 // Standard SDMX-JSON 2.0 structure. Written from the SDMX-JSON spec, not
-// validated against a real OECD response (every test call was blocked
-// before returning data — see fetchOecdSdmxData above). If OECD's actual
+// validated against a real successful OECD response yet. If OECD's actual
 // shape differs, this throws rather than silently misreading it.
 function parseSdmxJson(json) {
   const dataSet = json?.data?.dataSets?.[0];

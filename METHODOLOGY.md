@@ -154,19 +154,23 @@ stale if its data is more than 15 months old, per the project brief. This
 check is not yet implemented — the pipeline itself doesn't exist until Phase
 B/C.
 
-## Phase A status
+## Current build status
 
-Phase B, Group 1 complete: 7 of 16 planned gauges are configured. 5 are
-**live**, fetched by `/pipeline` from the World Bank API (`living-standards`,
+Phase B, Groups 1/2/3/5 complete, Group 4 (OECD) in progress: 12 of 16
+planned gauges are configured. 8 are **live** (`living-standards`,
 `innovation`, `external-position`, `rule-of-law-corruption`,
-`demographic-momentum`). 2 are still **hand-written illustrative sample
-data** pending later pipeline groups (`productivity` — Group 4, OECD;
-`education` — Phase C, manual PISA lane). Every gauge's real status is in its
-own `data/processed/*.json` file's `provenance.status` field
-(`SAMPLE_DATA` or `LIVE`) — the site badges each one individually, plus a
-page-level note whenever the set is mixed. Weights are currently equal
-(1/7 each) as a placeholder; the site owner will tune real weights once all
-16 gauges are live with real data (Phase D).
+`demographic-momentum`, `trade`, `economic-output`, `debt-burden`). 1 is
+still **hand-written sample data** pending Phase C (`education`, manual PISA
+lane). 3 are built but not yet live (`productivity`, `housing-pressure`,
+`human-capital-depth`) — see "Pipeline environment quirks" in `CLAUDE.md` for
+why: OECD's API behaves differently depending on which network the pipeline
+runs from, and the specific failures (a 404 and two 500s, seen from a GitHub
+Actions runner) are still being diagnosed as of 2026-07-14. Every gauge's
+real status is in its own `data/processed/*.json` file's
+`provenance.status` field (`SAMPLE_DATA` or `LIVE`) — the site badges each
+one individually, plus a page-level note whenever the set is mixed. Weights
+are currently equal (1/12 each) as a placeholder; the site owner will tune
+real weights once all 16 gauges are live with real data (Phase D).
 
 ### Corrections made while building Group 1 (2026-07-14)
 
