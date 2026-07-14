@@ -36,13 +36,17 @@ const GAUGE_IDS = [
   //
   // human-capital-depth removed 2026-07-14 after three distinct dimension
   // keys against the same dataflow all failed (two 404s, no actionable
-  // diagnostic) — moved to the manual lane (data/manual/), see
-  // gauges.config.json's dataPolicy for this gauge and CLAUDE.md for the
-  // full debugging history. productivity and housing-pressure stay here:
-  // each got measurably further this round (a different, more specific
-  // failure than before) rather than repeating the same error, so paused
-  // for a fresh-eyes review rather than abandoned.
-  "productivity",
+  // diagnostic) — moved to the manual lane (data/manual/). productivity
+  // removed the same day, after a fresh-eyes review: its dataflow carries
+  // OECD's own NonProductionDataflow=true annotation and redirects to an
+  // archive endpoint that throws a generic unhandled server exception —
+  // infrastructure OECD itself flags as not meant for this, not a wrong
+  // key. Also moved to the manual lane. See gauges.config.json's
+  // dataPolicy for each gauge and CLAUDE.md for the full debugging
+  // history. housing-pressure stays here for one final attempt (FREQ
+  // pinned to Annual, per OECD's own docs confirming that series is
+  // published independently) — if this doesn't land, it moves to the
+  // manual lane too, per the same rule, with no further debugging.
   "housing-pressure",
 ];
 

@@ -156,20 +156,26 @@ B/C.
 
 ## Current build status
 
-Phase B, Groups 1/2/3/5 complete, Group 4 (OECD) paused for review: 12 of
-16 planned gauges are configured. 8 are **live** (`living-standards`,
-`innovation`, `external-position`, `rule-of-law-corruption`,
-`demographic-momentum`, `trade`, `economic-output`, `debt-burden`). 1 is
-still **hand-written sample data** pending Phase C (`education`, manual PISA
-lane). 2 (`productivity`, `housing-pressure`) are built but not yet live —
-each round of fixing OECD's API surfaced a new, more specific failure
-rather than repeating the same one (see "Pipeline environment quirks" in
-`CLAUDE.md`), so as of 2026-07-14 these are paused for a fresh-eyes review
-rather than another guess. 1 (`human-capital-depth`) has moved to a manual
-lane after three distinct query keys against the same OECD dataflow all
-failed with no actionable diagnostic — see `data/manual/` for the download
-template and instructions; it awaits its first hand entry. Every gauge's
-real status is in its own `data/processed/*.json` file's
+Phase B, Groups 1/2/3/5 complete, Group 4 (OECD) resolved by a split
+decision: 12 of 16 planned gauges are configured. 8 are **live**
+(`living-standards`, `innovation`, `external-position`,
+`rule-of-law-corruption`, `demographic-momentum`, `trade`,
+`economic-output`, `debt-burden`). 1 is still **hand-written sample data**
+pending Phase C (`education`, manual PISA lane). `housing-pressure` gets
+one final automated attempt (`FREQ` pinned to Annual, per OECD's own docs
+confirming that series is published independently) — a fresh-eyes review
+on 2026-07-14 found its debugging history to be genuinely convergent (four
+real bugs found and fixed in a row, none recurring), unlike the other two
+OECD gauges. `productivity` and `human-capital-depth` have both moved to a
+manual lane: `human-capital-depth` after three distinct query keys against
+the same dataflow failed with no actionable diagnostic; `productivity`
+after the same review found its dataflow carries OECD's own
+`NonProductionDataflow=true` annotation and redirects to an archive
+endpoint that throws a generic unhandled server exception — infrastructure
+OECD itself flags as not meant for automated queries, not a solvable key
+problem. See `data/manual/` for each manual gauge's download template and
+instructions, and "OECD SDMX trio" in `CLAUDE.md` for the full reasoning.
+Every gauge's real status is in its own `data/processed/*.json` file's
 `provenance.status` field (`SAMPLE_DATA` or `LIVE`, or no file at all for
 "awaiting data") — the site badges each one individually, plus a
 page-level note whenever the set is mixed. Weights are currently equal

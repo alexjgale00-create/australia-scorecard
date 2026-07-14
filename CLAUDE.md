@@ -128,14 +128,6 @@ and pasting back the log). Each round fixed a real, confirmed bug:
 any round where a "high confidence" fix doesn't result in a green gauge —
 don't keep pushing attempts past that):
 
-- `productivity` and `housing-pressure` are **paused**, not abandoned —
-  each round made real, verifiable progress (a different, more specific
-  failure each time, never the same error twice), so this is a "come back
-  with fresh eyes" pause, not a dead end. Next step if resumed: pin `FREQ`
-  on `housing-pressure` (the newest ambiguity), and get a fresh diagnostic
-  read on `productivity`'s current HTTP 500 (a *different* 500 than the
-  original bare-"all"-key crash — this one survives the structure fetch
-  and fails on the actual data request).
 - `human-capital-depth` **moved to the manual lane** — three distinct,
   reasoned attempts against the same dataflow with no traction and no
   actionable diagnostic is past the point where guessing is worth another
@@ -143,3 +135,64 @@ don't keep pushing attempts past that):
   `gauges.config.json`'s `dataPolicy` for this gauge. Removed from
   `pipeline/index.mjs`'s `GAUGE_IDS`; `pipeline/gauges/human-capital-depth.mjs`
   (the retired API fetcher) was deleted rather than left as dead code.
+- `productivity` and `housing-pressure` were **paused** (not abandoned)
+  at this point for a fresh-eyes review, since bundling them as one "OECD
+  trio" was itself starting to look like the wrong frame — each had a
+  different debugging trajectory and deserved a separate verdict.
+
+### Fresh-eyes review (same day) — the split verdict
+
+Re-reading the full error progression for just these two gauges surfaced
+a real difference the "OECD trio" framing had been hiding:
+
+- **`housing-pressure`'s history is convergent, not stuck.** Four
+  real, distinct bugs found and fixed in a row, none of them recurring:
+  wrong Accept header → bare-key server crash → wrong Accept-Language →
+  a false "conflicting values" error (my own bug, truncating quarterly
+  data) → a **genuine** conflicting-values error (`MEASURE=HPI` vs.
+  `HPI_YDH`, resolved by pinning to `HPI_YDH` per this gauge's configured
+  "price-to-income ratio" definition) → the next genuine ambiguity,
+  `FREQ=Q` vs `FREQ=A`. Checked live against OECD's own documentation:
+  this dataflow publishes Annual and Quarterly as **separately,
+  independently maintained series**, not one derived from the other — so
+  `FREQ=A` is a verified value, not a guess. This is the fourth correctly
+  diagnosed fix in a row on a live, non-archived, normally-behaving
+  dataflow — worth exactly one more cycle. If it doesn't land, this gauge
+  moves to the manual lane too, with no further debugging, per the same
+  rule.
+- **`productivity`'s history is not convergent — it's the same wall,
+  three times.** Re-examined the raw structure XML captured in an earlier
+  round: `DF_PDB_LV` carries the annotation
+  `<AnnotationType>NonProductionDataflow</AnnotationType>` with value
+  `true` — **OECD's own metadata, on OECD's own dataflow, stating it
+  isn't meant for automated production queries.** Combined with the
+  confirmed `isExternalReference`/archive redirect and the fact that even
+  after correctly reaching the archive endpoint's data query, it throws a
+  generic, unhandled ASP.NET null-reference exception (not a "your key is
+  wrong" error) — this reads as unmaintained legacy infrastructure, not a
+  solvable query-shape problem. Three attempts, three different specific
+  errors, same underlying wall. **Moved to the manual lane** — same
+  treatment as `human-capital-depth`: `accessType: "manual"`,
+  `pipeline/gauges/productivity.mjs` deleted, removed from
+  `pipeline/index.mjs`'s `GAUGE_IDS`, template + instructions in
+  `data/manual/`. **Do not re-attempt the SDMX API route for this gauge
+  without new evidence that OECD has un-flagged or replaced this
+  dataflow** — the `NonProductionDataflow` finding is the reason, not a
+  guess, and re-litigating it from scratch wastes a cycle.
+- Also checked directly, since it was one of the candidate wrong
+  assumptions: **environment (Actions vs. local) is not masking a
+  different root cause for either gauge.** Ran the pipeline from this
+  project's own sandbox the same day (previously Cloudflare-blocked, no
+  longer reproducing that block) and got the identical `productivity` 500
+  and the identical `housing-pressure` FREQ conflict as the Actions run.
+  Same bugs, two independent networks — these are genuine, stable,
+  source-side issues, not an environment artifact.
+- **Option considered and explicitly rejected for now**: OECD's bulk CSV
+  export shape (`format=csvfilewithlabels`, `key=all`,
+  `dimensionAtObservation=AllDimensions` — confirmed as a real, documented
+  OECD query pattern via live lookup) instead of the per-series SDMX-JSON
+  shape this pipeline uses. Kept in reserve, not built: it wouldn't fix
+  `productivity`'s actual problem (a broken *server*, not a wrong
+  *format*), and for `housing-pressure` the well-evidenced `FREQ=A` fix is
+  lower-cost and higher-confidence than switching formats. Revisit only if
+  `housing-pressure`'s `FREQ=A` fix also fails.

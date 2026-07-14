@@ -13,6 +13,18 @@
 // code, not a guess between equally-plausible options. UNIT_MEASURE=IX
 // pinned too, since that's the unit both conflicting series shared in the
 // live error (an index, matching this gauge's configured unit).
+//
+// After pinning MEASURE, a second live run surfaced one more real
+// ambiguity: FREQ=Q and FREQ=A both matched, with slightly different
+// values for the same country/year. OECD's own documentation for this
+// dataflow confirms Annual and Quarterly are separately, independently
+// published series (not one derived from the other) — so FREQ=A is a
+// verified value, not a guess, and this gauge wants the annual series
+// directly rather than deriving one from quarterly snapshots. This is the
+// last automated attempt for this gauge under the project's debugging
+// rules: if the query still doesn't return a clean result, it moves to
+// the manual lane (see productivity.mjs's history and CLAUDE.md for why
+// that gauge already did) rather than another guess.
 import { fetchOecdDataflowDimensions, fetchOecdSdmxData, PEER_COUNTRY_KEY } from "../lib/oecd.mjs";
 import { writeGaugeData } from "../lib/writeGaugeData.mjs";
 import { buildMissingCountries } from "../lib/worldbank.mjs";
@@ -23,6 +35,7 @@ const DATAFLOW = "OECD.ECO.MPD,DSD_AN_HOUSE_PRICES@DF_HOUSE_PRICES,1.0";
 const KNOWN_DIMENSION_VALUES = {
   MEASURE: "HPI_YDH",
   UNIT_MEASURE: "IX",
+  FREQ: "A",
 };
 
 export async function run(config, report) {

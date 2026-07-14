@@ -5,14 +5,13 @@ internationally benchmarked verdict on Australia's national trajectory —
 readable in 60 seconds, with full drill-down for sceptics.
 
 **Where things stand right now (Phase B):** 12 of 16 gauges are configured.
-8 are **live**, fetched automatically from World Bank, IMF, and BIS. 2 more
-(Productivity, Housing pressure — both OECD) are built and partially
-working but paused for a fresh-eyes review (see "The OECD blocker" below).
-1 (Human capital depth) moved to a manual download lane after OECD's API
-never returned usable data across three attempts — see `data/manual/` for
-the template and instructions. 1 (Education) is still sample data, pending
-Phase C. Every page shows exactly which gauges are live vs. sample vs.
-awaiting data — never silently.
+8 are **live**, fetched automatically from World Bank, IMF, and BIS. 1 more
+(Housing pressure — OECD) is getting one final automated attempt (see "The
+OECD blocker" below). 2 (Productivity, Human capital depth) have moved to
+a manual download lane after OECD's API never returned usable data — see
+`data/manual/` for the templates and instructions. 1 (Education) is still
+sample data, pending Phase C. Every page shows exactly which gauges are
+live vs. sample vs. awaiting data — never silently.
 
 You don't need to know how to code to run any of this. The three commands
 below are all you need.
@@ -106,26 +105,32 @@ but nothing can trigger it.
 
 `sdmx.oecd.org` is not blocked from a GitHub Actions runner the way it is
 from this project's own sandbox (confirmed: Actions gets real API
-responses, not a bot-protection page) — but two of the three OECD gauges
-still aren't returning usable data, for source-side reasons rather than a
-network block:
+responses, not a bot-protection page). A fresh-eyes review on 2026-07-14
+found the three OECD gauges didn't actually share one root cause — they
+split into two different situations:
 
-- **Productivity, Housing pressure:** each debugging round has fixed a
-  real, confirmed bug (a missing `references=all` on a redirect follow, an
-  under-constrained query key matching two different measures) and
-  surfaced a *new*, more specific failure underneath it — genuine
-  progress, not the same error repeating. Paused as of 2026-07-14 for a
-  fresh-eyes review before another attempt, rather than continuing to
-  chase it round after round.
-- **Human capital depth:** moved to a manual-download lane. Three distinct
-  query keys against the same OECD dataflow all failed, the last two with
-  no actionable diagnostic (the server reported zero valid combinations
-  for the key, with no hint which dimension was wrong). See
+- **Housing pressure:** one final automated attempt. Its debugging history
+  is genuinely convergent — four real, distinct bugs found and fixed in a
+  row, none repeating. The remaining ambiguity (`FREQ=Q` vs `FREQ=A` both
+  matching) has a verified fix: OECD's own docs confirm Annual is
+  published as its own independent series, so `FREQ=A` is pinned. If this
+  doesn't land, this gauge moves to the manual lane too, with no further
+  debugging.
+- **Productivity, Human capital depth:** both moved to a manual-download
+  lane. Productivity's dataflow carries OECD's own
+  `NonProductionDataflow=true` annotation and redirects to an archive
+  endpoint that throws a generic unhandled server exception — that's
+  OECD's own infrastructure signalling this isn't meant for automated
+  queries, not a wrong key. Human capital depth failed three distinct
+  query keys with no actionable diagnostic. See
+  `data/manual/productivity-INSTRUCTIONS.md` and
   `data/manual/human-capital-depth-INSTRUCTIONS.md` for the download
-  template and step-by-step instructions — this one now needs a human to
-  pull the numbers from data-explorer.oecd.org by hand.
+  templates and step-by-step instructions — both now need a human to pull
+  the numbers from data-explorer.oecd.org by hand (the website itself
+  works fine; it's only the automated API path that's affected).
 
-Full history of what was tried and why is in `CLAUDE.md`.
+Full history of what was tried and why — including the reasoning behind
+the split — is in `CLAUDE.md`.
 
 ## Getting the site online
 
@@ -149,7 +154,8 @@ every time you push to the `main` branch. To finish connecting it:
 See `METHODOLOGY.md` for exactly what's implemented vs. placeholder right
 now, and `CLAUDE.md` for durable decisions (scoring rules, data policies)
 that should survive across sessions. Short version: **Phase A and most of
-Phase B are done** — skeleton site, real data pipeline, 8 of 10
-API-accessible gauges live, 2 (OECD) paused for review. Phase C (the
-manual-source lane for Education, Human capital depth, SIPRI, V-Dem,
-Harvard Atlas, and WID) is next.
+Phase B are done** — skeleton site, real data pipeline, 8 of 9
+API-accessible gauges live, 1 (Housing pressure, OECD) getting one final
+automated attempt. Phase C (the manual-source lane for Education,
+Productivity, Human capital depth, SIPRI, V-Dem, Harvard Atlas, and WID)
+is next.

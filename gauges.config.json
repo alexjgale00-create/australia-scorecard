@@ -104,10 +104,11 @@
       "shortName": "Productivity",
       "unit": "GDP per hour worked (USD, constant prices, 2015 PPPs)",
       "historyStartYear": 1990,
-      "accessType": "api",
+      "accessType": "manual",
       "polarity": "higher_is_better",
       "polarityJustification": "Higher output per hour worked means the economy generates more value for the same labour input — the standard productivity definition.",
       "weight": 0.083333,
+      "dataPolicy": "OECD's live SDMX endpoint for this dataflow (DF_PDB_LV) redirects to an archive endpoint carrying the annotation NonProductionDataflow=true — OECD's own metadata flagging it as not intended for automated production queries. After three fix attempts (missing Accept headers, missing references=all on the redirect, a generic unhandled server exception on the archive endpoint itself) the query never returned data. Moved to a manual lane rather than continuing to debug infrastructure OECD itself has marked non-production — see CLAUDE.md for the full history. The same numbers are downloaded by hand from data-explorer.oecd.org using the template and instructions in data/manual/, then entered into data/processed/productivity.json directly. Not fetched automatically — update it by hand periodically.",
       "source": {
         "institution": "OECD",
         "seriesId": "OECD.SDD.TPS,DSD_PDB@DF_PDB_LV,1.0",
@@ -115,7 +116,7 @@
         "url": "https://data-explorer.oecd.org/"
       },
       "oneLiner": "How much economic value an hour of work produces.",
-      "_seriesIdCorrection": "The brief-assumed code (PDB_LV alone, via stats.oecd.org) is dead — OECD retired OECD.Stat / the old SDMX API in favour of a new SDMX API at sdmx.oecd.org with restructured agency/dataflow/version coordinates. Verified live 2026-07-14: the dataflow still exists as OECD.SDD.TPS,DSD_PDB@DF_PDB_LV,1.0. However sdmx.oecd.org is behind Cloudflare bot-protection that blocks automated requests (confirmed via two independent network paths) — see CLAUDE.md."
+      "_seriesIdCorrection": "The brief-assumed code (PDB_LV alone, via stats.oecd.org) is dead — OECD retired OECD.Stat / the old SDMX API in favour of a new SDMX API at sdmx.oecd.org with restructured agency/dataflow/version coordinates. Verified live 2026-07-14: the dataflow still exists as OECD.SDD.TPS,DSD_PDB@DF_PDB_LV,1.0, but is itself flagged NonProductionDataflow and redirects to an archive endpoint — see dataPolicy above and CLAUDE.md."
     },
     {
       "id": "education",
