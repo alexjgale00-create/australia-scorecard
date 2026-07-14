@@ -252,8 +252,25 @@ export function computeLevelScoreDelta(
   };
 }
 
+/**
+ * Bands are contiguous by construction: a score belongs to a band if it's
+ * at or above that band's min and below the *next* band's min — except the
+ * top band, which is inclusive of its own max. Comparing against each
+ * band's own max (the old approach) leaves gaps for any non-integer score
+ * strictly between one band's max and the next band's min — scores here
+ * are computed to 1 decimal place, so that gap was reachable in practice,
+ * not just in theory (confirmed: Australia's own historical composite hit
+ * it in 2005, 2006, and 2022 — see CLAUDE.md).
+ */
 export function bandForScore(score: number, bands: ScoreBand[]): ScoreBand | null {
-  return bands.find((b) => score >= b.min && score <= b.max) ?? null;
+  const sorted = [...bands].sort((a, b) => a.min - b.min);
+  for (let i = 0; i < sorted.length; i++) {
+    const band = sorted[i];
+    const nextMin = sorted[i + 1]?.min;
+    const belowUpperBound = nextMin === undefined ? score <= band.max : score < nextMin;
+    if (score >= band.min && belowUpperBound) return band;
+  }
+  return null;
 }
 
 export function computeLevelScoreForAllCountries(
