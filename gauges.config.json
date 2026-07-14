@@ -1,5 +1,5 @@
 {
-  "_readme": "This file defines every gauge on the Scorecard: its data source, its polarity (which direction counts as 'better'), and its weight in the composite verdict. Every polarity choice must be signed off by the site owner before use — see polarityJustification on each gauge. Phase B in progress: 12 of 16 gauges configured. 'accessType: api' gauges are fetched by /pipeline (run `npm run pipeline`); until that's run, or if a fetch fails, a gauge's data file keeps its SAMPLE_DATA status and the site shows it as sample. See CLAUDE.md and METHODOLOGY.md.",
+  "_readme": "This file defines every gauge on the Scorecard: its data source, its polarity (which direction counts as 'better'), and its weight in the composite verdict. Every polarity choice must be signed off by the site owner before use — see polarityJustification on each gauge. Phase C in progress: all 16 gauges configured (weights equally split 1/16, still a placeholder pending Phase D calibration). 'accessType: api' gauges are fetched by /pipeline (run `npm run pipeline`); 'accessType: manual' gauges are entered by hand via data/manual/ — see its README.md. Until a gauge has real data, its file keeps SAMPLE_DATA status (or doesn't exist yet) and the site shows it as sample/awaiting data, never silently as live. See CLAUDE.md and METHODOLOGY.md.",
   "peerCountries": [
     {
       "code": "AUS",
@@ -89,7 +89,7 @@
       "accessType": "api",
       "polarity": "higher_is_better",
       "polarityJustification": "Higher GDP per capita, PPP-adjusted, means more real purchasing power per person — an unambiguous 'more is better' metric.",
-      "weight": 0.083333,
+      "weight": 0.0625,
       "source": {
         "institution": "World Bank",
         "seriesId": "NY.GDP.PCAP.PP.KD",
@@ -107,7 +107,7 @@
       "accessType": "manual",
       "polarity": "higher_is_better",
       "polarityJustification": "Higher output per hour worked means the economy generates more value for the same labour input — the standard productivity definition.",
-      "weight": 0.083333,
+      "weight": 0.0625,
       "staleAfterMonths": 15,
       "dataPolicy": "OECD's live SDMX endpoint for this dataflow (DF_PDB_LV) redirects to an archive endpoint carrying the annotation NonProductionDataflow=true — OECD's own metadata flagging it as not intended for automated production queries. After three fix attempts (missing Accept headers, missing references=all on the redirect, a generic unhandled server exception on the archive endpoint itself) the query never returned data. Moved to a manual lane rather than continuing to debug infrastructure OECD itself has marked non-production — see CLAUDE.md for the full history. The same numbers are downloaded by hand from data-explorer.oecd.org using the template and instructions in data/manual/, then entered into data/processed/productivity.json directly. Not fetched automatically — update it by hand periodically.",
       "source": {
@@ -128,7 +128,7 @@
       "accessType": "manual",
       "polarity": "higher_is_better",
       "polarityJustification": "A higher average PISA score reflects stronger measured student performance across the three tested domains.",
-      "weight": 0.083333,
+      "weight": 0.0625,
       "staleAfterMonths": 45,
       "dataPolicy": "PISA publishes three separate domain scores (reading, mathematics, science), never a pre-blended figure — this gauge's value is the average of the three, computed from OECD's own published per-domain numbers, not sourced pre-averaged. Cadence was 3-yearly through 2022; OECD is moving to a 4-year cycle from PISA 2025 onward (results due 8 Sept 2026) — staleAfterMonths is set to 45 (3.75 years) to give a realistic publication-lag grace period without nagging monthly for a source that only updates every 3-4 years.",
       "source": {
@@ -148,7 +148,7 @@
       "accessType": "api",
       "polarity": "higher_is_better",
       "polarityJustification": "Higher R&D spending as a share of GDP means more of the economy's resources are going toward developing new products, processes, and technologies.",
-      "weight": 0.083333,
+      "weight": 0.0625,
       "source": {
         "institution": "World Bank",
         "seriesId": "GB.XPD.RSDV.GD.ZS",
@@ -167,7 +167,7 @@
       "polarity": "higher_is_better",
       "_polarityDecision": "SIGNED OFF by site owner, 2026-07-14: 'surplus = better' is a deliberate framework choice, not a claim of settled economics — see the Methodology page for the explicit caveat that this is contestable.",
       "polarityJustification": "This Scorecard treats external self-sufficiency — a stronger surplus / smaller deficit, i.e. less reliance on foreign capital — as the 'better' end of the scale. Economists legitimately debate current account polarity (a deficit can also reflect healthy foreign investment inflows); this is a stated framework choice, not an assertion that surpluses are objectively superior. See the Methodology page.",
-      "weight": 0.083333,
+      "weight": 0.0625,
       "source": {
         "institution": "World Bank",
         "seriesId": "BN.CAB.XOKA.GD.ZS",
@@ -185,7 +185,7 @@
       "accessType": "api",
       "polarity": "higher_is_better",
       "polarityJustification": "Higher WGI estimates mean stronger rule of law and lower perceived corruption — unambiguously better for governance quality.",
-      "weight": 0.083333,
+      "weight": 0.0625,
       "_seriesIdCorrection": "The brief's original assumed codes (RL.EST, CC.EST) are dead on the current World Bank API — confirmed via live test call, they return 'indicator not found'. The correct current codes, verified live 2026-07-14, are GOV_WGI_RL.EST and GOV_WGI_CC.EST under World Bank source 3 (Worldwide Governance Indicators, last updated 2026-03-18). Documented per the brief's instruction to log series ID corrections here and in METHODOLOGY.md.",
       "source": {
         "institution": "World Bank (Worldwide Governance Indicators)",
@@ -214,7 +214,7 @@
       "accessType": "api",
       "polarity": "higher_is_better",
       "polarityJustification": "Faster working-age population growth means a larger future labour supply and growth potential — several peers in this set (Japan, South Korea, Germany) face the opposite problem of a shrinking working-age population straining growth and pensions, which this gauge is meant to surface.",
-      "weight": 0.083333,
+      "weight": 0.0625,
       "source": {
         "institution": "World Bank",
         "seriesId": "SP.POP.1564.TO",
@@ -232,7 +232,7 @@
       "accessType": "api",
       "polarity": "higher_is_better",
       "polarityJustification": "A larger share of world exports reflects greater economic weight and competitiveness in global trade — a size/influence metric, not a policy tradeoff like the external-position gauge.",
-      "weight": 0.083333,
+      "weight": 0.0625,
       "source": {
         "institution": "World Bank",
         "seriesId": "NE.EXP.GNFS.CD",
@@ -250,7 +250,7 @@
       "accessType": "api",
       "polarity": "higher_is_better",
       "polarityJustification": "A larger share of world GDP (PPP) reflects greater economic weight — a size/influence metric like Trade, not a policy tradeoff.",
-      "weight": 0.083333,
+      "weight": 0.0625,
       "dataPolicy": "IMF's World Economic Outlook mixes its own forward projections into the published series, with no machine-readable flag in this API to tell an actual from a projection. Policy: any year from the current calendar year onward is excluded, so a forecast is never presented on this site as an achieved fact.",
       "source": {
         "institution": "IMF",
@@ -269,7 +269,7 @@
       "accessType": "api",
       "polarity": "lower_is_better",
       "polarityJustification": "A lower combined household and government debt burden relative to GDP means less financial fragility and less exposure to a rise in interest rates or a credit shock.",
-      "weight": 0.083333,
+      "weight": 0.0625,
       "source": {
         "institution": "Bank for International Settlements (BIS)",
         "seriesId": "WS_TC (Total Credit), borrower sectors H+G summed",
@@ -287,7 +287,7 @@
       "accessType": "api",
       "polarity": "lower_is_better",
       "polarityJustification": "A lower (or slower-rising) price-to-income ratio means housing is more affordable relative to earnings — higher values mean it takes more years of income to buy a home.",
-      "weight": 0.083333,
+      "weight": 0.0625,
       "source": {
         "institution": "OECD",
         "seriesId": "OECD.ECO.MPD,DSD_AN_HOUSE_PRICES@DF_HOUSE_PRICES,1.0",
@@ -305,7 +305,7 @@
       "accessType": "manual",
       "polarity": "higher_is_better",
       "polarityJustification": "A higher share of 25-34 year-olds with tertiary education means a more highly-skilled incoming workforce.",
-      "weight": 0.083333,
+      "weight": 0.0625,
       "staleAfterMonths": 15,
       "dataPolicy": "OECD's SDMX API for this series returned no matching data after three attempts with different dimension keys (see CLAUDE.md for the full debugging history). Moved to a manual lane: the same numbers are downloaded by hand from data-explorer.oecd.org using the template and instructions in data/manual/, then entered into data/processed/human-capital-depth.json directly. Not fetched automatically, so it won't refresh on the monthly pipeline run — update it by hand periodically.",
       "source": {
@@ -315,6 +315,86 @@
         "url": "https://data-explorer.oecd.org/"
       },
       "oneLiner": "What share of young adults have completed tertiary education."
+    },
+    {
+      "id": "military-capability",
+      "name": "Military capability",
+      "shortName": "Military capability",
+      "unit": "Military expenditure (% of GDP)",
+      "historyStartYear": 1990,
+      "accessType": "manual",
+      "polarity": "higher_is_better",
+      "polarityJustification": "Higher military spending relative to GDP is read here as capability, deterrence, and alliance credibility, not as militarization or opportunity cost — a genuine values choice, signed off by the site owner 2026-07-14, not a factual default. Could reasonably be flipped by a future site owner, but only as a deliberate re-decision, not a silent drift — see CLAUDE.md.",
+      "weight": 0.0625,
+      "staleAfterMonths": 15,
+      "dataPolicy": "SIPRI's Military Expenditure Database publishes spending in several forms (current/constant USD, per-capita, share of government spending, share of GDP). This gauge uses the 'Share of GDP' figures specifically, for consistency with this project's other normalized, cross-country-comparable gauges (external-position, trade, debt-burden) — not absolute spending, which would favour larger economies regardless of actual military priority.",
+      "source": {
+        "institution": "SIPRI",
+        "seriesId": "MILEX_GDP_SHARE",
+        "seriesName": "Military expenditure, share of GDP",
+        "url": "https://www.sipri.org/databases/milex"
+      },
+      "oneLiner": "How much of the economy goes toward military spending."
+    },
+    {
+      "id": "economic-complexity",
+      "name": "Economic complexity",
+      "shortName": "Econ. complexity",
+      "unit": "Economic Complexity Index (ECI)",
+      "historyStartYear": 1995,
+      "accessType": "manual",
+      "polarity": "higher_is_better",
+      "polarityJustification": "A higher Economic Complexity Index reflects a more diversified, sophisticated export base with more embedded knowhow — the standard reading of ECI, and uncontroversial (unlike military capability or inequality, this polarity had no real open question).",
+      "weight": 0.0625,
+      "staleAfterMonths": 15,
+      "dataPolicy": "The Atlas of Economic Complexity's own site notes that its rankings page and bulk data downloads are refreshed at different times of year, so figures for the same country/year can differ slightly between the two — use one download source consistently (the bulk CSV from atlas.hks.harvard.edu/data-downloads/), not a mix of the rankings page and the bulk file.",
+      "source": {
+        "institution": "Harvard Growth Lab",
+        "seriesId": "ECI",
+        "seriesName": "Economic Complexity Index",
+        "url": "https://atlas.hks.harvard.edu/data-downloads/"
+      },
+      "oneLiner": "How diversified and technologically sophisticated the economy's exports are."
+    },
+    {
+      "id": "inequality",
+      "name": "Inequality",
+      "shortName": "Inequality",
+      "unit": "Gini coefficient (disposable income, 0-1 scale)",
+      "historyStartYear": 1990,
+      "accessType": "manual",
+      "polarity": "lower_is_better",
+      "polarityJustification": "A lower Gini coefficient means income is more evenly distributed across the population — the standard reading of income inequality.",
+      "weight": 0.0625,
+      "staleAfterMonths": 24,
+      "dataPolicy": "This gauge is scored from OECD's Income Distribution Database Gini coefficient only, signed off by the site owner 2026-07-14. The World Inequality Database's top-wealth-share figure is shown on this gauge's detail page as context (income and wealth inequality are genuinely different things), but does not feed the composite score — keeps this gauge to one raw series like every other gauge on the site, rather than building new multi-component scoring machinery for this one case. OECD's Gini data updates on a rolling basis with uneven lag across countries (some countries' most recent year may be 2-3 years older than others') — staleAfterMonths is set to 24 rather than the usual 15 to reflect that real, expected lag rather than treating it as always overdue. See CLAUDE.md for the full reasoning.",
+      "source": {
+        "institution": "OECD",
+        "seriesId": "DSD_WISE_IDD@DF_IDD",
+        "seriesName": "Income Distribution Database — Gini coefficient, disposable income",
+        "url": "https://data-explorer.oecd.org/vis?df%5Bds%5D=DisseminateFinalDMZ&df%5Bid%5D=DSD_WISE_IDD%40DF_IDD&df%5Bag%5D=OECD.WISE.INE"
+      },
+      "oneLiner": "How evenly income is distributed across the population."
+    },
+    {
+      "id": "internal-cohesion",
+      "name": "Internal cohesion",
+      "shortName": "Internal cohesion",
+      "unit": "V-Dem Civil Society Participation Index (0-1 scale)",
+      "historyStartYear": 1990,
+      "accessType": "manual",
+      "polarity": "higher_is_better",
+      "polarityJustification": "A higher Civil Society Participation Index means civil society organisations are more routinely consulted and more people are meaningfully involved in political life — read as social cohesion in a participatory sense, not institutional design quality.",
+      "weight": 0.0625,
+      "staleAfterMonths": 15,
+      "dataPolicy": "Tracks V-Dem's Civil Society Participation Index (v2x_cspart), chosen 2026-07-14 over the more commonly cited v2x_polyarchy (Electoral Democracy Index, measures institutional democratic quality rather than 'cohesion') and v2x_egaldem (Egalitarian Democracy Index, a fairness/inclusion framing) — see CLAUDE.md for why. A future site owner could reasonably prefer a different V-Dem variable for this concept; that should be a deliberate re-decision, not a silent drift.",
+      "source": {
+        "institution": "V-Dem Institute",
+        "seriesId": "v2x_cspart",
+        "seriesName": "Civil Society Participation Index",
+        "url": "https://v-dem.net/data_analysis/VariableGraph/"
+      },
+      "oneLiner": "How much civil society genuinely participates in political life."
     }
   ]
 }

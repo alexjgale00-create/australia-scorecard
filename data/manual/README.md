@@ -1,11 +1,16 @@
 # Manual-lane data entry — all gauges
 
 This folder holds the download template and instructions for every gauge
-that isn't fetched automatically by `npm run pipeline`. As of Phase C:
-**Productivity** and **Human capital depth** (OECD series where the
-automated SDMX API route didn't pan out — full reasoning in `CLAUDE.md`),
-and **Education** (PISA, only ever published every 3-4 years, never
-fetched automatically by design).
+that isn't fetched automatically by `npm run pipeline`. As of Phase C,
+that's 7 gauges: **Productivity** and **Human capital depth** (OECD series
+where the automated SDMX API route didn't pan out — full reasoning in
+`CLAUDE.md`); **Education** (PISA, only published every 3-4 years, never
+fetched automatically by design); and four gauges new to Phase C —
+**Military capability** (SIPRI), **Economic complexity** (Harvard Atlas),
+**Inequality** (OECD Gini), and **Internal cohesion** (V-Dem) — none of
+which have an OECD/World Bank/IMF/BIS-style API this project already
+knows how to query, so manual was the plan from the start for these four,
+not a fallback.
 
 The process is the same for every gauge here — only the source website's
 filters, the template's columns, and the target file differ:
@@ -125,3 +130,108 @@ If any exact filter label above doesn't match what you see on the site
 (OECD renames things sometimes), pick the closest match — the goal is
 always "this measure, this age group, this level, % of the age group, all
 years available, all 9 countries."
+
+---
+
+## Military capability
+
+**Measures:** military expenditure as a share of GDP.
+
+**Polarity note:** this gauge is configured **higher is better** —
+spending is read as capability/deterrence, not militarization. That's a
+values choice the site owner signed off on 2026-07-14, not a factual
+default (see `CLAUDE.md`) — worth knowing since it's the one gauge on this
+site where a thoughtful reader could reasonably want the opposite framing.
+
+**Download steps:**
+
+1. Go to **https://www.sipri.org/databases/milex** and download the
+   highlighted Excel file (SIPRI revises it periodically — the download
+   link always points to the current version).
+2. Open the **"Share of GDP"** tab specifically — the workbook has several
+   other tabs (constant USD, per-capita, share of government spending)
+   that are not what this gauge tracks.
+3. Pull out the 9 peer countries (SIPRI's own country list is much
+   longer) and fill in `military-capability-template.csv`.
+
+SIPRI's data isn't from an interactive filtered-export tool like OECD's —
+you're extracting rows from one wide spreadsheet by hand. Take care to
+match the right row (country name) to the right column (year) in that
+one tab.
+
+---
+
+## Economic complexity
+
+**Measures:** the Economic Complexity Index (ECI) — how diversified and
+knowledge-intensive a country's exports are.
+
+**Download steps:**
+
+1. Go to **https://atlas.hks.harvard.edu/data-downloads/** and use the
+   bulk CSV download (not the rankings page — the Atlas's own
+   documentation notes the two can be refreshed at different times of
+   year and may not match to the decimal; pick one source and stick with
+   it).
+2. Filter/extract the 9 peer countries' ECI value per year.
+3. Fill in `economic-complexity-template.csv`.
+
+---
+
+## Inequality
+
+**Measures:** the Gini coefficient for disposable income (0-1 scale,
+higher = more unequal). **Only Gini feeds this gauge's score** — see
+below.
+
+**Two sources, one score — read this before downloading:** the original
+plan considered combining OECD's income Gini with the World Inequality
+Database's top-wealth-share figure into one number. The site owner
+decided (2026-07-14) to score this gauge from **OECD Gini only** — WID's
+wealth-share number is intended as supporting context on the gauge detail
+page, not part of the score, since income and wealth inequality are
+different things and forcing them into one blended number would obscure
+that. **The WID context display isn't built yet** — this batch only wires
+up the Gini score. If you download WID data now, hang onto it; the
+context-display feature is separate, smaller follow-up work.
+
+**Download steps (Gini — required):**
+
+1. Go to **https://data-explorer.oecd.org/** and search for the **Income
+   Distribution Database** (dataflow `DSD_WISE_IDD@DF_IDD`, agency
+   `OECD.WISE.INE`).
+2. Filter to: disposable income, Gini coefficient, the 9 peer countries.
+3. Download → CSV (top-right download button → "Select data only (.csv)"),
+   then fill in `inequality-template.csv`.
+4. **Expect gaps.** OECD's Gini data updates on a rolling basis with
+   uneven lag — some countries' latest available year may be 2-3 years
+   behind others'. Leave those years blank; don't estimate a gap.
+
+**Download steps (WID wealth share — optional, for later use):**
+
+1. Go to **https://wid.world/**, find each of the 9 countries' page, and
+   note the top 1% (or top 10%) wealth share by year.
+2. Keep this data aside for now — there's no template or ingestion path
+   for it yet.
+
+---
+
+## Internal cohesion
+
+**Measures:** V-Dem's Civil Society Participation Index (`v2x_cspart`,
+0-1 scale) — how genuinely civil society organisations are consulted and
+how many people are meaningfully involved in political life.
+
+**Why this specific variable:** V-Dem publishes hundreds of variables;
+`v2x_cspart` was chosen over the more famous Electoral Democracy Index
+(`v2x_polyarchy`, institutional design quality, not "cohesion") and the
+Egalitarian Democracy Index (`v2x_egaldem`, a fairness/inclusion framing)
+— see `CLAUDE.md` for the reasoning if you want to reconsider this later.
+
+**Download steps:**
+
+1. Go to **https://v-dem.net/data_analysis/VariableGraph/** (or download
+   the full V-Dem Dataset if you want to browse the codebook directly).
+2. Find variable `v2x_cspart` for the 9 peer countries, all available
+   years.
+3. Fill in `internal-cohesion-template.csv`.

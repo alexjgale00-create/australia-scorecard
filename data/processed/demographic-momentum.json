@@ -6,7 +6,7 @@
     "seriesId": "SP.POP.1564.TO",
     "seriesName": "Population ages 15-64, total (pipeline derives year-over-year % growth from this level series)",
     "url": "https://data.worldbank.org/indicator/SP.POP.1564.TO",
-    "retrievedAt": "2026-07-14T07:02:41.229Z",
+    "retrievedAt": "2026-07-14T09:30:14.605Z",
     "note": "Derived: year-over-year % growth computed from World Bank's working-age population LEVEL series (SP.POP.1564.TO), not published directly as a growth rate.",
     "missingCountries": []
   },
