@@ -6,6 +6,57 @@ See `README.md` (how to run this) and `METHODOLOGY.md` (full scoring
 write-up) for detail. This file records durable project decisions that
 should survive across sessions.
 
+## Phase D: started, then paused pending the data layer (2026)
+
+Phase D (methodology/editorial: band thresholds, weights, direction
+threshold, sentence audit, retirement list, launch-blocker list) began
+with band thresholds (Item 1 of 6) before the site owner caught that the
+data layer wasn't actually complete — 3 of 16 gauges (Human capital
+depth, Inequality, Internal cohesion) have no data file at all, and 2
+more (Education, Productivity) are still Phase A sample data. **Ruling:
+Items 2-6 are parked. The five remaining manual downloads happen next, in
+a separate session; Phase D resumes only once all 16 gauges are LIVE.**
+Treat any Phase D output from before that point as provisional — see
+"Item 1" below for exactly what was and wasn't decided.
+
+### Item 1 (band thresholds) — what was ruled
+
+Full reasoning, the numbers behind it, and the reproduction method are in
+METHODOLOGY.md's "Phase D, Item 1" section — this entry is the short,
+action-oriented version.
+
+**Ruled now:**
+- **Fix `bandForScore`'s boundary bug** (`lib/scoring.ts`) — independent
+  of calibration, a correctness defect. Current comparison
+  (`score >= min && score <= max` against integer boundaries) leaves a
+  gap between adjacent bands that any score with a nonzero decimal falls
+  into, returning no band at all. Confirmed live: Australia's own
+  historical composite (2005, 2006, 2022) already falls in this gap.
+  **Fix**: `score >= min && score < nextBand.min`, with the top band
+  (Leading) inclusive of its max. **Handoff for implementation**: this is
+  a self-contained change to one function in `lib/scoring.ts`, does not
+  touch the threshold *values* themselves (`gauges.config.json`'s
+  `scoreBands` stay exactly as they are — still placeholders, per below),
+  and should ship with a quick check that no year in any gauge's or the
+  composite's historical series now returns `null` from `bandForScore`
+  where it has a real numeric score.
+
+**Ruled deferred:**
+- **Threshold recalibration stays undone.** The analysis run (11 of 16
+  gauges) surfaced real signal — worth reading in METHODOLOGY.md — but
+  the site owner's ruling was explicit: band thresholds are a one-time,
+  permanent ("constitutional") decision, set once on the complete
+  16-gauge composite, not set provisionally now and adjusted again later.
+  **`gauges.config.json`'s `scoreBands` and `_scoreBandsTodo` stay
+  exactly as they are.** The site does not launch until this is resolved
+  on all 16 gauges.
+- When Phase D resumes: re-run the same analysis on all 16, produce both
+  the original proposal *and* a centered-Holding variant, and bring the
+  "should bands be defined against the composite's actual achievable
+  range rather than nominal 0-100" question as a framed option — none of
+  that is pre-decided, per the site owner's explicit instruction not to
+  hand over a pre-selected answer.
+
 ## Phase B: complete (2026-07-14)
 
 12 of 16 gauges configured; 9 fetch automatically (World Bank × 6, IMF,

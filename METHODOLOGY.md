@@ -131,12 +131,10 @@ country — maps to a plain-English band via `scoreBands` in
 | Strengthening | 60–79 |
 | Leading | 80–100 |
 
-**⚠ These thresholds are placeholders.** They were chosen for a clean 5-way
+**⚠ These thresholds are placeholders, and remain so as of the Phase D
+checkpoint (2026, ruling below).** They were chosen for a clean 5-way
 split of 0–100, not calibrated against real data. `gauges.config.json`
-carries a `_scoreBandsTodo` note to this effect. **They must be reviewed at
-the Phase D checkpoint**, once all 16 gauges are live with real numbers,
-before any public release — a threshold that looks reasonable on 3 sample
-gauges may not hold once the full set is in.
+carries a `_scoreBandsTodo` note to this effect.
 
 Band colors follow the site's existing validated palette exclusively (no new
 hexes introduced): the two "bad" bands reuse the status-critical and
@@ -146,6 +144,73 @@ the categorical green slot. The status-warning (amber) token was deliberately
 excluded from the bands, since it already means "data caveat" elsewhere on
 the site (the Sample Data badge) — reusing it here would make amber mean two
 different things on the same page.
+
+### Phase D, Item 1 — band threshold ruling (recorded, not yet final)
+
+A first calibration pass was run on the 11 gauges live at the time (missing
+Education, Productivity, Human capital depth, Inequality, Internal
+cohesion). Two things came out of it, ruled separately:
+
+**1. A real bug, fixed independent of calibration.** `bandForScore` (in
+`lib/scoring.ts`) used `score >= min && score <= max` against integer
+boundaries (`0–24 / 25–44 / 45–59 / 60–79 / 80–100`), but scores are
+computed to 1 decimal place — so any score strictly between two integer
+boundaries (e.g. 44.2, 44.6, 44.8) matched **no band at all**. Not
+theoretical: Australia's own historical composite hit this gap in 2005
+(44.6), 2006 (44.2), and 2022 (44.8) — three years where the homepage
+sparkline would render with no band. **Ruling: fix now**, independent of
+where the thresholds end up — `score >= min && score < nextBand.min`, top
+band inclusive of its max. Implementation handed to a separate session,
+not bundled with the calibration decision below.
+
+**2. Threshold recalibration itself: deferred.** The 11-gauge pass found
+real signal worth recording even though it's not being acted on yet:
+
+- Excluding 1980-1989 (only 2-4 gauges have data that far back — noisy,
+  not representative), Australia's composite has stayed within **35.8 to
+  48.1** for 35 years (1990-2025) — it has never been close to "Falling
+  Behind" (0-24) or "Strengthening" (60-79) on this basis.
+- Today, across all 9 peers, **8 of 9 sit in just 2 of the 5 bands**
+  (Slipping and Holding) — Falling Behind and Leading are both empty.
+  Current thresholds don't discriminate well.
+- A "typical" decade move in the composite (median absolute change,
+  1990-2025) is **~4.2 points**; the largest observed is **9.7**.
+- The composite structurally lives in roughly the 30-65 range, never near
+  0 or 100 — a weighted average across many gauges regresses toward the
+  middle even though any single gauge can hit either extreme. Bands built
+  for a literal 0-100 spread don't fit that.
+
+**Ruling: the site owner deferred acting on this.** The calibration above
+is built on 11 of 16 gauges — the missing five (Education, Productivity,
+Inequality, Internal cohesion, Human capital depth) are plausibly
+composite-moving for Australia specifically, and band thresholds are
+being treated as a one-time, permanent decision ("constitutional," not
+provisional-then-quietly-adjusted) — set once, on the complete 16-gauge
+composite, not twice. **Placeholder thresholds stay in place, explicitly
+marked provisional, and the site does not launch until this is resolved.**
+
+**Prepared for the re-run**, once all 16 gauges are live:
+- Re-run the same analysis (method below) on the full 16-gauge composite.
+- Alongside the original proposal (`0-29 / 30-34 / 35-50 / 51-62 /
+  63-100`), also produce a **centered-Holding variant** (e.g. `Holding
+  ≈ 42-55`) that keeps Australia reading as "Slipping" rather than moving
+  it to "Holding" on day one of recalibration — both variants go to the
+  site owner together, not pre-selected.
+- Address, as a framed option rather than a foregone conclusion: **should
+  bands be defined against the composite's actual achievable range (or
+  peer percentiles), rather than the nominal 0-100 scale** — given the
+  finding that the composite structurally never reaches the extremes?
+
+**Method to reproduce** (so the re-run isn't re-derived from scratch):
+compute `computeHistoricalComposite`-equivalent series for Australia
+across every gauge with `provenance.status === "LIVE"` (exclude
+`SAMPLE_DATA` and missing files entirely — never calibrate against
+placeholder numbers); exclude any year where fewer than half the eventual
+gauge count has data (the 1980s problem); compute the same composite for
+all 9 peers at Australia's `latestSharedYear` per gauge (this is what
+`computeCompositeForAllCountries` already does); report full range,
+today's 9-country spread against both the current and proposed bands, and
+median/max absolute decade-over-decade change.
 
 ## Manual-source staleness
 
