@@ -68,7 +68,13 @@ export async function fetchOecdDataflowDimensions(dataflowPath) {
     );
   }
 
-  const dimensionRe = /<structure:Dimension\s+[^>]*\bid="([^"]+)"/g;
+  // Prefix-agnostic: DF_PDB_LV's structure response found zero matches
+  // against a hardcoded "structure:" prefix while a different OECD domain's
+  // dataflow matched fine with that exact prefix — different domains
+  // evidently don't all use the same namespace prefix for the same tag.
+  // Matches <structure:Dimension>, <str:Dimension>, <Dimension> (no
+  // prefix), or anything else, as long as the local tag name is "Dimension".
+  const dimensionRe = /<(?:[a-zA-Z0-9]+:)?Dimension\s+[^>]*\bid="([^"]+)"/g;
   const dims = [];
   let m;
   while ((m = dimensionRe.exec(text)) !== null) {
@@ -77,7 +83,7 @@ export async function fetchOecdDataflowDimensions(dataflowPath) {
   if (dims.length === 0) {
     throw new Error(
       `OECD SDMX API returned a data structure for "${dataflowPath}" with no dimensions found — the ` +
-        `response shape may differ from what this was written against: ${snippet(text)}`
+        `response shape may differ from what this was written against: ${snippet(text, 1500)}`
     );
   }
   return dims;
@@ -92,7 +98,12 @@ export async function fetchOecdDataflowDimensions(dataflowPath) {
  */
 async function fetchAvailableConstraintSnippet(dataflowPath, key) {
   try {
-    const url = `https://sdmx.oecd.org/public/rest/availableconstraint/${dataflowPath}/${key}?references=none&mode=exact`;
+    // No query params: the first attempt guessed "references=none&mode=exact"
+    // and got HTTP 500 "Could not find structure type with class 'none'" —
+    // this deployment evidently doesn't accept that combination. Going
+    // maximally conservative (bare endpoint + key, no params we're not sure
+    // about) rather than guessing a second set of parameter values blind.
+    const url = `https://sdmx.oecd.org/public/rest/availableconstraint/${dataflowPath}/${key}`;
     const res = await fetch(url, { signal: AbortSignal.timeout(15000), headers: STRUCTURE_HEADERS });
     const text = await res.text();
     if (!res.ok) return `(also failed: HTTP ${res.status}: ${snippet(text, 200)})`;
@@ -223,11 +234,22 @@ function parseSdmxJson(json) {
   const refAreaValues = seriesDims[refAreaDimIndex].values ?? [];
   const timeValues = obsDims[timeDimIndex].values ?? [];
 
+  // Decodes a series key like "0:2:1" into "REF_AREA=AUS, MEASURE=RPI, ..."
+  // — used only to make an ambiguity error actually actionable (which
+  // dimension differs between two conflicting series), not in the happy path.
+  function describeSeriesKey(seriesKey) {
+    const dimIndices = seriesKey.split(":").map(Number);
+    return seriesDims
+      .map((dim, i) => `${dim.id}=${dim.values?.[dimIndices[i]]?.id ?? "?"}`)
+      .join(", ");
+  }
+
   const byCountry = {};
-  // Tracks year -> value already recorded per country, so that if a loosely
-  // (wildcard-)filtered query returns more than one series per country (e.g.
-  // two different underlying collections), a genuine conflict is caught
-  // loudly instead of one silently overwriting the other.
+  // Tracks year -> {value, seriesKey} already recorded per country, so that
+  // if a loosely (wildcard-)filtered query returns more than one series per
+  // country (e.g. two different underlying collections), a genuine conflict
+  // is caught loudly — and reported with both series' full dimension
+  // breakdown, so the fix is "pin this dimension" not another guess.
   const seenByCountry = {};
   for (const code of PEER_COUNTRY_CODES) {
     byCountry[code] = { name: COUNTRY_NAMES[code], series: [] };
@@ -249,16 +271,18 @@ function parseSdmxJson(json) {
       if (value === null || value === undefined || Number.isNaN(year)) continue;
 
       const seen = seenByCountry[refAreaCode];
-      if (seen.has(year) && seen.get(year) !== value) {
+      const prior = seen.get(year);
+      if (prior && prior.value !== value) {
         throw new Error(
-          `OECD SDMX API returned conflicting values for ${refAreaCode} in ${year} (${seen.get(year)} vs ` +
-            `${value}) — the query key is under-constrained (likely a wildcarded dimension picking up more ` +
-            `than one underlying series) and this data is too ambiguous to trust. Narrowing the key is required, ` +
-            `not silently picking one value.`
+          `OECD SDMX API returned conflicting values for ${refAreaCode} in ${year} (${prior.value} vs ${value}) ` +
+            `— the query key is under-constrained. Series A [${prior.seriesKey}]: ${describeSeriesKey(prior.seriesKey)}. ` +
+            `Series B [${seriesKey}]: ${describeSeriesKey(seriesKey)}. Compare those two dimension breakdowns to see ` +
+            `which one differs — that's the dimension to pin. This data is too ambiguous to trust as-is; narrowing ` +
+            `the key is required, not silently picking one value.`
         );
       }
-      if (!seen.has(year)) {
-        seen.set(year, value);
+      if (!prior) {
+        seen.set(year, { value, seriesKey });
         byCountry[refAreaCode].series.push({ year, value });
       }
     }
