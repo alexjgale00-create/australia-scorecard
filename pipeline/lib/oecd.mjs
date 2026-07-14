@@ -9,13 +9,21 @@ const USER_AGENT =
 // with the response body listing exactly what it does accept. This parser
 // reads XML (`<structure:Dimension id="...">`), so it asks for the XML
 // structure format specifically, not whatever the server would default to.
+// Accept-Language: DF_HOUSE_PRICES returned a garbled .NET resource-lookup
+// error ("languageTag1" — the literal name of a resource key, not a real
+// message) with no Accept-Language header sent. That's consistent with
+// server-side locale-resolution code failing when it has nothing to
+// resolve. Explicit "en" is a reasonable, low-risk fix to try — not fully
+// confirmed yet.
 const DATA_HEADERS = {
   "User-Agent": USER_AGENT,
   Accept: "application/vnd.sdmx.data+json",
+  "Accept-Language": "en",
 };
 const STRUCTURE_HEADERS = {
   "User-Agent": USER_AGENT,
   Accept: "application/vnd.sdmx.structure+xml;version=2.1",
+  "Accept-Language": "en",
 };
 
 const RETRYABLE_STATUSES = new Set([500, 502, 503, 504]);
@@ -39,7 +47,11 @@ function sleep(ms) {
  */
 export async function fetchOecdDataflowDimensions(dataflowPath) {
   const [agency, id, version] = dataflowPath.split(",");
-  const url = `https://sdmx.oecd.org/public/rest/dataflow/${agency}/${id}/${version}?references=children`;
+  // references=all, not "children": confirmed live (pre-block, manual testing)
+  // that "all" reliably includes the embedded DSD/dimension list; "children"
+  // returned a real structure response for this same dataflow shape with
+  // zero dimensions found — apparently not equivalent for every dataflow.
+  const url = `https://sdmx.oecd.org/public/rest/dataflow/${agency}/${id}/${version}?references=all`;
 
   const res = await fetch(url, { signal: AbortSignal.timeout(30000), headers: STRUCTURE_HEADERS });
   const text = await res.text();
@@ -69,6 +81,25 @@ export async function fetchOecdDataflowDimensions(dataflowPath) {
     );
   }
   return dims;
+}
+
+/**
+ * Best-effort diagnostic only, never thrown as a hard failure itself:
+ * SDMX 2.1's "availableconstraint" resource is built to answer "which
+ * dimension values actually have data for this partial key" — exactly what
+ * a bare 404 doesn't tell you. If this deployment doesn't support it or the
+ * call fails for any reason, that's reported inline rather than raised.
+ */
+async function fetchAvailableConstraintSnippet(dataflowPath, key) {
+  try {
+    const url = `https://sdmx.oecd.org/public/rest/availableconstraint/${dataflowPath}/${key}?references=none&mode=exact`;
+    const res = await fetch(url, { signal: AbortSignal.timeout(15000), headers: STRUCTURE_HEADERS });
+    const text = await res.text();
+    if (!res.ok) return `(also failed: HTTP ${res.status}: ${snippet(text, 200)})`;
+    return snippet(text, 600);
+  } catch (err) {
+    return `(also failed: ${err.message})`;
+  }
 }
 
 /**
@@ -121,10 +152,15 @@ export async function fetchOecdSdmxData(dataflowPath, key, { startPeriod, endPer
     }
 
     if (!res.ok) {
+      // A 404 here means "no data for this exact key" but never says which
+      // dimension value is the problem. availableconstraint is the SDMX
+      // REST feature built to answer that — best-effort only: if it fails
+      // or doesn't exist for this deployment, that's noted, not fatal.
+      const extra = res.status === 404 ? ` Available-combinations diagnostic: ${await fetchAvailableConstraintSnippet(dataflowPath, key)}` : "";
       throw new Error(
         `OECD SDMX API returned HTTP ${res.status} for dataflow "${dataflowPath}"` +
           (attempt > 0 ? ` (after ${attempt} retr${attempt === 1 ? "y" : "ies"})` : "") +
-          `: ${snippet(text)}`
+          `: ${snippet(text)}${extra}`
       );
     }
 
