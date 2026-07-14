@@ -1,9 +1,21 @@
 import { PEER_COUNTRY_CODES, COUNTRY_NAMES } from "./worldbank.mjs";
 
-const BROWSER_HEADERS = {
-  "User-Agent":
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+const USER_AGENT =
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
+
+// The /data endpoint and the /dataflow (structure) endpoint negotiate
+// content type independently and don't accept the same values — confirmed
+// live: sending the data endpoint's Accept header to /dataflow got HTTP 406,
+// with the response body listing exactly what it does accept. This parser
+// reads XML (`<structure:Dimension id="...">`), so it asks for the XML
+// structure format specifically, not whatever the server would default to.
+const DATA_HEADERS = {
+  "User-Agent": USER_AGENT,
   Accept: "application/vnd.sdmx.data+json",
+};
+const STRUCTURE_HEADERS = {
+  "User-Agent": USER_AGENT,
+  Accept: "application/vnd.sdmx.structure+xml;version=2.1",
 };
 
 const RETRYABLE_STATUSES = new Set([500, 502, 503, 504]);
@@ -29,7 +41,7 @@ export async function fetchOecdDataflowDimensions(dataflowPath) {
   const [agency, id, version] = dataflowPath.split(",");
   const url = `https://sdmx.oecd.org/public/rest/dataflow/${agency}/${id}/${version}?references=children`;
 
-  const res = await fetch(url, { signal: AbortSignal.timeout(30000), headers: BROWSER_HEADERS });
+  const res = await fetch(url, { signal: AbortSignal.timeout(30000), headers: STRUCTURE_HEADERS });
   const text = await res.text();
 
   if (res.status === 403 && (text.includes("Just a moment") || text.trim().startsWith("<!DOCTYPE"))) {
@@ -83,7 +95,7 @@ export async function fetchOecdSdmxData(dataflowPath, key, { startPeriod, endPer
     let res;
     let text;
     try {
-      res = await fetch(url, { signal: AbortSignal.timeout(30000), headers: BROWSER_HEADERS });
+      res = await fetch(url, { signal: AbortSignal.timeout(30000), headers: DATA_HEADERS });
       text = await res.text();
     } catch (err) {
       lastErr = new Error(`Could not reach the OECD SDMX API (${err.message}).`);
