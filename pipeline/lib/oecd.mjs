@@ -80,7 +80,15 @@ export async function fetchOecdDataflowDimensions(dataflowPath, _redirected = fa
   if (!_redirected && /isExternalReference="true"/.test(text)) {
     const structureUrlMatch = text.match(/structureURL="([^"]+)"/);
     if (structureUrlMatch) {
-      return fetchOecdDataflowDimensions(structureUrlMatch[1], true);
+      // The bare structureURL returns just the Dataflow stub itself (with
+      // annotations, no DimensionList) — confirmed live: DF_PDB_LV's archive
+      // redirect landed here and "found zero dimensions" even though the
+      // redirect itself worked, because references=all was never forwarded
+      // to the second request. Same param this file already relies on for
+      // the primary (non-redirected) request, for the same reason.
+      const redirectUrl =
+        structureUrlMatch[1] + (structureUrlMatch[1].includes("?") ? "&" : "?") + "references=all";
+      return fetchOecdDataflowDimensions(redirectUrl, true);
     }
   }
 

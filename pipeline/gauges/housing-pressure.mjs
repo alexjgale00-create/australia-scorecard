@@ -3,20 +3,40 @@
 // description).
 //
 // The bare "all" key crashed OECD's server (HTTP 500, garbled resource-
-// lookup error) on a live run — see the matching note in productivity.mjs.
-// Now discovers the real dimension list and builds a correctly-shaped key
-// (REF_AREA pinned, everything else explicitly blank) via
-// fetchOecdCountryData, with the parser's duplicate-value check as a
-// safety net against an under-constrained query silently mixing series.
-import { fetchOecdCountryData } from "../lib/oecd.mjs";
+// lookup error) on a live run. The next attempt (REF_AREA pinned, every
+// other dimension blank via fetchOecdCountryData) surfaced a real ambiguity
+// on a live run: OECD's own duplicate-value safety net caught two distinct
+// measures answering the same query — MEASURE=HPI (nominal house price
+// index) and MEASURE=HPI_YDH (price-to-income ratio) both matched, with
+// values that genuinely disagree. gauges.config.json's seriesName for this
+// gauge is explicit: "price-to-income ratio" — so HPI_YDH is the correct
+// code, not a guess between equally-plausible options. UNIT_MEASURE=IX
+// pinned too, since that's the unit both conflicting series shared in the
+// live error (an index, matching this gauge's configured unit).
+import { fetchOecdDataflowDimensions, fetchOecdSdmxData, PEER_COUNTRY_KEY } from "../lib/oecd.mjs";
 import { writeGaugeData } from "../lib/writeGaugeData.mjs";
 import { buildMissingCountries } from "../lib/worldbank.mjs";
 
 export const gaugeId = "housing-pressure";
 const DATAFLOW = "OECD.ECO.MPD,DSD_AN_HOUSE_PRICES@DF_HOUSE_PRICES,1.0";
 
+const KNOWN_DIMENSION_VALUES = {
+  MEASURE: "HPI_YDH",
+  UNIT_MEASURE: "IX",
+};
+
 export async function run(config, report) {
-  const { byCountry, missingCountries } = await fetchOecdCountryData(DATAFLOW, {
+  const dims = await fetchOecdDataflowDimensions(DATAFLOW);
+  const refAreaIndex = dims.indexOf("REF_AREA");
+  if (refAreaIndex === -1) {
+    throw new Error(`OECD dataflow "${DATAFLOW}" has no REF_AREA dimension in its structure.`);
+  }
+
+  const key = dims
+    .map((dim, i) => (i === refAreaIndex ? PEER_COUNTRY_KEY : (KNOWN_DIMENSION_VALUES[dim] ?? "")))
+    .join(".");
+
+  const { byCountry, missingCountries } = await fetchOecdSdmxData(DATAFLOW, key, {
     startPeriod: config.historyStartYear,
     endPeriod: new Date().getFullYear(),
   });
@@ -31,7 +51,7 @@ export async function run(config, report) {
       url: config.source.url,
       retrievedAt: new Date().toISOString(),
       note:
-        `Live data from ${config.source.institution}, Analytical House Price Indicators.` +
+        `Live data from ${config.source.institution}, Analytical House Price Indicators (price-to-income ratio).` +
         (missingCountries.length > 0 ? ` No data available for: ${missingCountries.join(", ")}.` : ""),
       missingCountries: buildMissingCountries(
         missingCountries,
@@ -54,7 +74,7 @@ export async function run(config, report) {
   } else {
     report.success(
       gaugeId,
-      `${config.source.institution}, Analytical House Prices — 9 countries, Australia ${yearsCovered}. Saved.`
+      `${config.source.institution}, Analytical House Prices (price-to-income) — 9 countries, Australia ${yearsCovered}. Saved.`
     );
   }
 }

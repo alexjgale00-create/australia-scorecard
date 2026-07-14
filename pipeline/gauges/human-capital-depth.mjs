@@ -15,6 +15,18 @@
 // country/year (e.g. two collection methods disagreeing), the parser's
 // duplicate-value check throws a clear "ambiguous data" error instead of
 // silently picking one.
+//
+// Still 404 with STATISTICAL_OPERATION/QUESTIONNAIRE blank — and the
+// availableconstraint diagnostic came back with no per-dimension breakdown
+// at all (just an empty TIME_PERIOD list), which means literally nothing
+// matches this key, not "one dimension is slightly off." MEASURE=POP is
+// now also left blank on the theory that a percentage-of-population measure
+// may not pair with the same MEASURE code used for absolute counts in this
+// dataflow's structure — UNIT_MEASURE=PT_POP_Y25T34 stays pinned since it's
+// the most specific, least-guessable value available. This is the last
+// narrow attempt before moving this gauge to a manual-source lane: three
+// distinct keys tried against this dataflow with no traction is past the
+// point where guessing is worth another round-trip.
 import { fetchOecdDataflowDimensions, fetchOecdSdmxData, PEER_COUNTRY_KEY } from "../lib/oecd.mjs";
 import { writeGaugeData } from "../lib/writeGaugeData.mjs";
 import { buildMissingCountries } from "../lib/worldbank.mjs";
@@ -29,7 +41,6 @@ const KNOWN_DIMENSION_VALUES = {
   SEX: "_T",
   AGE: "Y25T34",
   ATTAINMENT_LEV: "ISCED11A_5T8",
-  MEASURE: "POP",
   UNIT_MEASURE: "PT_POP_Y25T34",
   FREQ: "A",
 };
