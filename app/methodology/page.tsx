@@ -81,6 +81,8 @@ export default function MethodologyPage() {
           picked for a clean 5-way split of 0&ndash;100 and have <strong>not</strong>{" "}been
           calibrated against real data. They must be reviewed at Phase D, once all 16 gauges
           are live with real numbers, before any public release.
+          <br className="hidden sm:block" />
+          Band boundaries are provisional pending full-data recalibration. — dated 2026-07-14.
         </div>
         <div className="mt-4 space-y-2">
           {gaugesConfig.scoreBands.map((b) => (

@@ -7,6 +7,10 @@ export default function Footer() {
           number on this site links back to its original published source — see{" "}
           <a href="/methodology" className="underline hover:text-[var(--text-secondary)]">
             Methodology
+          </a>{" "}
+          and{" "}
+          <a href="/status" className="underline hover:text-[var(--text-secondary)]">
+            Data status
           </a>
           .
         </p>

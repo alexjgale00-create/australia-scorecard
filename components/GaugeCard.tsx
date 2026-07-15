@@ -3,7 +3,9 @@ import type { GaugeConfig, GaugeData, GaugeScore, ScoreBand } from "@/lib/types"
 import DirectionArrow from "@/components/DirectionArrow";
 import DotStrip from "@/components/DotStrip";
 import AnchoredSparkline from "@/components/AnchoredSparkline";
+import MaturityTag from "@/components/MaturityTag";
 import { computeGaugeHistoricalLevelScores, computeLevelScoreForAllCountries } from "@/lib/scoring";
+import { computeMaturity } from "@/lib/maturity";
 
 export default function GaugeCard({
   config,
@@ -20,6 +22,7 @@ export default function GaugeCard({
     ? computeLevelScoreForAllCountries(data, config, score.latestYear)
     : [];
   const historicalScores = computeGaugeHistoricalLevelScores(data, config, "AUS");
+  const maturity = computeMaturity(config, data);
 
   return (
     <Link
@@ -29,15 +32,7 @@ export default function GaugeCard({
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-2">
           <h3 className="font-semibold text-[var(--text-primary)]">{config.name}</h3>
-          {data.provenance.status === "SAMPLE_DATA" && (
-            <span
-              className="rounded-full border px-1.5 py-0.5 text-[0.65rem] font-medium leading-none"
-              style={{ borderColor: "var(--status-warning)", color: "var(--status-warning)" }}
-              title="This gauge is showing illustrative sample data, not a real published statistic."
-            >
-              Sample
-            </span>
-          )}
+          <MaturityTag tier={maturity.tier} reason={maturity.reason} />
         </div>
         <div className="text-2xl font-bold tabular-nums text-[var(--accent-australia)]">
           {score.levelScore !== null ? Math.round(score.levelScore) : "—"}

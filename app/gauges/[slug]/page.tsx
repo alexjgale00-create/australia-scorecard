@@ -14,6 +14,8 @@ import DirectionArrow from "@/components/DirectionArrow";
 import SourceFooter from "@/components/SourceFooter";
 import SampleDataBadge from "@/components/SampleDataBadge";
 import DotStrip from "@/components/DotStrip";
+import MaturityTag from "@/components/MaturityTag";
+import { computeMaturity, describeMaturityTier } from "@/lib/maturity";
 
 export function generateStaticParams() {
   return getAllGaugeIds().map((slug) => ({ slug }));
@@ -34,12 +36,15 @@ export default async function GaugeDetailPage({
     return (
       <div className="mx-auto max-w-4xl px-4 py-10">
         <p className="text-sm text-[var(--text-muted)]">{config.unit}</p>
-        <h1 className="mt-1 text-3xl font-bold">{config.name}</h1>
+        <div className="mt-1 flex items-center gap-2">
+          <h1 className="text-3xl font-bold">{config.name}</h1>
+          <MaturityTag tier="awaiting-data" reason={null} />
+        </div>
         <div className="mt-6 rounded-lg border border-[var(--gridline)] bg-[var(--surface-1)] p-6">
           <p className="font-semibold text-[var(--text-primary)]">
             This gauge is configured but doesn&rsquo;t have data yet.
           </p>
-          <p className="mt-2 text-[var(--text-secondary)]">
+          <p className="mt-2 break-words text-[var(--text-secondary)]">
             It&rsquo;s set up to fetch from{" "}
             <a href={config.source.url} className="underline" target="_blank" rel="noreferrer">
               {config.source.institution}
@@ -49,6 +54,13 @@ export default async function GaugeDetailPage({
               npm run pipeline
             </code>{" "}
             to fetch real data, or check back after the next scheduled refresh.
+          </p>
+          <p className="mt-3 text-sm text-[var(--text-secondary)]">
+            {describeMaturityTier("awaiting-data", config.name)} See{" "}
+            <a href="/status" className="underline hover:text-[var(--text-primary)]">
+              Data status
+            </a>
+            .
           </p>
         </div>
       </div>
@@ -76,6 +88,7 @@ export default async function GaugeDetailPage({
     : null;
   const twoWaysSentence =
     rawTrend && peerTrend ? describeTwoWaysToRead(rawTrend, peerTrend, config.shortName) : null;
+  const maturity = computeMaturity(config, data);
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">
@@ -86,7 +99,10 @@ export default async function GaugeDetailPage({
       )}
 
       <p className="text-sm text-[var(--text-muted)]">{config.unit}</p>
-      <h1 className="mt-1 text-3xl font-bold">{config.name}</h1>
+      <div className="mt-1 flex items-center gap-2">
+        <h1 className="text-3xl font-bold">{config.name}</h1>
+        <MaturityTag tier={maturity.tier} reason={maturity.reason} />
+      </div>
 
       <div className="mt-4 flex flex-wrap items-center gap-6">
         <div>
@@ -209,7 +225,18 @@ export default async function GaugeDetailPage({
         </section>
       )}
 
-      <section className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-[var(--gridline)] pt-4">
+      {maturity.tier !== "established" && (
+        <p className="mt-8 text-sm text-[var(--text-secondary)]">
+          {describeMaturityTier(maturity.tier, config.shortName)}
+          {maturity.reason && ` ${maturity.reason}`} See{" "}
+          <a href="/status" className="underline hover:text-[var(--text-primary)]">
+            Data status
+          </a>
+          .
+        </p>
+      )}
+
+      <section className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-[var(--gridline)] pt-4">
         <SourceFooter provenance={data.provenance} />
         <a
           href={dataUrl}

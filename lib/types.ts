@@ -34,6 +34,21 @@ export interface GaugeConfig {
    * thresholds. Falls back to 15 months if omitted.
    */
   staleAfterMonths?: number;
+  /**
+   * Hand-set maturity override for a gauge whose tier can't be correctly
+   * auto-derived from provenance alone — e.g. a standing environment
+   * limitation that caps how "established" a gauge can honestly claim to
+   * be, even though its data is real and repeatedly refreshed. Only "live"
+   * or "provisional" are valid targets: an override can hold a gauge back,
+   * never promote it to Established (that must be earned) or fabricate
+   * Awaiting data (that's determined by data presence alone). `reason` is
+   * mandatory and always displayed on /status — see CLAUDE.md's maturity
+   * honesty rules.
+   */
+  maturityOverride?: {
+    tier: "live" | "provisional";
+    reason: string;
+  };
   source: {
     institution: string;
     seriesId: string;
@@ -113,6 +128,17 @@ export interface GaugeData {
      * render a "9-country" visual that's silently missing one.
      */
     missingCountries?: MissingCountry[];
+    /**
+     * How many times this gauge has been successfully re-fetched by a real,
+     * unattended scheduled pipeline run (GITHUB_EVENT_NAME === "schedule")
+     * since it first went LIVE — written by pipeline/lib/writeGaugeData.mjs.
+     * Deliberately excludes workflow_dispatch and local `npm run pipeline`
+     * runs: those prove the fetcher code works, not that it keeps working
+     * unattended over real time. See lib/maturity.ts and CLAUDE.md.
+     */
+    scheduledRefreshCount?: number;
+    /** Timestamp of the most recent successful scheduled refresh, or null if none yet. */
+    lastScheduledRefreshAt?: string | null;
   };
   countries: Partial<Record<CountryCode, CountrySeries>>;
   /** Optional, gauge-specific — see ContextSeries. Absent for every gauge except where explicitly wired up. */

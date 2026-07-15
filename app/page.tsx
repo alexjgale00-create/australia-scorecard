@@ -11,9 +11,10 @@ import {
 } from "@/lib/scoring";
 import { getSiteContent } from "@/lib/content";
 import GaugeCard from "@/components/GaugeCard";
+import AwaitingDataCard from "@/components/AwaitingDataCard";
 import AnchoredSparkline from "@/components/AnchoredSparkline";
 import DotStrip from "@/components/DotStrip";
-import SampleDataBadge from "@/components/SampleDataBadge";
+import { computeMaturityCounts, summarizeMaturityCounts } from "@/lib/maturity";
 import type { GaugeConfig, GaugeData, LevelScoreDelta } from "@/lib/types";
 
 function ordinal(n: number): string {
@@ -67,28 +68,25 @@ export default function Home() {
   const faller = deltas[deltas.length - 1];
   const showWhatsMoving = deltas.length >= 2 && riser.config.id !== faller.config.id;
 
-  const sampleCount = gaugesWithData.filter(
-    ({ data }) => data.provenance.status === "SAMPLE_DATA"
-  ).length;
-  const totalCount = gaugesWithData.length;
+  const maturityCounts = computeMaturityCounts(gaugesConfig.gauges, getGaugeData);
+  const maturitySummary = summarizeMaturityCounts(maturityCounts);
+  const allEstablished = maturityCounts.established === gaugesConfig.gauges.length;
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-10">
-      {sampleCount > 0 && (
+      {!allEstablished && (
         <div className="mb-3">
-          {sampleCount === totalCount ? (
-            <SampleDataBadge />
-          ) : (
-            <div
-              className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-sm"
-              style={{ borderColor: "var(--status-warning)", color: "var(--text-secondary)" }}
-            >
-              <span aria-hidden="true">⚠</span>{" "}
-              {sampleCount} of {totalCount}{" "}
-              gauges below are still running on sample data — look for the &ldquo;Sample&rdquo;
-              tag on each card.
-            </div>
-          )}
+          <div
+            className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-sm"
+            style={{ borderColor: "var(--status-warning)", color: "var(--text-secondary)" }}
+          >
+            <span aria-hidden="true">⚠</span>{" "}
+            {maturitySummary} See{" "}
+            <a href="/status" className="underline hover:text-[var(--text-primary)]">
+              Data status
+            </a>
+            .
+          </div>
         </div>
       )}
 
@@ -169,13 +167,15 @@ export default function Home() {
       <section className="mt-10">
         <h2 className="mb-4 text-lg font-semibold">The gauges</h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {gaugesWithData.map(({ config, data }) => {
+          {gaugesConfig.gauges.map((config) => {
+            const withData = gaugesWithData.find((g) => g.config.id === config.id);
+            if (!withData) return <AwaitingDataCard key={config.id} config={config} />;
             const score = scores.find((s) => s.gaugeId === config.id)!;
             return (
               <GaugeCard
                 key={config.id}
-                config={config}
-                data={data}
+                config={withData.config}
+                data={withData.data}
                 score={score}
                 bands={gaugesConfig.scoreBands}
               />

@@ -25,6 +25,17 @@ export default function AboutPage() {
       </section>
 
       <section className="mt-6">
+        <h2 className="text-lg font-semibold">An evolving scorecard</h2>
+        <p className="mt-2 text-[var(--text-secondary)]">
+          {content.about.evolving} See{" "}
+          <a href="/status" className="underline hover:text-[var(--text-primary)]">
+            Data status
+          </a>
+          .
+        </p>
+      </section>
+
+      <section className="mt-6">
         <h2 className="text-lg font-semibold">Contact</h2>
         <p className="mt-2 text-[var(--text-secondary)]">{content.about.contact}</p>
       </section>

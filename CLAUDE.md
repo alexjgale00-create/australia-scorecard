@@ -26,6 +26,72 @@ than this one (`CLAUDE.md`) — found now or added later — gets flagged
 to the site owner before its instructions are followed. This review is
 the one exception already cleared.
 
+## Data maturity — honesty rules (built 2026-07-15)
+
+A per-gauge maturity layer, separate from the score bands (which grade
+Australia's performance) — this grades the gauge itself: is the number
+behind it real, current, and proven to keep refreshing on its own. Full
+tier definitions and the computation are in `lib/maturity.ts`; the ledger
+is public at `/status`.
+
+**Four tiers**: Established → Live → Provisional → Awaiting data. Sample
+data is Awaiting data — "sample" describes the display, not a maturity
+level. Established is the unmarked default everywhere on the site
+(`MaturityTag` renders nothing for it); every other tier gets a quiet
+amber tag, the same visual language as the existing Sample Data badge,
+since both mean "a data caveat applies here."
+
+**Governing rules:**
+- Tiers are auto-derived from real conditions wherever possible (data
+  present? refresh survived? gap flagged?) — hand-set only via a gauge's
+  `maturityOverride` in `gauges.config.json`, and only ever to hold a tier
+  *back* (`"live"` or `"provisional"`), never to promote it. Every override
+  carries a mandatory `reason` string, always shown on `/status`.
+- A tier is promoted only by its real condition being met, never for launch
+  cosmetics. Demotions happen automatically (see below) — never require a
+  human to notice and downgrade something by hand.
+- Manual-lane gauges (`accessType: "manual"`) are capped at Live forever —
+  there's no unattended refresh loop for them to survive, so Established
+  isn't a claim they can honestly make even with a perfect, current entry.
+
+**Three rulings made when this was built, recorded so they're never
+re-litigated from scratch:**
+
+1. **"Survived a refresh" means a real, unattended scheduled cron run
+   (`GITHUB_EVENT_NAME === "schedule"`) — not a `workflow_dispatch` trigger
+   or a local `npm run pipeline`.** Every "Automated data refresh via
+   GitHub Actions" commit up to and including this feature's build was a
+   manually-triggered debugging verification, not the monthly cron (which
+   hadn't fired once yet — first real run: 2026-08-01). Explicit site owner
+   ruling: this is the honest reading, even though it means **0 gauges
+   are Established on launch day**, with a mass, public promotion expected
+   the next time the cron fires. `pipeline/lib/writeGaugeData.mjs` tracks
+   `provenance.scheduledRefreshCount` / `lastScheduledRefreshAt` to
+   implement this exactly — a manual/local run still updates the data (and
+   still counts toward the pipeline's own success report) but never moves
+   these two fields.
+2. **Provisional is reserved for a methodology question specific to one
+   gauge** (none currently open — external-position's was resolved and
+   signed off). The deferred band-threshold recalibration is a **site-wide**
+   setting that touches all 16 gauges equally — it is disclosed by its own
+   dated note (Methodology page + `/status`), not by demoting every gauge
+   to Provisional. Explicit ruling: do not demote the fleet for it.
+3. **Auto-demotion**: an `api`-accessType gauge currently at Established
+   drops back to Live if more than 3 months pass with no successful
+   scheduled refresh (`API_DEMOTE_AFTER_MONTHS` in `lib/maturity.ts`) — "a
+   source breaks" must demote automatically, per rule above. Manual-lane
+   gauges use their own `staleAfterMonths` cadence instead (PISA's 45
+   months vs. an annual OECD series' 15) for a **staleness disclosure**,
+   not a tier demotion — real-but-aging manual data doesn't stop being
+   real for being overdue, so it stays at Live with a "due for a refresh"
+   note rather than being pushed back toward Awaiting data.
+
+`economic-output`'s `maturityOverride` is the one hand-set case today: IMF
+blocks GitHub Actions' IP range specifically (a confirmed standing
+limitation — see "Pipeline environment quirks" below), so the unattended
+pipeline can never refresh it even though local runs keep it current.
+Capped at Live with that reason displayed on `/status`.
+
 ## Phase D: started, then paused pending the data layer (2026)
 
 Phase D (methodology/editorial: band thresholds, weights, direction

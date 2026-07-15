@@ -252,6 +252,10 @@
       "polarityJustification": "A larger share of world GDP (PPP) reflects greater economic weight — a size/influence metric like Trade, not a policy tradeoff.",
       "weight": 0.0625,
       "dataPolicy": "IMF's World Economic Outlook mixes its own forward projections into the published series, with no machine-readable flag in this API to tell an actual from a projection. Policy: any year from the current calendar year onward is excluded, so a forecast is never presented on this site as an achieved fact.",
+      "maturityOverride": {
+        "tier": "live",
+        "reason": "IMF blocks GitHub Actions' IP range specifically — a confirmed standing limitation (see CLAUDE.md's \"Pipeline environment quirks\"). The unattended monthly pipeline can never refresh this gauge; only a manually-triggered local run can. Capped at Live rather than Established, since \"survived a scheduled refresh\" means the automated cron, not a human re-running it by hand."
+      },
       "source": {
         "institution": "IMF",
         "seriesId": "PPPSH",

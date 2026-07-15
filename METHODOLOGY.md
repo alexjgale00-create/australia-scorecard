@@ -212,6 +212,59 @@ all 9 peers at Australia's `latestSharedYear` per gauge (this is what
 today's 9-country spread against both the current and proposed bands, and
 median/max absolute decade-over-decade change.
 
+## Data maturity tiers
+
+Separate from the score bands above (which grade Australia's *performance*
+on a gauge), every gauge also carries a maturity tier that grades the
+*gauge itself* — is the number behind it real, current, and proven to keep
+refreshing without a human intervening. Implemented in `lib/maturity.ts`;
+the full ledger is public at `/status`, linked from every page's footer.
+
+| Tier | Meaning |
+|---|---|
+| Established | Live automated data, full peer coverage, settled methodology, and has survived at least one real unattended scheduled refresh. |
+| Live | Real, sourced data with settled methodology, but young (no scheduled refresh survived yet), carrying a disclosed gap, capped by a documented standing limitation, or manual-lane (which tops out here permanently). |
+| Provisional | Real data, but a methodology question specific to this one gauge is still genuinely open. |
+| Awaiting data | Configured, methodology settled, no real data yet — includes sample-data placeholders (Education, Productivity as of Phase C) and gauges with no data file at all. |
+
+Established is deliberately the unmarked, default state on gauge cards and
+the detail page; every other tier gets a small tag, in the same muted
+amber used by the Sample Data badge — one "data caveat" visual language,
+not a four-color traffic light.
+
+**"Survived a refresh" is strict**: only a real, unattended monthly cron
+run counts (`GITHUB_EVENT_NAME === "schedule"` at fetch time), tracked as
+`provenance.scheduledRefreshCount` / `lastScheduledRefreshAt` on each
+gauge's data file. A manually-triggered Actions run or a local
+`npm run pipeline` still updates the data (and still counts toward the
+pipeline's own success report) but never advances these fields — proving
+the fetcher code works isn't the same claim as proving it keeps working
+unattended over real time. As of this feature's build (2026-07-15) the
+monthly cron had not yet fired even once, so every gauge starts at Live at
+best; the first scheduled run (2026-08-01) is expected to promote several
+gauges to Established in public, in one visible batch.
+
+An `api`-accessType gauge auto-demotes from Established back to Live if
+more than 3 months pass without a successful scheduled refresh — a broken
+source must lose the claim automatically, not wait for a human to notice.
+Manual-lane gauges use their own `staleAfterMonths` cadence for a
+"due for a refresh" disclosure instead, since they can never reach
+Established in the first place and aging-but-real data isn't dishonest the
+way a silently-broken automated feed would be.
+
+Tiers are auto-derived from real conditions wherever possible; a hand-set
+`maturityOverride` in `gauges.config.json` exists only to hold a tier back
+(never to promote one), and always carries a `reason` string shown on
+`/status` — `economic-output` is the one gauge using it today, capped at
+Live because IMF blocks GitHub Actions' IP range specifically (see
+CLAUDE.md's "Pipeline environment quirks"), so the unattended pipeline can
+never refresh it even though it stays current via local runs.
+
+See CLAUDE.md's "Data maturity — honesty rules" for the three explicit
+rulings behind this design (the strict scheduled-only reading, why the
+deferred band recalibration doesn't demote every gauge to Provisional, and
+the manual-vs-API demotion split) and the reasoning behind each.
+
 ## Manual-source staleness
 
 Implemented in Phase C. Every `accessType: "manual"` gauge is checked on

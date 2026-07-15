@@ -7,6 +7,7 @@
   "about": {
     "mission": "[PLACEHOLDER] Write the mission statement here — why this Scorecard exists, who it's for, and what it is trying to make legible that isn't already.",
     "independence": "[PLACEHOLDER] Write the independence statement here — funding, affiliations (or lack thereof), and how methodology decisions are made and disclosed.",
+    "evolving": "This scorecard is built in the open and stays honest about its own gaps — the Data status page is the receipt: which measures are fully established, which are live but young or incomplete, and which are still waiting on their first real data.",
     "contact": "[PLACEHOLDER] contact@example.com"
   }
 }
