@@ -341,7 +341,7 @@ export function computeGaugeScore(
   const year = latestSharedYear(data);
   const levelScore = year ? computeLevelScore(data, config, code, year) : null;
   const direction = year
-    ? (computePeerRelativeTrend(data, config, code, year, thresholdScorePointsPerYear)?.direction ?? "flat")
+    ? (computePeerRelativeTrend(data, config, code, year, thresholdScorePointsPerYear)?.direction ?? null)
     : null;
   const rankInfo = year ? computeRank(data, config, code, year) : null;
 
