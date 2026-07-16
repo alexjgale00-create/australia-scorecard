@@ -280,10 +280,11 @@ failure, since re-running the pipeline can't fix a manual gauge (see
 
 ## Current build status
 
-**Phase C in progress, as of 2026-07-14.** All 16 planned gauges are now
-configured; **11 fetch automatically** every month, 5 sit in a manual
-download lane, 1 of those 5 is still Phase A sample data pending its first
-real entry. Every gauge's real status is in its own
+**Phase C in progress, as of 2026-07-16.** All 16 planned gauges are now
+configured; **12 have real LIVE data** (11 fetched automatically every
+month, plus Education entered by hand 2026-07-16), 4 remain manual-lane
+and still awaiting their first real entry (Productivity, Human capital
+depth, Inequality, Internal cohesion). Every gauge's real status is in its own
 `data/processed/*.json` file's `provenance.status` field (`SAMPLE_DATA` or
 `LIVE`, or no file at all for "awaiting data") — the site badges each one
 individually, plus a page-level note whenever the set is mixed. Weights
@@ -306,13 +307,43 @@ weights once all 16 gauges are live with real data (Phase D).
 | Productivity | 🟡 Manual lane | OECD | Dataflow flagged `NonProductionDataflow=true` by OECD itself; automated route abandoned by design, not oversight. See `data/manual/README.md` |
 | Human capital depth | 🟡 Manual lane | OECD | Automated API never returned data across 3 attempts. See `data/manual/README.md` |
 | Inequality | 🟡 Manual lane | OECD (Gini) | SDMX endpoint Cloudflare-blocked on every attempt from this environment; dataflow structure never verified enough to trust an automated fetcher. WID wealth-share context display is built (`contextSeries`) and ready, awaiting its own data entry |
-| Internal cohesion | 🟡 Manual lane | V-Dem | Real dataset gated behind a registration form; the only freely-fetchable file is a 33MB R binary with no safe dependency-free parsing path |
-| Education | 🟠 Sample data | OECD PISA | Phase A placeholder numbers; PISA has no SDMX dataflow and its data tool has no fetchable endpoint (ASP.NET form wizard) — real manual entry pending |
+| Internal cohesion | 🟡 Manual lane | V-Dem (`v2cacamps`) | Real dataset gated behind a registration form; the only freely-fetchable file is a 33MB R binary with no safe dependency-free parsing path. Switched from `v2x_cspart` to `v2cacamps` 2026-07-16 — see "Internal cohesion" below and CLAUDE.md's reversal writeup |
+| Education | 🟢 Live (manual entry) | OECD PISA | No fetchable SDMX dataflow or API endpoint (ASP.NET form wizard) — real numbers entered by hand 2026-07-16, PISA 2018 and 2022 cycles (Table I.1 of each cycle's Results Volume I), superseding the Phase A sample placeholder. Only 2 of a possible several cycles so far; direction now computes from real 2018→2022 movement |
 
 See `data/manual/README.md` for each manual gauge's download template and
 instructions, and CLAUDE.md ("OECD SDMX trio" and "Fetch-before-guessing
 pass on the 5 remaining manual gauges") for the full reasoning behind
 every automated-vs-manual split on this site.
+
+### Internal cohesion — variable switch and scale note (2026-07-16)
+
+This gauge switched from V-Dem's `v2x_cspart` (Civil Society Participation
+Index) to `v2cacamps` (Political polarization) after the site owner
+caught that `v2x_cspart` measures civil-society consultation and
+participation — a different concept from the polarization/internal-order
+concept this gauge was actually specified for. `v2x_cspart` was reviewed
+and replaced, not merely relabeled: it scored real data honestly, just
+for the wrong question. Full reversal history, including why the
+original 2026-07-14 decision never had a polarization variable in its
+candidate set, is in CLAUDE.md.
+
+**Scale is the one exception on this site.** Every other gauge's raw
+value is a bounded share, index, or rate (0-1, %, ratio) that reads
+intuitively on its own. `v2cacamps` doesn't: it's a raw, single-question
+V-Dem expert-survey component (not one of V-Dem's smoothed 0-1 `v2x_`
+aggregate indices), published as an interval-converted score,
+**mean-centered at 0 across all country-years** — roughly -4 to +4 in
+practice, negative meaning less polarized than the global average,
+positive meaning more. A country's raw number here (e.g. "-1.16") isn't a
+percentage or a share of anything; it only means something relative to
+that 0 average and to its own history. This doesn't affect the site's
+scoring math — `computeLevelScore`'s min-max normalization only compares
+countries against each other within a year, so it works identically on
+an unbounded, mean-centered scale — but it does mean this gauge's detail
+page shows a raw number with a different character from every other
+gauge's, which is why `polarityJustification` and the gauge's `unit`
+field both call this out explicitly rather than leaving a reader to
+assume it's a 0-1 share like everywhere else.
 
 ### Corrections made while building Group 1 (2026-07-14)
 

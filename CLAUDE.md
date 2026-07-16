@@ -187,12 +187,13 @@ re-litigated from scratch in a later session:
   future phase wants wealth inequality scored too, the brief's own logic
   ("Income inequality" + "Wealth concentration" as two separate gauges)
   is the cleaner path, not retrofitting this one.
-- **Internal cohesion**: tracks V-Dem's **Civil Society Participation
-  Index (`v2x_cspart`)** — chosen over the more famous
-  `v2x_polyarchy` (Electoral Democracy Index) because "cohesion" reads as
-  a participatory/lived concept, not institutional design quality. Two
-  other real V-Dem variables were considered and rejected for this slot:
-  `v2x_polyarchy` and `v2x_egaldem` (Egalitarian Democracy Index).
+- **Internal cohesion**: originally set to track V-Dem's **Civil Society
+  Participation Index (`v2x_cspart`)** — chosen over `v2x_polyarchy`
+  (Electoral Democracy Index) and `v2x_egaldem` (Egalitarian Democracy
+  Index) because "cohesion" was read as a participatory/lived concept, not
+  institutional design quality. **Reversed 2026-07-16 — see "Internal
+  cohesion: v2x_cspart → v2cacamps reversal" below.** This entry is kept
+  for the historical record of the original (superseded) reasoning.
 - **Economic complexity (Harvard Atlas ECI)**: **higher is better**
   (uncontroversial — a more diversified, higher-value-add export base is
   the standard reading), no open question on this one.
@@ -276,6 +277,53 @@ automatically (up from 9), 5 remain manual (Education, Productivity,
 Human capital depth, Inequality, Internal cohesion) — down from the 7
 manual gauges before this pass. See `METHODOLOGY.md`'s build-status table
 for the authoritative per-gauge list.
+
+### Internal cohesion: v2x_cspart → v2cacamps reversal (2026-07-16)
+
+The site owner caught a real methodology defect: Internal cohesion was
+originally specified as measuring **political polarization** (internal
+order/disorder) — but `v2x_cspart` (Civil Society Participation Index),
+the variable actually chosen on 2026-07-14, measures civil-society
+consultation and participation, a genuinely different concept. Checked
+the full git history and every file in this repo for any prior mention of
+"polarization": zero matches. The earliest commit that introduces
+Internal cohesion at all (`bfa71f1` / `311f62c`, both 2026-07-14) already
+presents the decision as a settled three-way choice among `v2x_cspart`,
+`v2x_polyarchy`, and `v2x_egaldem` — none of which is a polarization
+measure. The original decision wasn't "a polarization variable was
+considered and rejected for cause" — a polarization variable was never in
+the candidate set the decision was made against.
+
+**Verified live before ruling**, not assumed: V-Dem's actual `v2cacamps`
+("Political polarization") codebook definition — *"the extent to which
+society is divided into hostile political camps... discourage[s]
+interaction across ideological lines"* — is close to verbatim the
+concept originally specified. Confirmed via Our World in Data's V-Dem
+mirror (V-Dem's own site serves the codebook as a compressed PDF that
+didn't extract cleanly).
+
+**Coverage check** (per the site owner's explicit condition before
+switching): confirmed live that all 9 peer countries have `v2cacamps`
+values from at least 1900 through 2025 — none missing from the indicator.
+Getting there required working around a real tool quirk: Our World in
+Data's `.csv` export ignores the `country=` filter unless the URL also
+carries `csvType=filtered` — without it, the endpoint always returns the
+full ~180-country global file, sorted alphabetically, which got
+truncated (by response-size limits) before reaching any country past
+"Chad." Once `csvType=filtered` was added, the country filter worked
+correctly and all 9 peers confirmed present.
+
+**Ruling: switch to `v2cacamps`.** Implemented same day:
+`gauges.config.json`'s `internal-cohesion` entry — `source.seriesId`,
+`unit`, `polarity` (flipped to `lower_is_better` — higher polarization is
+worse, whereas `v2x_cspart` was `higher_is_better`), `polarityJustification`,
+and `dataPolicy` all updated; `data/manual/README.md`'s Internal cohesion
+section and `internal-cohesion-template.csv`'s instructions updated to
+match (template's 4-column CSV shape is unchanged). See
+`METHODOLOGY.md`'s "Internal cohesion" entry for the scale explanation
+(interval-converted, mean-centered at 0, not a bounded 0-1 share — the
+one gauge on this site where the raw value isn't a share/index in that
+familiar shape).
 
 ## Scoring
 

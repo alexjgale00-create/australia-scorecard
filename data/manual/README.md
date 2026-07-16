@@ -185,20 +185,42 @@ verified, this stays manual. If a future session can reach
 
 ## Internal cohesion
 
-**Measures:** V-Dem's Civil Society Participation Index (`v2x_cspart`,
-0-1 scale) — how genuinely civil society organisations are consulted and
-how many people are meaningfully involved in political life.
+**Measures:** V-Dem's Political polarization indicator (`v2cacamps`) — the
+extent to which society is divided into hostile political camps, and
+political differences discourage interaction across ideological lines.
 
-**Why this specific variable:** V-Dem publishes hundreds of variables;
-`v2x_cspart` was chosen over the more famous Electoral Democracy Index
-(`v2x_polyarchy`, institutional design quality, not "cohesion") and the
-Egalitarian Democracy Index (`v2x_egaldem`, a fairness/inclusion framing)
-— see `CLAUDE.md` for the reasoning if you want to reconsider this later.
+**Switched 2026-07-16 from `v2x_cspart`** (Civil Society Participation
+Index): that series measures civil-society consultation/participation, a
+different concept from the polarization this gauge is actually specified
+to track. `v2x_polyarchy` (Electoral Democracy Index) and `v2x_egaldem`
+(Egalitarian Democracy Index), the two alternatives weighed against
+`v2x_cspart` in the original decision, were never polarization measures
+either — the original candidate set never included one. See `CLAUDE.md`
+for the full reversal history.
+
+**Scale is different from every other gauge here:** `v2cacamps` is a raw,
+single-question expert-survey component, not one of V-Dem's smoothed 0-1
+`v2x_` aggregate indices. Published values are an interval-converted
+score, mean-centered at 0 across all country-years (roughly -4 to +4 in
+practice; negative = friendlier/less polarized, positive = more hostile,
+0 = the global average) — **not a 0-1 share**. Enter the raw value exactly
+as published; do not rescale it. Polarity for this gauge is
+`lower_is_better` (lower score = less polarized = stronger cohesion).
+
+**Coverage confirmed 2026-07-16** (V-Dem data via Our World in Data): all
+9 peer countries have published values from at least 1900 through 2025 —
+none missing from the indicator. Because it's a single-question component
+rather than a multi-indicator aggregate, a country's value can repeat
+unchanged across consecutive years between expert re-coding rounds — real
+data, not a gap, but don't be alarmed if you see the same number for a
+run of adjacent years.
 
 **Download steps:**
 
 1. Go to **https://v-dem.net/data_analysis/VariableGraph/** (or download
    the full V-Dem Dataset if you want to browse the codebook directly).
-2. Find variable `v2x_cspart` for the 9 peer countries, all available
+2. Find variable `v2cacamps` for the 9 peer countries, all available
    years.
-3. Fill in `internal-cohesion-template.csv`.
+3. Fill in `internal-cohesion-template.csv` with the raw interval-scale
+   value — same 4-column format as every other gauge here
+   (`country_code,country_name,year,value`).
