@@ -7,7 +7,7 @@
     "seriesName": "PISA mean score (maths + reading + science average)",
     "url": "https://www.oecd.org/en/about/programmes/pisa.html",
     "retrievedAt": "2026-07-16T00:00:00.000Z",
-    "note": "Entered by hand on 2026-07-16 from OECD's PISA Data Explorer (pisadataexplorer.oecd.org) — PISA 2022 cycle, the three raw domain scores (reading, mathematics, science) per country, averaged per this gauge's dataPolicy. 2018 cycle backfilled the same day, source: OECD PISA 2018 Results Volume I, Table I.1, retrieved via web-fetch assistance and human-verified (Netherlands 2018 reading cross-checked live against OECD's own published figure, 484.784 rounding to 485 — exact match). Not pipeline-fetched: PISA has no fetchable SDMX dataflow or API endpoint. PISA 2025 results are due 2026-09-08 and will supersede the 2022 entry once entered.",
+    "note": "Four cycles entered by hand, all sourced from OECD's own published tables, not fabricated or pre-averaged: 2018 and 2022 retrieved 2026-07-16 directly from OECD's PISA Data Explorer (pisadataexplorer.oecd.org) — Netherlands' 2018 reading cross-checked live against OECD's own published figure, 484.784 rounding to 485, exact match. 2012 and 2015 retrieved 2026-07-16 via NCES's (nces.ed.gov) plain-HTML republication of the official OECD PISA highlights tables — NCES is a US federal statistical agency republishing OECD's own numbers verbatim for public accessibility, not an independent or derived source; anchor-verified before ingest against a value supplied independently (2015 science: AUS 510, CAN 528, JPN 538 — exact match on all three). All four cycles' three raw domain scores (reading, mathematics, science) per country are averaged per this gauge's dataPolicy, never sourced pre-blended. Cross-cycle plausibility checked: no country moves more than 40 points between any adjacent cycle (largest single move: South Korea, -23.7 pts, 2012->2015). Not pipeline-fetched: PISA has no fetchable SDMX dataflow or API endpoint. PISA 2025 results are due 2026-09-08 and will supersede the 2022 entry once entered.",
     "scheduledRefreshCount": 0,
     "lastScheduledRefreshAt": null
   },
@@ -15,6 +15,14 @@
     "AUS": {
       "name": "Australia",
       "series": [
+        {
+          "year": 2012,
+          "value": 512.3
+        },
+        {
+          "year": 2015,
+          "value": 502.3
+        },
         {
           "year": 2018,
           "value": 499
@@ -29,6 +37,14 @@
       "name": "Canada",
       "series": [
         {
+          "year": 2012,
+          "value": 522
+        },
+        {
+          "year": 2015,
+          "value": 523.7
+        },
+        {
           "year": 2018,
           "value": 516.7
         },
@@ -41,6 +57,14 @@
     "GBR": {
       "name": "United Kingdom",
       "series": [
+        {
+          "year": 2012,
+          "value": 502.3
+        },
+        {
+          "year": 2015,
+          "value": 499.7
+        },
         {
           "year": 2018,
           "value": 503.7
@@ -55,6 +79,14 @@
       "name": "New Zealand",
       "series": [
         {
+          "year": 2012,
+          "value": 509.3
+        },
+        {
+          "year": 2015,
+          "value": 505.7
+        },
+        {
           "year": 2018,
           "value": 502.7
         },
@@ -67,6 +99,14 @@
     "KOR": {
       "name": "South Korea",
       "series": [
+        {
+          "year": 2012,
+          "value": 542.7
+        },
+        {
+          "year": 2015,
+          "value": 519
+        },
         {
           "year": 2018,
           "value": 519.7
@@ -81,6 +121,14 @@
       "name": "Netherlands",
       "series": [
         {
+          "year": 2012,
+          "value": 518.7
+        },
+        {
+          "year": 2015,
+          "value": 508
+        },
+        {
           "year": 2018,
           "value": 502.3
         },
@@ -93,6 +141,14 @@
     "USA": {
       "name": "United States",
       "series": [
+        {
+          "year": 2012,
+          "value": 492
+        },
+        {
+          "year": 2015,
+          "value": 487.7
+        },
         {
           "year": 2018,
           "value": 495
@@ -107,6 +163,14 @@
       "name": "Germany",
       "series": [
         {
+          "year": 2012,
+          "value": 515.3
+        },
+        {
+          "year": 2015,
+          "value": 508
+        },
+        {
           "year": 2018,
           "value": 500.3
         },
@@ -119,6 +183,14 @@
     "JPN": {
       "name": "Japan",
       "series": [
+        {
+          "year": 2012,
+          "value": 540.3
+        },
+        {
+          "year": 2015,
+          "value": 528.7
+        },
         {
           "year": 2018,
           "value": 520
