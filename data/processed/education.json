@@ -7,7 +7,7 @@
     "seriesName": "PISA mean score (maths + reading + science average)",
     "url": "https://www.oecd.org/en/about/programmes/pisa.html",
     "retrievedAt": "2026-07-16T00:00:00.000Z",
-    "note": "Entered by hand on 2026-07-16 from OECD's PISA Data Explorer (pisadataexplorer.oecd.org) — PISA 2022 cycle, the three raw domain scores (reading, mathematics, science) per country, averaged per this gauge's dataPolicy. Not pipeline-fetched: PISA has no fetchable SDMX dataflow or API endpoint. PISA 2025 results are due 2026-09-08 and will supersede this entry once entered.",
+    "note": "Entered by hand on 2026-07-16 from OECD's PISA Data Explorer (pisadataexplorer.oecd.org) — PISA 2022 cycle, the three raw domain scores (reading, mathematics, science) per country, averaged per this gauge's dataPolicy. 2018 cycle backfilled the same day, source: OECD PISA 2018 Results Volume I, Table I.1, retrieved via web-fetch assistance and human-verified (Netherlands 2018 reading cross-checked live against OECD's own published figure, 484.784 rounding to 485 — exact match). Not pipeline-fetched: PISA has no fetchable SDMX dataflow or API endpoint. PISA 2025 results are due 2026-09-08 and will supersede the 2022 entry once entered.",
     "scheduledRefreshCount": 0,
     "lastScheduledRefreshAt": null
   },
@@ -15,6 +15,10 @@
     "AUS": {
       "name": "Australia",
       "series": [
+        {
+          "year": 2018,
+          "value": 499
+        },
         {
           "year": 2022,
           "value": 497.3
@@ -25,6 +29,10 @@
       "name": "Canada",
       "series": [
         {
+          "year": 2018,
+          "value": 516.7
+        },
+        {
           "year": 2022,
           "value": 506.3
         }
@@ -33,6 +41,10 @@
     "GBR": {
       "name": "United Kingdom",
       "series": [
+        {
+          "year": 2018,
+          "value": 503.7
+        },
         {
           "year": 2022,
           "value": 494.3
@@ -43,6 +55,10 @@
       "name": "New Zealand",
       "series": [
         {
+          "year": 2018,
+          "value": 502.7
+        },
+        {
           "year": 2022,
           "value": 494.7
         }
@@ -51,6 +67,10 @@
     "KOR": {
       "name": "South Korea",
       "series": [
+        {
+          "year": 2018,
+          "value": 519.7
+        },
         {
           "year": 2022,
           "value": 523.3
@@ -61,6 +81,10 @@
       "name": "Netherlands",
       "series": [
         {
+          "year": 2018,
+          "value": 502.3
+        },
+        {
           "year": 2022,
           "value": 480
         }
@@ -69,6 +93,10 @@
     "USA": {
       "name": "United States",
       "series": [
+        {
+          "year": 2018,
+          "value": 495
+        },
         {
           "year": 2022,
           "value": 489.3
@@ -79,6 +107,10 @@
       "name": "Germany",
       "series": [
         {
+          "year": 2018,
+          "value": 500.3
+        },
+        {
           "year": 2022,
           "value": 482.3
         }
@@ -87,6 +119,10 @@
     "JPN": {
       "name": "Japan",
       "series": [
+        {
+          "year": 2018,
+          "value": 520
+        },
         {
           "year": 2022,
           "value": 533
