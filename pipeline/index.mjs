@@ -53,12 +53,20 @@ const GAUGE_IDS = [
   // pipeline/lib/xlsx.mjs); Harvard Growth Lab exposes a public,
   // unauthenticated GraphQL API (pipeline/lib/harvardAtlas.mjs). Both
   // confirmed working before being wired in here — not spun up
-  // speculatively. Inequality (OECD Gini) and Internal cohesion (V-Dem)
-  // stay manual: OECD's SDMX endpoint was Cloudflare-blocked on every
-  // attempt from this environment, and V-Dem's CSV is gated behind a
-  // registration form with only a binary R data file freely fetchable.
+  // speculatively. Inequality (OECD Gini) stays manual: OECD's SDMX
+  // endpoint was Cloudflare-blocked on every attempt from this
+  // environment.
   "military-capability",
   "economic-complexity",
+  // Internal cohesion (V-Dem's v2cacamps) automated 2026-07-16, via Our
+  // World in Data's maintained re-publication of V-Dem rather than V-Dem
+  // directly (V-Dem's own CSV is registration-gated; see
+  // pipeline/lib/vdem.mjs and CLAUDE.md). Untested from GitHub Actions as
+  // of this build — this project has already seen OECD and IMF behave
+  // differently from Actions vs. a local run, so treat the first
+  // scheduled run as the real confirmation this source isn't
+  // environment-sensitive too, not an assumption baked in here.
+  "internal-cohesion",
 ];
 
 /** Reads a gauge's currently-saved provenance, if any, without touching it. */

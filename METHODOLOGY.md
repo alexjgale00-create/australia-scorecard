@@ -281,10 +281,11 @@ failure, since re-running the pipeline can't fix a manual gauge (see
 ## Current build status
 
 **Phase C in progress, as of 2026-07-16.** All 16 planned gauges are now
-configured; **12 have real LIVE data** (11 fetched automatically every
-month, plus Education entered by hand 2026-07-16), 4 remain manual-lane
-and still awaiting their first real entry (Productivity, Human capital
-depth, Inequality, Internal cohesion). Every gauge's real status is in its own
+configured; **13 have real LIVE data** (12 fetched automatically every
+month — including Internal cohesion, automated 2026-07-16 — plus
+Education entered by hand the same day), 3 remain manual-lane and still
+awaiting their first real entry (Productivity, Human capital depth,
+Inequality). Every gauge's real status is in its own
 `data/processed/*.json` file's `provenance.status` field (`SAMPLE_DATA` or
 `LIVE`, or no file at all for "awaiting data") — the site badges each one
 individually, plus a page-level note whenever the set is mixed. Weights
@@ -304,10 +305,10 @@ weights once all 16 gauges are live with real data (Phase D).
 | Housing pressure | 🟢 Live | OECD (SDMX) | Landed 2026-07-14 after a 5-round debugging arc — see "OECD SDMX trio" in `CLAUDE.md` |
 | Military capability | 🟢 Live | SIPRI | Direct `.xlsx` download, fetched and parsed automatically (`pipeline/lib/xlsx.mjs`, `pipeline/lib/sipri.mjs`) — verified live 2026-07-14, not originally planned as automatable |
 | Economic complexity | 🟢 Live | Harvard Growth Lab | Public GraphQL API, no auth required (`pipeline/lib/harvardAtlas.mjs`) — verified live 2026-07-14, not originally planned as automatable |
+| Internal cohesion | 🟢 Live | V-Dem (`v2cacamps`), via Our World in Data | Automated 2026-07-16 (`pipeline/lib/vdem.mjs`) — V-Dem's own dataset stays registration-gated, but OWID's maintained, version-pinned re-publication isn't; every fetch's provenance discloses the full chain, never implying a direct V-Dem fetch. Switched from `v2x_cspart` to `v2cacamps` the same day — see "Internal cohesion" below and CLAUDE.md's reversal + automation writeups. Untested from GitHub Actions specifically as of this build |
 | Productivity | 🟡 Manual lane | OECD | Dataflow flagged `NonProductionDataflow=true` by OECD itself; automated route abandoned by design, not oversight. See `data/manual/README.md` |
 | Human capital depth | 🟡 Manual lane | OECD | Automated API never returned data across 3 attempts. See `data/manual/README.md` |
 | Inequality | 🟡 Manual lane | OECD (Gini) | SDMX endpoint Cloudflare-blocked on every attempt from this environment; dataflow structure never verified enough to trust an automated fetcher. WID wealth-share context display is built (`contextSeries`) and ready, awaiting its own data entry |
-| Internal cohesion | 🟡 Manual lane | V-Dem (`v2cacamps`) | Real dataset gated behind a registration form; the only freely-fetchable file is a 33MB R binary with no safe dependency-free parsing path. Switched from `v2x_cspart` to `v2cacamps` 2026-07-16 — see "Internal cohesion" below and CLAUDE.md's reversal writeup |
 | Education | 🟢 Live (manual entry) | OECD PISA | No fetchable SDMX dataflow or API endpoint (ASP.NET form wizard) — real numbers entered by hand 2026-07-16, PISA 2018 and 2022 cycles (Table I.1 of each cycle's Results Volume I), superseding the Phase A sample placeholder. Only 2 of a possible several cycles so far; direction now computes from real 2018→2022 movement |
 
 See `data/manual/README.md` for each manual gauge's download template and
@@ -344,6 +345,16 @@ page shows a raw number with a different character from every other
 gauge's, which is why `polarityJustification` and the gauge's `unit`
 field both call this out explicitly rather than leaving a reader to
 assume it's a 0-1 share like everywhere else.
+
+**Automated the same day**, via Our World in Data's maintained
+re-publication of V-Dem rather than V-Dem directly (V-Dem's own dataset
+download is registration-gated). Every fetch's provenance discloses the
+full chain verbatim — OWID's own citation, which names the exact V-Dem
+version it's built on — rather than implying a direct-from-V-Dem fetch.
+See CLAUDE.md's "Internal cohesion: automated via OWID" entry for the
+coverage verification, the cross-check attempt against V-Dem's own
+tooling (partially blocked by a JS-only interface), and the export
+quirks `pipeline/lib/vdem.mjs` works around.
 
 ### Corrections made while building Group 1 (2026-07-14)
 

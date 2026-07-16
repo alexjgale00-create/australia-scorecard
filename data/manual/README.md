@@ -1,18 +1,20 @@
 # Manual-lane data entry — all gauges
 
 This folder holds the download template and instructions for every gauge
-that isn't fetched automatically by `npm run pipeline`. As of Phase C,
-that's 5 gauges: **Productivity** and **Human capital depth** (OECD series
+that isn't fetched automatically by `npm run pipeline`. As of 2026-07-16,
+that's 3 gauges: **Productivity** and **Human capital depth** (OECD series
 where the automated SDMX API route didn't pan out — full reasoning in
-`CLAUDE.md`); **Education** (PISA, only published every 3-4 years, never
-fetched automatically by design); and **Inequality** (OECD Gini — blocked
-from this environment every attempt, see below) and **Internal cohesion**
-(V-Dem — the real dataset is gated behind a registration form). Two other
-gauges originally planned for this lane — **Military capability** (SIPRI)
-and **Economic complexity** (Harvard Atlas) — turned out to be
-automatable after all: both publish direct, unauthenticated
-downloads/APIs, verified live 2026-07-14 and now fetched by
-`npm run pipeline` like any other gauge. See `CLAUDE.md` for the full
+`CLAUDE.md`); and **Inequality** (OECD Gini — blocked from this
+environment every attempt, see below). **Education** (PISA) has real data
+entered but stays in this folder's process going forward (OECD publishes
+no fetchable endpoint for it, by design, not oversight — see below).
+Three other gauges originally planned for this lane turned out to be
+automatable after all, verified live before being wired in: **Military
+capability** (SIPRI) and **Economic complexity** (Harvard Atlas), both
+2026-07-14, and **Internal cohesion** (V-Dem's `v2cacamps`, via Our World
+in Data's re-publication — V-Dem's own dataset stays registration-gated,
+but OWID's maintained mirror isn't), 2026-07-16. All three now fetch by
+`npm run pipeline` like any other gauge; see `CLAUDE.md` for the full
 per-gauge reasoning on which stayed manual and why.
 
 The process is the same for every gauge here — only the source website's
@@ -183,44 +185,10 @@ verified, this stays manual. If a future session can reach
 
 ---
 
-## Internal cohesion
-
-**Measures:** V-Dem's Political polarization indicator (`v2cacamps`) — the
-extent to which society is divided into hostile political camps, and
-political differences discourage interaction across ideological lines.
-
-**Switched 2026-07-16 from `v2x_cspart`** (Civil Society Participation
-Index): that series measures civil-society consultation/participation, a
-different concept from the polarization this gauge is actually specified
-to track. `v2x_polyarchy` (Electoral Democracy Index) and `v2x_egaldem`
-(Egalitarian Democracy Index), the two alternatives weighed against
-`v2x_cspart` in the original decision, were never polarization measures
-either — the original candidate set never included one. See `CLAUDE.md`
-for the full reversal history.
-
-**Scale is different from every other gauge here:** `v2cacamps` is a raw,
-single-question expert-survey component, not one of V-Dem's smoothed 0-1
-`v2x_` aggregate indices. Published values are an interval-converted
-score, mean-centered at 0 across all country-years (roughly -4 to +4 in
-practice; negative = friendlier/less polarized, positive = more hostile,
-0 = the global average) — **not a 0-1 share**. Enter the raw value exactly
-as published; do not rescale it. Polarity for this gauge is
-`lower_is_better` (lower score = less polarized = stronger cohesion).
-
-**Coverage confirmed 2026-07-16** (V-Dem data via Our World in Data): all
-9 peer countries have published values from at least 1900 through 2025 —
-none missing from the indicator. Because it's a single-question component
-rather than a multi-indicator aggregate, a country's value can repeat
-unchanged across consecutive years between expert re-coding rounds — real
-data, not a gap, but don't be alarmed if you see the same number for a
-run of adjacent years.
-
-**Download steps:**
-
-1. Go to **https://v-dem.net/data_analysis/VariableGraph/** (or download
-   the full V-Dem Dataset if you want to browse the codebook directly).
-2. Find variable `v2cacamps` for the 9 peer countries, all available
-   years.
-3. Fill in `internal-cohesion-template.csv` with the raw interval-scale
-   value — same 4-column format as every other gauge here
-   (`country_code,country_name,year,value`).
+**Internal cohesion moved out of this folder 2026-07-16** — now fetched
+automatically via `pipeline/lib/vdem.mjs` (V-Dem's `v2cacamps`, via Our
+World in Data's re-publication; V-Dem's own dataset stays
+registration-gated). See `gauges.config.json`'s `dataPolicy` for that
+gauge and `CLAUDE.md`'s "Internal cohesion: automated via OWID" entry for
+the coverage verification and the two OWID export quirks the fetcher
+works around.

@@ -325,6 +325,76 @@ match (template's 4-column CSV shape is unchanged). See
 one gauge on this site where the raw value isn't a share/index in that
 familiar shape).
 
+### Internal cohesion: automated via OWID (2026-07-16)
+
+Same day as the v2cacamps switch above, the site owner noticed that
+successfully querying v2cacamps coverage through Our World in Data's CSV
+export (to verify the switch) meant the same route could fetch the data,
+not just verify it — and proposed automating the gauge, on the explicit
+condition that OWID is a secondary re-publication of V-Dem and the
+project's honesty standard requires disclosing that chain, not implying
+a direct V-Dem fetch.
+
+**Cross-check attempted, partially blocked.** Before building anything,
+tried to sanity-check OWID's numbers against V-Dem's own tooling without
+registration, per the site owner's request: V-Dem's VariableGraph
+(v-dem.net/data_analysis/VariableGraph/) has no registration wall but is
+a JS-only Angular app with no data in static HTML and no discoverable
+JSON API; V-Dem's own 2026 Democracy Report PDF (same v16 dataset OWID
+cites) didn't extract cleanly, same failure mode as the codebook PDF
+earlier in this file. What *did* corroborate: OWID's metadata cites
+"V-Dem Democracy Report v16," matching V-Dem's own 2026 report's version
+exactly (not a lagging republication), and the USA's 2025 value (2.3, the
+most polarized of all 9 peers by a wide margin) matches V-Dem's own 2026
+report narrative — press-covered, independently confirmed — of the US
+falling below every other G7 country with polarization specifically
+named as a contributing factor. Presented this gap honestly rather than
+overstating it as "cross-check passed"; the site owner chose to proceed
+on the corroboration gathered rather than block on a tooling limitation.
+
+**Real export quirks discovered and worked around**, confirmed with raw
+`curl` output (not a summarizing tool that could hallucinate specifics
+— that distinction mattered here, see below):
+- A `time=start..end` range param (including `earliest..latest`)
+  collapses to just the two endpoint years, not the full series in
+  between — not a data gap, a quirk of this specific chart's CSV export
+  configuration. Discovered because an earlier WebFetch-summarized
+  attempt claimed "Continuous 2010-2024: Yes" for Australia/Canada with
+  plausible-looking filler values — a claim that turned out to be
+  unverifiable once cross-checked with direct `curl`, which is why the
+  fetcher (`pipeline/lib/vdem.mjs`) queries one explicit `time=YYYY` at a
+  time instead of trusting a range.
+- Once an explicit `time=YYYY` is present, the `country=` filter is
+  ignored (returns the full ~180-country file instead of the 9 peers) —
+  worked around by fetching the full per-year file and filtering
+  client-side.
+- The `.metadata.json` endpoint (not the `.csv` one) returns OWID's own
+  citation chain verbatim, including `lastUpdated`/`nextUpdate` for the
+  specific indicator — used instead of hardcoding "V-Dem v16" as a
+  string, since a hardcoded version would itself silently go stale the
+  moment OWID ingests a newer V-Dem release, defeating the point of the
+  site owner's staleness-disclosure condition.
+
+**Verified live before wiring in**, per this project's standing rule
+(same discipline as Military capability and Economic complexity):
+ran `pipeline/gauges/internal-cohesion.mjs` standalone before touching
+`pipeline/index.mjs`. Result: full 1990–2025 annual coverage (36 points),
+all 9 peers, zero gaps, zero missing countries — confirmed in the actual
+written `data/processed/internal-cohesion.json`, not just asserted.
+`accessType` changed to `"api"`, `staleAfterMonths` removed (manual-lane
+only), added to `GAUGE_IDS` in `pipeline/index.mjs`,
+`internal-cohesion-template.csv` deleted and its `data/manual/README.md`
+section replaced with a pointer to the automated fetcher — same pattern
+Military capability and Economic complexity followed when they graduated
+out of the manual lane.
+
+**Untested from GitHub Actions as of this build.** This project has
+already found OECD and IMF behave differently between this sandbox and
+Actions (see "Pipeline environment quirks" above) — Our World in Data
+has not been checked from Actions specifically, so treat the first
+scheduled run as the real confirmation this source isn't
+environment-sensitive too, not an assumption baked into this decision.
+
 ## Scoring
 
 - **Direction is peer-relative, everywhere on the site** (gauge cards, dot
