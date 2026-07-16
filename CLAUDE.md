@@ -395,6 +395,93 @@ has not been checked from Actions specifically, so treat the first
 scheduled run as the real confirmation this source isn't
 environment-sensitive too, not an assumption baked into this decision.
 
+### Inequality: automation attempted and reverted (2026-07-16)
+
+Site owner's reasoning for retrying: housing-pressure proves OECD SDMX
+works from GitHub Actions even when this sandbox is blocked, so the
+2026-07-14 "Cloudflare-blocked on 3/3 attempts" verdict on the IDD
+dataflow — from this sandbox only — was worth one more attempt via
+Actions. First real finding, checked before writing anything: **this
+sandbox's block on `sdmx.oecd.org` was not reproducing today.** Same
+intermittency already seen once before during the housing-pressure saga
+("previously Cloudflare-blocked, no longer reproducing that block").
+Built and tested this iteratively against the live API from here, the
+same way housing-pressure was, instead of writing a fetcher blind.
+
+**Real dimension list for `OECD.WISE.INE,DSD_WISE_IDD@DF_IDD,1.0`**,
+discovered live: `REF_AREA, FREQ, MEASURE, STATISTICAL_OPERATION,
+UNIT_MEASURE, AGE, METHODOLOGY, DEFINITION, POVERTY_LINE` — nine
+dimensions, more than housing-pressure's. The first three pins resolved
+exactly like the housing-pressure pattern: a wildcard query threw a
+conflicting-value error, the error named the two differing series'
+dimension breakdowns, and the correct pin followed from that, not a
+guess —
+- `MEASURE=INC_DISP_GINI` ("Gini (disposable income)"), matching this
+  gauge's spec directly, no ambiguity here.
+- `AGE=_T` ("Total"), resolved from a real conflict against `AGE=Y_GT65`
+  (65+-only Gini) for DEU 2023.
+- `METHODOLOGY=METH2012` ("Income definition since 2012"), resolved from
+  a real conflict against `METH2011` for AUS's 2012 overlap year (0.326
+  vs 0.324 — OECD publishes one year under both methodologies for
+  comparability, and they don't agree exactly). Pinned to the current one
+  rather than splicing `METH2011` in for pre-2012 years, since that would
+  mean deciding how much the confirmed real gap between the two
+  methodologies matters for comparability — a methodology judgment call,
+  flagged here rather than made unilaterally inside fetcher code, should
+  a future attempt want to revisit it.
+- `DEFINITION=D_CUR` ("Current definition"), resolved the same way from a
+  USA 2013 conflict against `D_PREV`.
+
+**Then a genuinely different, more serious problem** surfaced with the
+remaining four dimensions (`FREQ`, `STATISTICAL_OPERATION`,
+`UNIT_MEASURE`, `POVERTY_LINE`) — none of which ever threw a conflict
+error when left wildcarded, so (following the same "pin what's confirmed"
+instinct as the three above) they got pinned to the one value seen in
+every conflicting-series comparison along the way (`FREQ=A`,
+`STATISTICAL_OPERATION=_Z`, `UNIT_MEASURE=0_TO_1`, `POVERTY_LINE=_Z`).
+Bisecting each pin individually against the 4-dimension baseline (only
+`MEASURE`/`AGE`/`METHODOLOGY`/`DEFINITION` pinned) found: `FREQ=A` had
+zero effect (confirms this dataflow only ever publishes Gini annually).
+But `STATISTICAL_OPERATION=_Z` alone more than doubled Canada's point
+count (14→29) while cutting Australia's to a fifth (4→1) — not a
+narrowing, a different, non-subset result. `UNIT_MEASURE=0_TO_1` alone
+did something different again (GBR 3→13, KOR 7→1). Confirmed this isn't
+request-to-request flakiness — the identical query returned byte-identical
+results across 3 repeated runs — and confirmed the key-building code
+itself is correct (right dimension position, right segment count for all
+9 dimensions). This is a real, reproducible property of how this
+dataflow's server responds, not a bug in this project's code or random
+noise.
+
+**Why this is a stop, not a fourth pin attempt.** For at least 3 of the 9
+dimensions, there's no way to tell which pin combination represents the
+complete, correct series versus an arbitrarily different subset — and the
+failure mode is invisible to `parseSdmxJson`'s conflicting-value guard,
+because it's not two series disagreeing on the same country-year (which
+throws loudly and correctly, exactly as designed) — it's *different sets*
+of country-years appearing depending on how the key is shaped, with no
+error raised at all. That's a deeper ambiguity than anything the housing-
+pressure saga hit, not solvable by pinning one more dimension and hoping.
+Per the site owner's explicit stopping rule (one real attempt; a genuine
+structural error — not just an access block — sends a gauge back to the
+manual lane without a further round of guessing), this gauge stays
+manual. `pipeline/gauges/inequality.mjs` (the attempted fetcher) was
+deleted rather than left as dead code, same as `productivity.mjs` and
+`human-capital-depth.mjs` before it. No config or pipeline wiring changes
+were made — `gauges.config.json`'s `inequality` entry, `data/manual/
+README.md`, and `inequality-template.csv` are all untouched by this
+attempt.
+
+**If revisited later**: the three cleanly-resolved pins
+(`MEASURE=INC_DISP_GINI`, `AGE=_T`, `METHODOLOGY=METH2012`,
+`DEFINITION=D_CUR`) are trustworthy starting points, confirmed by real
+conflict errors. The open problem is specifically the other four
+dimensions' non-monotonic behavior — worth a fresh investigation into
+*why* (possibly: OECD's engine treats a truly blank key segment
+differently from an explicit "match this one value" filter for this
+dataflow's shape, in a way that isn't simple wildcard-as-union), not
+another guess-and-pin cycle.
+
 ## Scoring
 
 - **Direction is peer-relative, everywhere on the site** (gauge cards, dot
