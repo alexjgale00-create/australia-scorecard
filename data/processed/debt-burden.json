@@ -6,7 +6,7 @@
     "seriesId": "WS_TC (Total Credit), borrower sectors H+G summed",
     "seriesName": "Credit to households & NPISHs + credit to general government, % of GDP",
     "url": "https://data.bis.org/topics/TOTAL_CREDIT",
-    "retrievedAt": "2026-07-14T09:30:17.030Z",
+    "retrievedAt": "2026-08-01T05:59:20.830Z",
     "note": "Sum of two BIS Total Credit series — household & NPISH debt, and general government debt, both % of GDP, market value, adjusted for breaks — year-end (Q4) snapshots only. No data available for: New Zealand.",
     "missingCountries": [
       {
@@ -14,7 +14,9 @@
         "name": "New Zealand",
         "reason": "BIS publishes this country's household debt at market value, but its general government debt only at nominal value — not the market-value basis used for the other countries in this comparison, so we don't mix bases to fill the gap."
       }
-    ]
+    ],
+    "scheduledRefreshCount": 1,
+    "lastScheduledRefreshAt": "2026-08-01T05:59:20.830Z"
   },
   "countries": {
     "AUS": {
