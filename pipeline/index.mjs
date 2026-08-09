@@ -81,12 +81,12 @@ const GAUGE_IDS = [
   "air-quality",
   "cohesion-minority-experience",
   // work-life-balance: coordinates found via corroborated web search
-  // 2026-08-09, not independently confirmed live (this sandbox's
-  // Cloudflare block on sdmx.oecd.org reproduced today). Single good-faith
-  // attempt via the generic discovery route, per the site owner's explicit
-  // stopping rule — if this fails structurally when actually run via
-  // Actions (not just an access block), it moves to the manual lane, not a
-  // second guess. See gauges.config.json's dataPolicy and CLAUDE.md.
+  // 2026-08-09. Round 1 (Actions) surfaced a real conflicting-values error
+  // (DEU 1991, WORKER_STATUS=_T vs ICSE93_1) — resolved by pinning
+  // WORKER_STATUS=_T, the one permitted extra round per the site owner's
+  // stopping rule. A different conflict on this round sends it to the
+  // manual lane, no third round. See gauges.config.json's dataPolicy and
+  // CLAUDE.md.
   "work-life-balance",
 ];
 

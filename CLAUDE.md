@@ -225,6 +225,53 @@ truncation, confirming the two failure modes stay distinct: a hard block
 fails before ever reaching the write path, a bad-but-200 response is now
 what the new guard exists for.
 
+### First real Actions run against the new gauges (2026-08-09) — the guard's first live catch, and work-life-balance round 2
+
+The push above was tested for real via a manually-triggered Actions run.
+Result: 13 of 17 automated gauges succeeded outright, 1 known standing
+limitation (`economic-output`, IMF-from-Actions, correctly excluded from
+the verdict — see below), 3 genuine failures, each independently confirmed
+against the site owner's own reading of the report before any fix was
+made:
+
+- **`housing-pressure`: the truncation guard's first live catch, on
+  Actions itself, not just this local sandbox.** OECD returned 9 total
+  observations against the file's existing 288 — the guard refused the
+  write, exactly as designed; the site kept serving 2026-08-01's real
+  36-point data, undegraded. Explicit site owner ruling: this is the guard
+  working, not a failure to fix — do not re-run blind hoping it clears: if
+  it recurs on a future run, that's the point at which the underlying OECD
+  behavior needs investigating, not before.
+- **`personal-safety`: World Bank API timeout** — one run after a clean
+  fetch the same day. Transient network failure, no code issue. Left as
+  is per site owner's instruction.
+- **`work-life-balance`: round 2 fix landed.** Round 1's generic-discovery
+  attempt surfaced a real conflicting-values error, DEU 1991 (1554.071 vs
+  1478.9) — full dimension breakdowns identical except `WORKER_STATUS`
+  (`_T`, "Total" vs `ICSE93_1`, a specific ICSE-93 employment-status
+  subclass). `JOB_COVERAGE=_T` appearing unopposed elsewhere in the same
+  key confirmed `_T` as this dataflow's real Total/aggregate marker, not a
+  guess — and this gauge is specified as the general figure, not an
+  employees-only subclass, so `WORKER_STATUS=_T` is the correct pin, same
+  evidence-based discipline as housing-pressure's `FREQ=A`. Fixed in
+  `pipeline/gauges/work-life-balance.mjs`'s `KNOWN_DIMENSION_VALUES`,
+  pushed for round 2. **Per the site owner's explicit stopping rule, this
+  is the one permitted extra round — a *different* conflict (not this same
+  one) on the next Actions run sends this gauge to the manual lane, no
+  third round.** Do not attempt a third live-debugging round on this gauge
+  without a fresh site owner ruling.
+
+Also confirmed from this same run: the `knownLimitation` exit-code
+mechanism (`report.mjs`'s `failures === 0` check, `pipeline/lib/imf.mjs`'s
+`err.knownLimitation = true` for the documented IMF-from-Actions case) is
+already working exactly as designed — the report's own summary line
+explicitly read "1 known standing limitation (not counted against the
+verdict — see below)," and the run's actual `NOT CLEAN` verdict was driven
+by the 3 genuine failures alone. No architecture change was needed here;
+this was a real site-owner question worth answering with evidence rather
+than assumption, and the evidence confirmed the existing design already
+does what was being asked for.
+
 ## Phase D: started, then paused pending the data layer (2026)
 
 Phase D (methodology/editorial: band thresholds, weights, direction
