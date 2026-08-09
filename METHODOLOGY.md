@@ -342,13 +342,13 @@ record and CLAUDE.md's Phase E entry for the session-to-session summary.
 
 | Gauge | Status | Source | Notes |
 |---|---|---|---|
-| Housing affordability | 🟢 Live (reused) | OECD (SDMX) | Same data file and fetch as Power's `housing-pressure` — see `reuseNote` on this gauge's config entry |
-| Life expectancy | ⚪ Awaiting data | World Bank | `SP.DYN.LE00.IN` verified live 2026-08-06 (full 9-peer coverage, real 2024 values) — fetcher not yet built |
+| Housing affordability | 🟢 Live (reused) | OECD (SDMX) | Same data file and fetch as Power's `housing-pressure` — see `reuseNote` on this gauge's config entry. **Truncation guard active as of 2026-08-09** — see "Long tail: the truncation guard" below |
+| Life expectancy | 🟢 Live | World Bank | `SP.DYN.LE00.IN` — automated 2026-08-09, same generic World Bank route as 6 Power gauges |
 | Life satisfaction | ⚪ Awaiting data | Gallup World Poll, via World Happiness Report | Survey-based. A genuine fetch attempt against WHR's data panel is still owed |
-| Personal safety | ⚪ Awaiting data | UNODC, via World Bank | `VC.IHR.PSRC.P5` verified live 2026-08-06 (full 9-peer coverage) — fetcher not yet built |
-| Work-life balance | ⚪ Awaiting data | OECD | Exact SDMX dataflow coordinates not yet confirmed live — deliberately left as `TBD` in `gauges.config.json` rather than guessed |
-| Air quality | ⚪ Awaiting data | World Bank (IHME GBD) | `EN.ATM.PM25.MC.M3` verified live 2026-08-06 (full 9-peer coverage) — fetcher not yet built |
-| Cohesion — minority experience | ⚪ Awaiting data | V-Dem (`v2clsocgrp`), via Our World in Data | OWID grapher slug verified live 2026-08-06 (`equality-of-civil-liberties-across-social-groups-score`, full 9-peer 2023 coverage) — same proven route as `internal-cohesion`, fetcher not yet built |
+| Personal safety | 🟢 Live, ⚠ intermittent | UNODC, via World Bank | `VC.IHR.PSRC.P5` — automated 2026-08-09. Two World Bank API timeouts on later Actions runs (2026-08-09) after a clean first landing — investigated 2026-08-09: not measurably slower/larger than other successful World Bank gauges from this project's own sandbox (near-identical response time and payload size to life-expectancy), so no gauge-specific fix applied; most likely cumulative network load from this pipeline's now-much-longer sequential run (2 OWID gauges × ~36 calls each, an xlsx download, multiple OECD calls, ~9 World Bank calls) rather than anything about this indicator itself |
+| Work-life balance | 🟢 Live, ⚠ under investigation | OECD | `OECD.ELS.SAE,DSD_HW@DF_AVG_ANN_HRS_WKD,1.0`, `WORKER_STATUS=_T` pinned — see "Work-life balance: OECD dimension pin" below. **Real caveat, not yet resolved**: series currently ends 1995–2019, but corroborating evidence (a secondary source citing OECD directly) shows real 2020–2023 values exist for Australia (1,713 hours, 2023) — the current pin is very likely truncating recent years, not capturing a genuine OECD publication ceiling. Open, pending further investigation |
+| Air quality | 🟢 Live | World Bank (IHME GBD) | `EN.ATM.PM25.MC.M3` — automated 2026-08-09, same generic World Bank route |
+| Cohesion — minority experience | 🟢 Live | V-Dem (`v2clsocgrp`), via Our World in Data | Automated 2026-08-09 via the same proven OWID route as `internal-cohesion` (`pipeline/lib/vdem.mjs` generalised into a factory serving both) |
 | Cohesion — majority acceptance | ⚪ Awaiting data | Gallup Migrant Acceptance Index | Survey-based. Definitively manual — no bulk API found. See "Quality of Life dimension" below for the full source search |
 
 ### Internal cohesion — variable switch and scale note (2026-07-16)
@@ -743,3 +743,87 @@ any of the 7 new fetchers, `data/manual/` templates and instructions for
 the manual-lane gauges, and the Scanlon/Eurobarometer context data entry.
 The manual download list is the next deliverable, handed over separately
 once that phase starts.
+
+### Long tail: the truncation guard (2026-08-09)
+
+Four of the seven remaining fetchers (life expectancy, personal safety,
+air quality, cohesion-minority-experience) automated cleanly — three via
+the proven generic World Bank route, one via the OWID V-Dem route
+generalised from `internal-cohesion`'s. `work-life-balance` needed real
+live debugging (below). During that work, a real incident forced a new
+pipeline-wide safety mechanism: a local, transient OECD fetch for
+`housing-pressure` returned a single garbage data point where 35 years of
+real history existed, caught only by inspecting the diff before
+committing — not good enough given this gauge now feeds both dimensions.
+
+**Fix**: `assertNotTruncated` in `pipeline/lib/writeGaugeData.mjs`, the
+single chokepoint every gauge's fetcher writes through. Compares total
+observations (summed across every country) in a new fetch against what's
+already on disk; refuses the write and throws if the new total is below
+50% of the prior total, whenever the existing file is `LIVE`. Protects
+every gauge uniformly, not just `housing-pressure`.
+
+**Confirmed live twice since**, both on real GitHub Actions runs (not
+just this project's own sandbox): `housing-pressure` returned exactly 9
+total observations against a file with 288 on two consecutive Actions
+runs (2026-08-09), identical symptom both times — the guard correctly
+refused the write both times, and the site kept serving 2026-08-01's real
+data undegraded. Site owner's explicit ruling on the second occurrence:
+this has crossed from "transient" to "not transient" — under
+investigation as of this entry (see CLAUDE.md's Phase E long-tail entry
+for the live status), not yet resolved. **Never re-run this gauge's
+fetcher blind hoping the next run clears it** — a recurring 9-vs-288
+result is signal, not noise, and this project's rule is to investigate a
+recurring signal, not retry past it.
+
+### Work-life balance: OECD dimension pin (2026-08-09)
+
+Automated via `OECD.ELS.SAE,DSD_HW@DF_AVG_ANN_HRS_WKD,1.0`, found via
+corroborated web search (multiple independent results, including OECD's
+own Data Explorer page title matching this gauge's unit exactly) — not
+independently confirmed live from this project's own sandbox, which hit
+the same documented Cloudflare block as the original OECD SDMX trio on
+this exact dataflow.
+
+**Round 1** (first real Actions run): the generic discovery route
+(`REF_AREA` pinned to the 9 peers, every other dimension left as an SDMX
+wildcard) surfaced a real, live conflicting-values error — DEU 1991,
+1554.071 vs 1478.9. The two matching series' full dimension breakdowns
+were identical except one: `WORKER_STATUS=_T` ("Total") vs
+`WORKER_STATUS=ICSE93_1` (a specific ICSE-93 employment-status subclass —
+"Employees"). `JOB_COVERAGE=_T` appearing unopposed elsewhere in the same
+key confirmed `_T` is this dataflow's real Total/aggregate marker, not a
+guess — and this gauge is specified as the general "average annual hours
+actually worked per worker," not an employees-only subclass, so
+`WORKER_STATUS=_T` is the correct pin. Same evidence-based discipline as
+`housing-pressure`'s `FREQ=A` resolution: a real conflict, both candidate
+values' full dimension breakdowns compared, the pin chosen because it
+matches this gauge's own configured definition, not because it was the
+first or only option tried.
+
+**Round 2** (per the site owner's explicit "one permitted extra round"
+stopping rule): `WORKER_STATUS=_T` pinned in
+`pipeline/gauges/work-life-balance.mjs`'s `KNOWN_DIMENSION_VALUES`. Result:
+clean save, no further conflict — "OECD, Average annual hours actually
+worked per worker — 9 countries, Australia 1995–2019. Saved."
+
+**Open issue, not yet resolved, caught during methodology review rather
+than the live debugging itself**: the saved series ends at 2019. A
+corroborating secondary source (TheGlobalEconomy.com, citing OECD
+directly) shows real values for Australia through 2023 (1,713.11 hours in
+2023, versus 1,713.94 in 2022) — meaning OECD almost certainly publishes
+more recent data than this fetcher is currently retrieving. The
+`WORKER_STATUS=_T` pin itself is well-evidenced and not in question; the
+likely culprit is one of the *other* wildcarded dimensions (`MEASURE`,
+`UNIT_MEASURE`, `AGGREGATION_OPERATION`, or another) matching a different,
+older series definition for 1995–2019 than whatever OECD uses for its
+current 2020+ figures — plausibly related to the ILO's real-world
+ICSE-93 → ICSE-18 employment-status classification revision, adopted by
+many statistical agencies around 2020–2023, which could have introduced a
+genuinely different current series without changing the stable `_T`
+Total marker itself. Not yet investigated further as of this entry —
+this project's own sandbox and this session's use of the WebFetch tool
+are both blocked from `sdmx.oecd.org` (the same documented Cloudflare
+block), so confirming the actual cause requires another live Actions run
+with additional diagnostic logging, not a guess. Flagged here rather than
+silently left as a clean-looking "Saved" with an unexplained 2019 ceiling.
