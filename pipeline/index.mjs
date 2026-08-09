@@ -81,12 +81,14 @@ const GAUGE_IDS = [
   "air-quality",
   "cohesion-minority-experience",
   // work-life-balance: coordinates found via corroborated web search
-  // 2026-08-09. Round 1 (Actions) surfaced a real conflicting-values error
-  // (DEU 1991, WORKER_STATUS=_T vs ICSE93_1) — resolved by pinning
-  // WORKER_STATUS=_T, the one permitted extra round per the site owner's
-  // stopping rule. A different conflict on this round sends it to the
-  // manual lane, no third round. See gauges.config.json's dataPolicy and
-  // CLAUDE.md.
+  // 2026-08-09. Round 1 surfaced a real conflicting-values error resolved
+  // by pinning WORKER_STATUS=_T. Round 2 saved cleanly but only 1995-2019.
+  // Round 3 (explicitly granted as a final round, 2026-08-09) adds a
+  // separate recent-years probe (2020+, WORKER_STATUS unpinned) to check
+  // for real 2020-2024 data the pin might be missing. No fourth round
+  // regardless of outcome — if this doesn't reach 2023+ data, it moves to
+  // the manual lane with the 2019 endpoint disclosed. See
+  // gauges.config.json's dataPolicy, METHODOLOGY.md, and CLAUDE.md.
   "work-life-balance",
 ];
 

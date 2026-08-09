@@ -272,6 +272,50 @@ this was a real site-owner question worth answering with evidence rather
 than assumption, and the evidence confirmed the existing design already
 does what was being asked for.
 
+### Three rulings from the 2026-08-09 investigation report, all built and pushed same day
+
+1. **Truncation guard gets diagnostics, not just a count.** After the
+   guard's first two live catches (both `housing-pressure`, both just "9
+   vs 288" with no further detail), site owner's explicit ruling: a bare
+   count turns every recurrence back into a fresh mystery. Added to
+   `pipeline/lib/writeGaugeData.mjs`: `describeCountryBreakdown` (per-country
+   point count and year range, e.g. `AUS=1(2025-2025), CAN=0, ...`, in the
+   thrown error) and `persistTruncatedEvidence` (writes the full rejected
+   response to a gitignored scratch file, `pipeline/.scratch/<gaugeId>-
+   truncated-<timestamp>.json`, referenced by path in the error, so the
+   raw evidence survives past one run's console log for whoever
+   investigates next). Verified live: simulated a truncated response
+   against the guard directly, confirmed the breakdown and scratch file
+   both appear correctly and the real data file stays untouched.
+2. **World Bank timeout bumped 20s → 40s, uniformly, in
+   `pipeline/lib/worldbank.mjs`.** Not a guess: `personal-safety` timed
+   out on two consecutive Actions runs after fetching cleanly once —
+   timed that exact indicator against a same-run successful one
+   (`life-expectancy`) from this project's own sandbox first, found
+   near-identical size and response time, ruling out anything
+   indicator-specific. Better-supported cause: the pipeline's total
+   sequential network load per run has grown substantially since 20s was
+   first chosen (now ~9 World Bank calls + 2 OWID gauges' ~36 sequential
+   calls each + an xlsx download + multiple OECD calls, all in one job).
+   **This is a considered, evidence-based bump, not a magic number — do
+   not lower it back to 20s in a future session without first
+   re-establishing that the pipeline's total sequential network load has
+   actually gone back down**, not just because one run happened to pass.
+   No retries were added (site owner's explicit instruction — a retry
+   would mask a systematically failing source, which this investigation
+   found no evidence of).
+3. **work-life-balance round 3, explicitly granted as a final round** —
+   see the dedicated write-up in METHODOLOGY.md's "Work-life balance:
+   OECD dimension pin" for the full three-round history and design. Short
+   version: `pipeline/gauges/work-life-balance.mjs` now runs the proven
+   `WORKER_STATUS=_T` historical query plus a second, separate probe for
+   2020+ with `WORKER_STATUS` unpinned again, merging in any conflict-free
+   recent data found. Three explicitly-handled outcomes (merged real data,
+   confirmed-empty, a new conflict) — no fourth round regardless of which
+   one actually happens; a non-"merged" outcome sends this gauge to the
+   manual lane with the 2019 endpoint disclosed, per the site owner's own
+   stated fallback. Pushed, not yet tested via Actions as of this entry.
+
 ## Phase D: started, then paused pending the data layer (2026)
 
 Phase D (methodology/editorial: band thresholds, weights, direction

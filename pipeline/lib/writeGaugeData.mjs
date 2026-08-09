@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, writeFileSync } from "fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
 
 function readExistingFile(filePath) {
@@ -13,6 +13,49 @@ function readExistingFile(filePath) {
 function countObservations(countries) {
   if (!countries) return 0;
   return Object.values(countries).reduce((sum, c) => sum + (c?.series?.length ?? 0), 0);
+}
+
+/**
+ * "AUS=1(2025-2025), CAN=0, ..." — per-country point count and year range,
+ * so a truncation report answers "which countries/years actually survived"
+ * directly, not just the aggregate total. Added 2026-08-09 after the guard's
+ * first two live catches (both housing-pressure, both just "9 vs 288" with
+ * no further detail) — the site owner's explicit ruling was that a bare
+ * count turns every recurrence back into a fresh mystery; this is what
+ * makes the *next* occurrence a diagnosis instead.
+ */
+function describeCountryBreakdown(countries) {
+  return Object.entries(countries ?? {})
+    .map(([code, c]) => {
+      const n = c?.series?.length ?? 0;
+      if (n === 0) return `${code}=0`;
+      const years = c.series.map((p) => p.year);
+      return `${code}=${n}(${Math.min(...years)}-${Math.max(...years)})`;
+    })
+    .join(", ");
+}
+
+/**
+ * Persists the rejected response to a gitignored scratch file so the raw
+ * evidence survives past this one run's console log — a truncation error's
+ * text is a summary, this is the actual data it was computed from, for
+ * whoever investigates next (possibly a different session with no memory of
+ * this run's terminal output).
+ */
+function persistTruncatedEvidence(gaugeId, newCountries) {
+  try {
+    const dir = join(process.cwd(), "pipeline", ".scratch");
+    mkdirSync(dir, { recursive: true });
+    const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+    const filePath = join(dir, `${gaugeId}-truncated-${stamp}.json`);
+    writeFileSync(filePath, JSON.stringify(newCountries, null, 2) + "\n");
+    return filePath;
+  } catch (err) {
+    // Never let the diagnostic-writing itself hide the real error — if this
+    // fails, say so inline rather than throwing a different, more confusing
+    // error in place of the truncation this was trying to explain.
+    return `(could not write scratch evidence: ${err.message})`;
+  }
 }
 
 /**
@@ -44,14 +87,17 @@ function assertNotTruncated(gaugeId, existing, newCountries) {
   if (newCount >= priorCount * TRUNCATION_FLOOR) return;
 
   const dropPct = Math.round((1 - newCount / priorCount) * 100);
+  const evidencePath = persistTruncatedEvidence(gaugeId, newCountries);
   throw new Error(
     `Refusing to write ${gaugeId}: this fetch returned ${newCount} total observation(s) across all ` +
       `countries, down from ${priorCount} in the current file — a ${dropPct}% drop, past this pipeline's ` +
       `${Math.round(TRUNCATION_FLOOR * 100)}% truncation floor. This looks like a bad or partial response, ` +
-      `not real new data — the existing file has NOT been touched. If this drop is genuinely correct (a ` +
-      `source restating its history shorter), confirm by hand before re-running; never re-run blind hoping ` +
-      `it clears on retry, and never raise this floor to make a specific failure go away without checking ` +
-      `the actual data first.`
+      `not real new data — the existing file has NOT been touched.\n` +
+      `New response breakdown (country=points(yearRange)): ${describeCountryBreakdown(newCountries)}\n` +
+      `Full rejected response saved to: ${evidencePath}\n` +
+      `If this drop is genuinely correct (a source restating its history shorter), confirm by hand before ` +
+      `re-running; never re-run blind hoping it clears on retry, and never raise this floor to make a ` +
+      `specific failure go away without checking the actual data first.`
   );
 }
 

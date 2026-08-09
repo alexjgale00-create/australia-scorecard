@@ -43,3 +43,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# scratch evidence written by the pipeline's truncation guard when it
+# refuses a write (pipeline/lib/writeGaugeData.mjs) — the raw rejected
+# response, kept locally/per-run for investigation, never committed.
+/pipeline/.scratch/

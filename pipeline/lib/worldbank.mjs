@@ -5,6 +5,28 @@
 // otherwise working is reported back as a gap, not an error — the caller
 // decides whether that's a warning or acceptable.
 
+/**
+ * Bumped 20s -> 40s, 2026-08-09, after personal-safety (VC.IHR.PSRC.P5)
+ * timed out on two consecutive GitHub Actions runs, one run after fetching
+ * cleanly. Investigated first, not just bumped on suspicion: timed this
+ * exact indicator against SP.DYN.LE00.IN (which succeeded the same runs)
+ * from this project's own sandbox — near-identical response size (75,899
+ * vs 74,852 bytes) and response time (~0.2-0.3s both), no evidence this
+ * indicator is inherently slower or larger than one that's been reliable.
+ * The better-supported explanation is positional/cumulative: by the time
+ * this runs, the pipeline has already made ~9 sequential World Bank calls,
+ * 2 OWID gauges' worth of ~36 sequential calls each, an xlsx download, and
+ * multiple OECD calls, all in one job — a much longer sequential chain than
+ * when 20s was first chosen, well before Phase E. This bump is a modest,
+ * uniform safety margin for that reason, not a fix for a specific slow
+ * source and NOT paired with retries (which would mask a source that's
+ * genuinely, systematically failing rather than occasionally slow under
+ * load) — do not lower this back to 20s without re-establishing that the
+ * pipeline's total sequential network load has gone back down, not just
+ * because a run happened to pass.
+ */
+const REQUEST_TIMEOUT_MS = 40000;
+
 export const PEER_COUNTRY_CODES = ["AUS", "CAN", "GBR", "NZL", "KOR", "NLD", "USA", "DEU", "JPN"];
 
 export const COUNTRY_NAMES = {
@@ -37,7 +59,7 @@ async function fetchWorldBankRaw(indicatorId, countryCodes, { startYear = 1980, 
 
   let res;
   try {
-    res = await fetch(url, { signal: AbortSignal.timeout(20000) });
+    res = await fetch(url, { signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS) });
   } catch (err) {
     throw new Error(`Could not reach the World Bank API (${err.message}) for indicator "${indicatorId}".`);
   }

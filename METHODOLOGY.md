@@ -827,3 +827,42 @@ are both blocked from `sdmx.oecd.org` (the same documented Cloudflare
 block), so confirming the actual cause requires another live Actions run
 with additional diagnostic logging, not a guess. Flagged here rather than
 silently left as a clean-looking "Saved" with an unexplained 2019 ceiling.
+
+**Round 3** (site owner's explicit ruling: granted as a genuine final
+round, not a stretch of round 2's allowance — a gauge silently missing
+2020–2024 would misrepresent exactly the COVID-era hours-worked shift
+this gauge exists to capture, which is reason enough on its own). Design,
+since there was no live conflict to pin against yet for the 2020+ era (no
+error was being thrown — the query was just silently incomplete, a
+different problem shape than rounds 1–2's actual conflicts):
+`pipeline/gauges/work-life-balance.mjs` now runs **two queries**, not one:
+
+1. The proven historical query (`WORKER_STATUS=_T` pinned), unchanged —
+   still correct for the range it's evidenced against.
+2. A second, separate probe for 2020-onward, with `WORKER_STATUS` left
+   wildcarded again (everything else unchanged), specifically to let a
+   real conflict for the modern era surface on its own terms — this
+   project's SDMX parser already unions every matching series it finds
+   rather than taking the first one, so if a distinct "modern total"
+   series existed under some other dimension value, it would show up here
+   without needing to guess which value.
+
+Three explicitly-handled outcomes, decided in code rather than assumed:
+real conflict-free 2020+ data → merged into the saved series (filtered to
+`>= 2020` before merging, so no risk of colliding with the historical
+query's own results); a genuine conflict on the probe → reported as a
+warning with the conflict's own diagnostic, historical data still saved,
+**no pin attempted from it** (per the site owner's explicit "no fourth
+round" ruling — this round reports, it doesn't chase a new pin); zero
+data on the probe → reported as real evidence (not just an unlucky query)
+that this dataflow has nothing past the historical range under any
+dimension combination, since the parser's union behavior means "found
+nothing" here is a meaningful negative result, not an inconclusive one.
+
+**Whichever of the three outcomes actually happened is recorded in this
+gauge's own `data/processed/work-life-balance.json` provenance note** (not
+duplicated here, to avoid the two ever disagreeing) — check that file, or
+`/status`, for the real result of this round. If the outcome wasn't a
+clean merge reaching 2023+ data, this gauge moves to the manual lane with
+the 2019 endpoint disclosed on its own page, and this section should be
+updated to say so plainly rather than left reading as still-open.
