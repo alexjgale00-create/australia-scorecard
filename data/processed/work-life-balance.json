@@ -6,7 +6,7 @@
     "seriesId": "OECD.ELS.SAE,DSD_HW@DF_AVG_ANN_HRS_WKD,1.0",
     "seriesName": "Average annual hours actually worked per worker",
     "url": "https://data-explorer.oecd.org/vis?df%5Bag%5D=OECD.ELS.SAE&df%5Bid%5D=DSD_HW%40DF_AVG_ANN_HRS_WKD",
-    "retrievedAt": "2026-08-09T03:47:15.851Z",
+    "retrievedAt": "2026-08-09T03:52:38.257Z",
     "note": "Live data from OECD, Average annual hours actually worked per worker.",
     "missingCountries": [],
     "scheduledRefreshCount": 0,
