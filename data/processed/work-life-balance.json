@@ -6,8 +6,8 @@
     "seriesId": "OECD.ELS.SAE,DSD_HW@DF_AVG_ANN_HRS_WKD,1.0",
     "seriesName": "Average annual hours actually worked per worker",
     "url": "https://data-explorer.oecd.org/vis?df%5Bag%5D=OECD.ELS.SAE&df%5Bid%5D=DSD_HW%40DF_AVG_ANN_HRS_WKD",
-    "retrievedAt": "2026-08-09T03:52:38.257Z",
-    "note": "Live data from OECD, Average annual hours actually worked per worker.",
+    "retrievedAt": "2026-08-09T04:26:44.894Z",
+    "note": "Live data from OECD, Average annual hours actually worked per worker. Recent-years probe (2020+, WORKER_STATUS unpinned) hit a real conflict, not applied (per the site owner's \"no fourth round\" ruling — this is reported, not fixed): OECD SDMX API returned conflicting values for DEU in 2023 (1299.8 vs 1338.8) — the query key is under-constrained. Series A [8:0:0:0:0:0:0:0:0:0:0:0:0]: REF_AREA=DEU, MEASURE=HW, UNIT_MEASURE=H_Y_PS, SEX=_Z, AGE=_Z, LABOUR_FORCE_STATUS=EMP, WORK_PERIOD=A, HOURS_TYPE=ACTUAL, WORKER_STATUS=ICSE93_1, WORK_TIME_ARNGMNT=_Z, AGGREGATION_OPERATION=MEAN, HOUR_BANDS=_Z, JOB_COVERAGE=_T. Series B [8:0:0:0:0:0:0:0:1:0:0:0:0]: REF_AREA=DEU, MEASURE=HW, UNIT_MEASURE=H_Y_PS, SEX=_Z, AGE=_Z, LABOUR_FORCE_STATUS=EMP, WORK_PERIOD=A, HOURS_TYPE=ACTUAL, WORKER_STATUS=_T, WORK_TIME_ARNGMNT=_Z, AGGREGATION_OPERATION=MEAN, HOUR_BANDS=_Z, JOB_COVERAGE=_T. Compare those two dimension breakdowns to see which one differs — that's the dimension to pin. This data is too ambiguous to trust as-is; narrowing the key is required, not silently picking one value.",
     "missingCountries": [],
     "scheduledRefreshCount": 0,
     "lastScheduledRefreshAt": null
