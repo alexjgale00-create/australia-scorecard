@@ -1,0 +1,526 @@
+{
+  "gaugeId": "life-satisfaction",
+  "provenance": {
+    "status": "LIVE",
+    "institution": "Gallup World Poll, via World Happiness Report",
+    "seriesId": "LI (Life evaluation, Average 3-year, mean)",
+    "seriesName": "Life evaluation (Cantril ladder), 3-year average",
+    "url": "https://data.worldhappiness.report/api/data",
+    "retrievedAt": "2026-08-09T05:15:50.368Z",
+    "note": "Live data from the World Happiness Report's own dashboard (data.worldhappiness.report), Life evaluation (Cantril ladder), 3-year rolling average — fetched via the dashboard's own backend API (not a documented public endpoint; see pipeline/lib/whr.mjs), the same route the official frontend uses.",
+    "missingCountries": [],
+    "scheduledRefreshCount": 0,
+    "lastScheduledRefreshAt": null
+  },
+  "countries": {
+    "AUS": {
+      "name": "Australia",
+      "series": [
+        {
+          "year": 2012,
+          "value": 7.35
+        },
+        {
+          "year": 2014,
+          "value": 7.284
+        },
+        {
+          "year": 2015,
+          "value": 7.313
+        },
+        {
+          "year": 2016,
+          "value": 7.284
+        },
+        {
+          "year": 2017,
+          "value": 7.272
+        },
+        {
+          "year": 2018,
+          "value": 7.228
+        },
+        {
+          "year": 2019,
+          "value": 7.223
+        },
+        {
+          "year": 2020,
+          "value": 7.183
+        },
+        {
+          "year": 2021,
+          "value": 7.162
+        },
+        {
+          "year": 2022,
+          "value": 7.095
+        },
+        {
+          "year": 2023,
+          "value": 7.057
+        },
+        {
+          "year": 2024,
+          "value": 6.974
+        },
+        {
+          "year": 2025,
+          "value": 6.916
+        }
+      ]
+    },
+    "CAN": {
+      "name": "Canada",
+      "series": [
+        {
+          "year": 2012,
+          "value": 7.477
+        },
+        {
+          "year": 2014,
+          "value": 7.427
+        },
+        {
+          "year": 2015,
+          "value": 7.404
+        },
+        {
+          "year": 2016,
+          "value": 7.316
+        },
+        {
+          "year": 2017,
+          "value": 7.328
+        },
+        {
+          "year": 2018,
+          "value": 7.278
+        },
+        {
+          "year": 2019,
+          "value": 7.232
+        },
+        {
+          "year": 2020,
+          "value": 7.103
+        },
+        {
+          "year": 2021,
+          "value": 7.025
+        },
+        {
+          "year": 2022,
+          "value": 6.961
+        },
+        {
+          "year": 2023,
+          "value": 6.9
+        },
+        {
+          "year": 2024,
+          "value": 6.803
+        },
+        {
+          "year": 2025,
+          "value": 6.741
+        }
+      ]
+    },
+    "GBR": {
+      "name": "United Kingdom",
+      "series": [
+        {
+          "year": 2012,
+          "value": 6.883
+        },
+        {
+          "year": 2014,
+          "value": 6.867
+        },
+        {
+          "year": 2015,
+          "value": 6.725
+        },
+        {
+          "year": 2016,
+          "value": 6.714
+        },
+        {
+          "year": 2017,
+          "value": 6.814
+        },
+        {
+          "year": 2018,
+          "value": 7.054
+        },
+        {
+          "year": 2019,
+          "value": 7.165
+        },
+        {
+          "year": 2020,
+          "value": 7.064
+        },
+        {
+          "year": 2021,
+          "value": 6.943
+        },
+        {
+          "year": 2023,
+          "value": 6.749
+        },
+        {
+          "year": 2024,
+          "value": 6.728
+        },
+        {
+          "year": 2025,
+          "value": 6.694
+        }
+      ]
+    },
+    "NZL": {
+      "name": "New Zealand",
+      "series": [
+        {
+          "year": 2012,
+          "value": 7.221
+        },
+        {
+          "year": 2014,
+          "value": 7.286
+        },
+        {
+          "year": 2015,
+          "value": 7.334
+        },
+        {
+          "year": 2016,
+          "value": 7.314
+        },
+        {
+          "year": 2017,
+          "value": 7.324
+        },
+        {
+          "year": 2018,
+          "value": 7.307
+        },
+        {
+          "year": 2019,
+          "value": 7.3
+        },
+        {
+          "year": 2020,
+          "value": 7.277
+        },
+        {
+          "year": 2021,
+          "value": 7.2
+        },
+        {
+          "year": 2022,
+          "value": 7.123
+        },
+        {
+          "year": 2023,
+          "value": 7.029
+        },
+        {
+          "year": 2024,
+          "value": 6.952
+        },
+        {
+          "year": 2025,
+          "value": 6.995
+        }
+      ]
+    },
+    "KOR": {
+      "name": "South Korea",
+      "series": [
+        {
+          "year": 2012,
+          "value": 6.267
+        },
+        {
+          "year": 2014,
+          "value": 5.984
+        },
+        {
+          "year": 2015,
+          "value": 5.835
+        },
+        {
+          "year": 2016,
+          "value": 5.838
+        },
+        {
+          "year": 2017,
+          "value": 5.875
+        },
+        {
+          "year": 2018,
+          "value": 5.895
+        },
+        {
+          "year": 2019,
+          "value": 5.872
+        },
+        {
+          "year": 2020,
+          "value": 5.845
+        },
+        {
+          "year": 2021,
+          "value": 5.935
+        },
+        {
+          "year": 2022,
+          "value": 5.951
+        },
+        {
+          "year": 2023,
+          "value": 6.058
+        },
+        {
+          "year": 2024,
+          "value": 6.038
+        },
+        {
+          "year": 2025,
+          "value": 6.04
+        }
+      ]
+    },
+    "NLD": {
+      "name": "Netherlands",
+      "series": [
+        {
+          "year": 2012,
+          "value": 7.512
+        },
+        {
+          "year": 2014,
+          "value": 7.378
+        },
+        {
+          "year": 2015,
+          "value": 7.339
+        },
+        {
+          "year": 2016,
+          "value": 7.377
+        },
+        {
+          "year": 2017,
+          "value": 7.441
+        },
+        {
+          "year": 2018,
+          "value": 7.488
+        },
+        {
+          "year": 2019,
+          "value": 7.449
+        },
+        {
+          "year": 2020,
+          "value": 7.464
+        },
+        {
+          "year": 2021,
+          "value": 7.415
+        },
+        {
+          "year": 2022,
+          "value": 7.403
+        },
+        {
+          "year": 2023,
+          "value": 7.319
+        },
+        {
+          "year": 2024,
+          "value": 7.306
+        },
+        {
+          "year": 2025,
+          "value": 7.223
+        }
+      ]
+    },
+    "USA": {
+      "name": "United States",
+      "series": [
+        {
+          "year": 2012,
+          "value": 7.082
+        },
+        {
+          "year": 2014,
+          "value": 7.119
+        },
+        {
+          "year": 2015,
+          "value": 7.104
+        },
+        {
+          "year": 2016,
+          "value": 6.993
+        },
+        {
+          "year": 2017,
+          "value": 6.886
+        },
+        {
+          "year": 2018,
+          "value": 6.892
+        },
+        {
+          "year": 2019,
+          "value": 6.94
+        },
+        {
+          "year": 2020,
+          "value": 6.951
+        },
+        {
+          "year": 2021,
+          "value": 6.977
+        },
+        {
+          "year": 2022,
+          "value": 6.894
+        },
+        {
+          "year": 2023,
+          "value": 6.725
+        },
+        {
+          "year": 2024,
+          "value": 6.724
+        },
+        {
+          "year": 2025,
+          "value": 6.816
+        }
+      ]
+    },
+    "DEU": {
+      "name": "Germany",
+      "series": [
+        {
+          "year": 2012,
+          "value": 6.672
+        },
+        {
+          "year": 2014,
+          "value": 6.75
+        },
+        {
+          "year": 2015,
+          "value": 6.994
+        },
+        {
+          "year": 2016,
+          "value": 6.951
+        },
+        {
+          "year": 2017,
+          "value": 6.965
+        },
+        {
+          "year": 2018,
+          "value": 6.985
+        },
+        {
+          "year": 2019,
+          "value": 7.076
+        },
+        {
+          "year": 2020,
+          "value": 7.155
+        },
+        {
+          "year": 2021,
+          "value": 7.034
+        },
+        {
+          "year": 2022,
+          "value": 6.892
+        },
+        {
+          "year": 2023,
+          "value": 6.719
+        },
+        {
+          "year": 2024,
+          "value": 6.753
+        },
+        {
+          "year": 2025,
+          "value": 6.882
+        }
+      ]
+    },
+    "JPN": {
+      "name": "Japan",
+      "series": [
+        {
+          "year": 2012,
+          "value": 6.064
+        },
+        {
+          "year": 2014,
+          "value": 5.987
+        },
+        {
+          "year": 2015,
+          "value": 5.921
+        },
+        {
+          "year": 2016,
+          "value": 5.92
+        },
+        {
+          "year": 2017,
+          "value": 5.915
+        },
+        {
+          "year": 2018,
+          "value": 5.886
+        },
+        {
+          "year": 2019,
+          "value": 5.871
+        },
+        {
+          "year": 2020,
+          "value": 5.94
+        },
+        {
+          "year": 2021,
+          "value": 6.039
+        },
+        {
+          "year": 2022,
+          "value": 6.129
+        },
+        {
+          "year": 2023,
+          "value": 6.06
+        },
+        {
+          "year": 2024,
+          "value": 6.147
+        },
+        {
+          "year": 2025,
+          "value": 6.13
+        }
+      ]
+    }
+  }
+}

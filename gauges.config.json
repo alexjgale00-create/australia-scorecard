@@ -337,7 +337,7 @@
       "reuseNote": "Scored in both dimensions from the same underlying data — housing affordability is both a national economic-pressure signal (Power) and a direct determinant of whether Australia is a good place to live (Quality of Life). One fetch, one data file, two independent composite contributions at each dimension's own weight. Disclosed here, on /status, and in METHODOLOGY.md's 'Quality of Life dimension' section, per the site owner's explicit condition that reuse must never be silent.",
       "weights": {
         "power": 0.0625,
-        "quality-of-life": 0.125
+        "quality-of-life": 0.142857
       }
     },
     {
@@ -465,7 +465,7 @@
       },
       "oneLiner": "How many years a newborn today is expected to live, on average.",
       "weights": {
-        "quality-of-life": 0.125
+        "quality-of-life": 0.142857
       }
     },
     {
@@ -474,21 +474,20 @@
       "shortName": "Life satisfaction",
       "unit": "Cantril ladder life evaluation, 0–10 scale (Gallup World Poll, 3-year rolling average)",
       "historyStartYear": 2012,
-      "accessType": "manual",
+      "accessType": "api",
       "polarity": "higher_is_better",
       "polarityJustification": "A higher self-reported life evaluation (0 = worst possible life, 10 = best possible life) is the standard, uncontroversial reading of the Cantril ladder question.",
       "evidenceStrength": "survey",
-      "dataPolicy": "Phase E launch gauge (2026-08-06). Sourced from the World Happiness Report's own published data panel — Gallup World Poll's Cantril ladder question, reported as each edition's trailing 3-year average; all 9 peers report every edition. A genuine fetch attempt against WHR's downloadable data-panel file is still owed before this is finalised as manual vs. automated, per this project's 'verify live, don't assume' rule — not yet attempted as of this entry, deferred to the long-tail fetcher phase. Evidence strength: survey/self-report, not a hard statistic — carries the site's 'Survey-based' tag, same treatment as cohesion-majority-acceptance. This is also the gauge most directly relevant to the OECD Better Life Index overlap question — see 'OECD Better Life Index overlap' in METHODOLOGY.md's Quality of Life section.",
-      "staleAfterMonths": 15,
+      "dataPolicy": "Automated 2026-08-09. WHR's old published data panel (worldhappiness.report/data/) is dead — retired in favour of a JS-rendered dashboard at data.worldhappiness.report with no data in static HTML. Fetched instead via that dashboard's own backend API (POST /api/data with a signed x-request-token, discovered by reading the dashboard's own public JS bundle — the signing scheme is embedded in the client code, so this replicates exactly what the official frontend does, not a bypass of anything), the same route the real dashboard uses. Column meaning verified directly from the app's own source, not assumed: its embedded legend maps the 'LI' field to 'Life evaluation _ Average (3-year) _ mean' — exactly the Cantril ladder, 3-year rolling average, this gauge's spec (not 'EV', the ranking of that score, nor 'AV', a non-3-year annual variant). Full 9-peer coverage 2012-2025 confirmed live, with two genuine published gaps left as gaps: all countries in the thin 2013 edition, and GBR in 2022. This is a real, ongoing dependency on an undocumented internal API that could change without notice if WHR restructures their dashboard — see pipeline/lib/whr.mjs.",
       "source": {
         "institution": "Gallup World Poll, via World Happiness Report",
-        "seriesId": "WHR_CANTRIL_LADDER",
+        "seriesId": "LI (Life evaluation, Average 3-year, mean)",
         "seriesName": "Life evaluation (Cantril ladder), 3-year average",
-        "url": "https://worldhappiness.report/data/"
+        "url": "https://data.worldhappiness.report/table"
       },
       "oneLiner": "How people rate their own lives on a 0–10 ladder from worst to best possible.",
       "weights": {
-        "quality-of-life": 0.125
+        "quality-of-life": 0.142857
       }
     },
     {
@@ -509,7 +508,7 @@
       },
       "oneLiner": "How many people are victims of intentional homicide, per 100,000 population.",
       "weights": {
-        "quality-of-life": 0.125
+        "quality-of-life": 0.142857
       }
     },
     {
@@ -531,7 +530,7 @@
       },
       "oneLiner": "How many hours a year the average worker actually works.",
       "weights": {
-        "quality-of-life": 0.125
+        "quality-of-life": 0.142857
       }
     },
     {
@@ -552,7 +551,7 @@
       },
       "oneLiner": "How much fine-particulate air pollution the average person is exposed to.",
       "weights": {
-        "quality-of-life": 0.125
+        "quality-of-life": 0.142857
       }
     },
     {
@@ -573,7 +572,7 @@
       },
       "oneLiner": "How equally different social groups experience civil liberties — freedom of movement, property rights, access to justice.",
       "weights": {
-        "quality-of-life": 0.125
+        "quality-of-life": 0.142857
       }
     },
     {
@@ -583,23 +582,24 @@
       "unit": "Gallup Migrant Acceptance Index, 0–9 scale",
       "historyStartYear": 2016,
       "accessType": "manual",
-      "scoringBasis": "latest-wave-per-country",
       "evidenceStrength": "survey",
       "polarity": "higher_is_better",
-      "polarityJustification": "A higher index score means the surveyed population is more likely to view migrants living in the country, becoming neighbours, and marrying into the family as good things — the standard, uncontroversial reading of Gallup's own index.",
-      "dataPolicy": "No public, peer-complete majority-attitude series is currently available for these nine countries. Gallup continues to field the underlying question, but country-level results since 2019 are published only behind a paid subscription (Gallup Analytics). This gauge therefore uses the last freely published waves (2016/17 and 2019). The absence of a current public series is itself a finding. Full search record — all 5 sources checked (Gallup's own broader World Poll item, WVS Wave 8, Pew Global Attitudes, Ipsos Global Views on Immigration, Edelman Trust Barometer) and why each fell short — is recorded in METHODOLOGY.md's 'Quality of Life dimension' section, so a future session doesn't repeat the hunt. Two named upgrade candidates for a later phase: Ipsos Global Views on Immigration (8 of 9 peers confirmed, missing Netherlands, ~3-yearly) and WVS Wave 8 (results expected after its December 2026 fieldwork ends) — see METHODOLOGY.md for the specific condition each would need to meet before replacing this gauge's source. Scored on the 'latest-wave-per-country' basis (see ScoringBasis in lib/types.ts and describeScoringBasis in lib/scoring.ts) — a deliberate, disclosed departure from this site's usual same-year peer comparison, since this source's two waves don't land on the same calendar year for every country. Direction reports 'insufficient-history' rather than a computed trend: 2 waves ~3 years apart cannot distinguish a real trend from noise between two snapshots.",
+      "polarityJustification": "A higher index score means the surveyed population is more likely to view migrants living in the country, becoming neighbours, and marrying into the family as good things — the standard, uncontroversial reading of Gallup's own index. Not actually scored — see unscoredReason — but recorded for the raw values shown.",
+      "unscoredDimensions": [
+        "quality-of-life"
+      ],
+      "unscoredReason": "This gauge is not scored. No public source measures majority attitudes toward minorities across all nine peer countries. Gallup's Migrant Acceptance Index covered eight of the nine in 2016/17, but its 2019 update published only a global top-ten list — four of our nine, and precisely the four highest scorers (Canada, New Zealand, Australia, United States), which would bias any computed score upward rather than just leave it incomplete. Gallup continues to field the underlying question; country-level results are available only by paid subscription. The absence of a comparable public series is itself a finding.",
+      "dataPolicy": "Fetched directly from the two Gallup news-release articles that publish this index's country tables — not a data product, a provenance chain disclosed explicitly on this gauge's own page. 2016/17 wave (news.gallup.com/poll/216377/...): a full ranked table, 8 of 9 peers (Canada absent — the article's own text says 'Canada will be surveyed later in 2017,' never entered this wave's table at all). 2019 wave (news.gallup.com/poll/320678/...): NOT a full table — only a global top-10 list, so only 4 of 9 peers appear (Canada, New Zealand, Australia, United States). The other 5 (UK, Germany, Japan, Netherlands, South Korea) are not published anywhere in either article — confirmed by reading both in full, not inferred. Full 5-source search record (why no better source exists) is in METHODOLOGY.md's 'Quality of Life dimension' section. Two named upgrade candidates for a later phase: Ipsos Global Views on Immigration (8 of 9 peers confirmed, missing Netherlands, ~3-yearly) and WVS Wave 8 (results expected after its December 2026 fieldwork ends).",
       "staleDisclosure": "This gauge's underlying data is genuinely 7 years old (last freely published wave: 2019) — not a slow-but-normal cadence like Education/PISA's 3-4-yearly cycle, but the practical end of what's publicly available at all. See the dataPolicy note above and 'Quality of Life dimension' in METHODOLOGY.md for the full search record behind this.",
       "staleAfterMonths": 24,
       "source": {
-        "institution": "Gallup",
+        "institution": "Gallup (news releases, not a data product)",
         "seriesId": "MIGRANT_ACCEPTANCE_INDEX",
         "seriesName": "Migrant Acceptance Index",
         "url": "https://news.gallup.com/poll/320678/world-grows-less-accepting-migrants.aspx"
       },
       "oneLiner": "How accepting the surveyed population is of migrants living in the country, as neighbours, and marrying into the family.",
-      "weights": {
-        "quality-of-life": 0.125
-      }
+      "weights": {}
     }
   ]
 }

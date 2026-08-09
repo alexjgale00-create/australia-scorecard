@@ -15,14 +15,20 @@ import {
 } from "@/lib/maturity";
 import MaturityTag from "@/components/MaturityTag";
 import EvidenceTag from "@/components/EvidenceTag";
+import UnscoredTag from "@/components/UnscoredTag";
 import type { DimensionId, GaugeConfig, GaugeData } from "@/lib/types";
 
 export const metadata = { title: "Data status — The Australia Scorecard" };
 
 function dimensionLabel(config: GaugeConfig): string {
-  const ids = Object.keys(config.weights) as DimensionId[];
+  const scored = Object.keys(config.weights) as DimensionId[];
+  const unscored = config.unscoredDimensions ?? [];
+  const ids = [...new Set([...scored, ...unscored])];
   return ids
-    .map((id) => gaugesConfig.dimensions.find((d) => d.id === id)?.shortName ?? id)
+    .map((id) => {
+      const name = gaugesConfig.dimensions.find((d) => d.id === id)?.shortName ?? id;
+      return unscored.includes(id) && !scored.includes(id) ? `${name} (not scored)` : name;
+    })
     .join(" + ");
 }
 
@@ -47,6 +53,7 @@ export default function StatusPage() {
   );
 
   const reusedGauges = gaugesConfig.gauges.filter((g) => Object.keys(g.weights).length > 1);
+  const unscoredGauges = gaugesConfig.gauges.filter((g) => (g.unscoredDimensions?.length ?? 0) > 0);
 
   const rows = gaugesConfig.gauges.map((config) => {
     const data = getGaugeData(config.id);
@@ -68,6 +75,13 @@ export default function StatusPage() {
         {gaugesConfig.gauges.length} unique gauges across two dimensions —{" "}
         {getGaugesForDimension("power").length} in Power, {getGaugesForDimension("quality-of-life").length}{" "}
         in Quality of Life
+        {unscoredGauges.length > 0 && (
+          <>
+            {" "}
+            ({unscoredGauges.length} of which — {unscoredGauges.map((g) => g.name).join(", ")} — appears
+            with real data but isn&rsquo;t scored — see &ldquo;Unscored gauges&rdquo; below)
+          </>
+        )}
         {reusedGauges.length > 0 && (
           <>
             , {reusedGauges.length} of which ({reusedGauges.map((g) => g.name).join(", ")}) is scored in
@@ -90,7 +104,12 @@ export default function StatusPage() {
       </div>
 
       {gaugesConfig.dimensions.map((dimension) => {
-        const dimensionGauges = getGaugesForDimension(dimension.id);
+        // Scored gauges only — an unscored gauge (real data, deliberately
+        // excluded) must never count toward "no data file yet", the same
+        // distinction DimensionVerdict on the homepage makes.
+        const scoredDimensionGauges = getGaugesForDimension(dimension.id).filter(
+          (g) => g.weights[dimension.id] !== undefined
+        );
         const dimensionGaugesWithData = gaugesWithData.filter(
           (g) => g.config.weights[dimension.id] !== undefined
         );
@@ -104,7 +123,7 @@ export default function StatusPage() {
           gaugesConfig.gauges
         );
         assertCompositeDisclosure(compositeResult, gaugesConfig.gauges, compositeDisclosure);
-        const noFileCount = dimensionGauges.length - dimensionGaugesWithData.length;
+        const noFileCount = scoredDimensionGauges.length - dimensionGaugesWithData.length;
 
         return (
           <p key={dimension.id} className="mt-4 max-w-2xl text-sm text-[var(--text-secondary)]">
@@ -121,6 +140,28 @@ export default function StatusPage() {
         any tier (Live, Provisional, or Established) feeds its composite(s) once it exists; only a
         missing level score excludes a gauge, and that exclusion is always named above, never silent.
       </p>
+
+      {unscoredGauges.length > 0 && (
+        <section className="mt-8 rounded-lg border border-[var(--gridline)] bg-[var(--surface-1)] p-5">
+          <h2 className="mb-2 text-lg font-semibold">Unscored gauges</h2>
+          <p className="mb-3 text-sm text-[var(--text-secondary)]">
+            Appears on its dimension&rsquo;s page with real data, but deliberately excluded from that
+            dimension&rsquo;s composite — not the same as &ldquo;awaiting data&rdquo;, which means
+            nothing has landed yet. This means real data exists and a scoring decision was made
+            against it.
+          </p>
+          {unscoredGauges.map((g) => (
+            <div key={g.id}>
+              <p className="text-sm font-medium">
+                <a href={`/gauges/${g.id}`} className="hover:underline">
+                  {g.name}
+                </a>
+              </p>
+              {g.unscoredReason && <p className="mt-1 text-sm text-[var(--text-secondary)]">{g.unscoredReason}</p>}
+            </div>
+          ))}
+        </section>
+      )}
 
       {reusedGauges.length > 0 && (
         <section className="mt-8 rounded-lg border border-[var(--gridline)] bg-[var(--surface-1)] p-5">
@@ -196,6 +237,7 @@ export default function StatusPage() {
                       </a>
                       <div className="mt-1 flex flex-wrap gap-1.5">
                         <EvidenceTag strength={config.evidenceStrength} />
+                        {(config.unscoredDimensions?.length ?? 0) > 0 && <UnscoredTag />}
                         {scoringBasisNote && (
                           <span
                             className="rounded border border-[var(--gridline)] px-1.5 py-0.5 text-[0.65rem] font-medium uppercase tracking-wide text-[var(--text-muted)]"

@@ -322,6 +322,77 @@ does what was being asked for.
    `data/manual/README.md` updated with the full record and download
    steps for 2020-onward entry.
 
+### Life satisfaction automated + a new "unscored gauge" mechanism (2026-08-11)
+
+Site owner asked for two remaining manual gauges to be attempted with the
+same discipline as the PISA/OWID work: fetch from the real source only,
+zero cells from memory, exact-match-or-escalate on any variant. Both
+attempts were real fetches, not assumptions — one landed clean, one
+surfaced a genuine problem with the plan itself, not the fetch.
+
+**Life satisfaction — automated.** WHR's old published data panel
+(`worldhappiness.report/data/`) is dead (confirmed 404, not a block).
+Found the real replacement — a JS-rendered dashboard at
+`data.worldhappiness.report` — by reading its own public JS bundle:
+discovered its backend API (`POST /api/data`, a signed `x-request-token`,
+the signing salt embedded in the client code — replicates the real
+frontend, not a bypass) and, critically, **verified the column meaning
+directly from the app's own embedded legend** rather than assuming `LI`
+meant the right thing: `LI` = "Life evaluation _ Average (3-year) _
+mean," exactly the Cantril ladder 3-year average this gauge is specified
+as. Fetched all 14 editions (2012-2025), full 9-peer coverage except two
+real, disclosed gaps (all countries in the thin 2013 edition, GBR in
+2022). Eyeballed against the site owner (AUS 2012→2025: 7.350→6.916, a
+real decline) before ingesting. `pipeline/lib/whr.mjs` +
+`pipeline/gauges/life-satisfaction.mjs`, `accessType` flipped to `api`.
+**Real, ongoing dependency on an undocumented internal API** — if this
+fetcher starts failing, check whether the dashboard's JS bundle still
+contains this same signing scheme before assuming the series changed.
+
+**Majority acceptance — the fetch worked, but revealed the plan was
+wrong.** Both named Gallup articles fetched and read in full. The 2016/17
+article has a genuine full ranking table (8/9 peers — Canada absent, the
+article's own text says it wasn't surveyed until later in 2017). The 2019
+article turned out to publish **only a global top-10 list, not a full
+table** — a real discovery, not assumed from the earlier source-search:
+only 4/9 peers appear (Canada, New Zealand, Australia, United States),
+and — the finding that actually mattered — those four are precisely the
+**highest scorers**. Site owner's ruling: a score computed from that
+subset wouldn't just be incomplete, it would be structurally biased
+upward, and a gauge that looks scored but isn't comparable is worse than
+no gauge at all.
+
+**New mechanism, not a one-off fix: `GaugeConfig.unscoredDimensions` /
+`unscoredReason`** (`lib/types.ts`). A gauge can appear on a dimension's
+page — its own card, its own detail page, real data shown — without being
+scored or counted in that dimension's composite. Deliberately separate
+from `weights` (membership + weight combined): `unscoredDimensions` is
+membership only, so a gauge listed there has no `weights` entry for that
+dimension and is *structurally* excluded from every composite calculation
+— no new "if unscored, skip" branch added to `computeComposite` or its
+siblings, exclusion follows from the same absence-based logic `weights`
+already used. New components (`UnscoredTag`, `UnscoredGaugeCard`, an
+`UnscoredGaugeDetail` render branch on the gauge page) show real data —
+`cohesion-majority-acceptance` now has genuine 2016/17 and 2019 values
+ingested — with no level score, direction arrow, dot strip, or rank
+chart, since none of those are meaningful for data that was never fed
+into a composite. **Verified distinct from "Awaiting data" by
+construction**: the unscored branch is checked *before* the no-data
+branch on both the homepage and the gauge detail page, so a real,
+data-bearing unscored gauge never gets miscounted as "nothing has landed
+yet" — and the "N further gauges awaiting data" math on both the homepage
+(`DimensionVerdict`) and `/status` was fixed to count only *scored*
+gauges as the denominator (`isScoredInDimension` in `lib/gauges-data.ts`),
+so it can never inflate once real unscored data lands.
+
+Quality of Life's `scoringBasis: "latest-wave-per-country"` mechanism
+(built the previous session specifically for this gauge) is now unused —
+kept as infrastructure for a future gauge in the same situation, not
+removed. The 7 gauges still actually scored in Quality of Life had their
+weights renormalised from 1/8 (0.125) to 1/7 (0.142857) the same day, so
+the displayed weight always matches what the composite math actually
+does.
+
 ## Phase D: started, then paused pending the data layer (2026)
 
 Phase D (methodology/editorial: band thresholds, weights, direction

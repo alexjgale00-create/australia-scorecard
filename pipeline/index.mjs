@@ -86,6 +86,14 @@ const GAUGE_IDS = [
   // owner's "no fourth round" stopping rule. pipeline/gauges/
   // work-life-balance.mjs was deleted. See gauges.config.json's
   // dataPolicy, METHODOLOGY.md, and CLAUDE.md for the full 3-round record.
+  // life-satisfaction: automated 2026-08-09 — WHR's old published data
+  // panel is dead, fetched instead via the WHR dashboard's own backend
+  // API (pipeline/lib/whr.mjs), discovered by reading the dashboard's
+  // public JS bundle. Column meaning (Cantril ladder, not the ranking or
+  // an annual variant) verified directly from the app's own source
+  // legend, not assumed. Real, ongoing dependency on an undocumented
+  // internal API — see pipeline/lib/whr.mjs and CLAUDE.md.
+  "life-satisfaction",
 ];
 
 /** Reads a gauge's currently-saved provenance, if any, without touching it. */

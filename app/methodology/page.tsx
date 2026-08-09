@@ -153,15 +153,27 @@ export default function MethodologyPage() {
             <h3 className="mb-3 text-lg font-semibold">{dimension.name}</h3>
             <div className="space-y-4">
               {gaugesConfig.gauges
-                .filter((g) => g.weights[dimension.id] !== undefined)
+                .filter(
+                  (g) => g.weights[dimension.id] !== undefined || g.unscoredDimensions?.includes(dimension.id)
+                )
                 .map((g) => (
                   <div key={g.id} className="rounded-lg border border-[var(--gridline)] p-5">
                     <div className="flex flex-wrap items-baseline justify-between gap-2">
                       <h4 className="text-lg font-semibold">{g.name}</h4>
                       <span className="text-sm text-[var(--text-muted)]">
-                        Weight in {dimension.shortName}: {((g.weights[dimension.id] ?? 0) * 100).toFixed(1)}%
+                        {g.weights[dimension.id] !== undefined
+                          ? `Weight in ${dimension.shortName}: ${((g.weights[dimension.id] ?? 0) * 100).toFixed(1)}%`
+                          : "Not scored"}
                       </span>
                     </div>
+                    {g.unscoredReason && (
+                      <p
+                        className="mt-2 rounded-md border p-2.5 text-sm"
+                        style={{ borderColor: "var(--gridline)", color: "var(--text-secondary)" }}
+                      >
+                        {g.unscoredReason}
+                      </p>
+                    )}
                     {Object.keys(g.weights).length > 1 && (
                       <p className="mt-1 text-xs text-[var(--text-muted)]">
                         Also scored in{" "}
@@ -304,14 +316,41 @@ export default function MethodologyPage() {
           <Link href="/gauges/cohesion-majority-acceptance" className="underline">
             Cohesion &mdash; majority acceptance
           </Link>{" "}
-          (Gallup&rsquo;s Migrant Acceptance Index). Each scores independently, at 12.5% weight
-          each (2 of the dimension&rsquo;s 8 launch slots) &mdash; enough to cover both directions
-          of the theme without crowding out the other six facets of &ldquo;good place to
-          live.&rdquo; The divergence between the two &mdash; minority experience improving while
-          majority acceptance holds flat, or vice versa &mdash; is surfaced as a callout on both
-          gauge pages, same spirit as &ldquo;Two ways to read this,&rdquo; but is{" "}
-          <strong>not itself a scored or weighted input</strong> &mdash; that would double-count
-          the same theme.
+          (Gallup&rsquo;s Migrant Acceptance Index). Originally planned as two independently-scored
+          gauges — as of 2026-08-11, only minority experience is actually scored (1/7 weight within
+          Quality of Life&rsquo;s 7 scored gauges). Majority acceptance turned out to be{" "}
+          <strong>unscored</strong>: fetching its real source revealed the 2019 wave publishes only a
+          global top-10 list, 4 of the 9 peers, and precisely the 4 highest scorers — any score
+          computed from that subset would be structurally biased upward, not just incomplete. Ruling:
+          show the real data (both waves, honestly labelled) without pretending it supports a
+          peer-relative score. See &ldquo;Unscored gauges&rdquo; below and this gauge&rsquo;s own
+          page for the full reasoning.
+        </p>
+
+        <h3 className="mt-5 text-base font-semibold">Unscored gauges</h3>
+        <p className="mt-2 text-[var(--text-secondary)]">
+          A gauge can appear on a dimension&rsquo;s page &mdash; its own card, its own detail page,
+          real data shown &mdash; without being scored or counted in that dimension&rsquo;s
+          composite. Deliberately distinct from &ldquo;Awaiting data&rdquo;: an unscored gauge
+          isn&rsquo;t missing anything, a scoring decision was made against it on purpose. The
+          composite math enforces this structurally, not by convention &mdash; an unscored gauge
+          simply has no weight entry for that dimension, so the composite functions already skip it
+          via the same &ldquo;not part of this dimension&rsquo;s math&rdquo; path used for a gauge
+          that belongs to a different dimension entirely, no special-case branch to forget.
+        </p>
+        <p className="mt-3 text-[var(--text-secondary)]">
+          Currently one case:{" "}
+          {gaugesConfig.gauges
+            .filter((g) => (g.unscoredDimensions?.length ?? 0) > 0)
+            .map((g, i, arr) => (
+              <span key={g.id}>
+                <Link href={`/gauges/${g.id}`} className="underline">
+                  {g.name}
+                </Link>
+                {i < arr.length - 1 ? ", " : ""}
+              </span>
+            ))}
+          . <em>{gaugesConfig.gauges.find((g) => g.unscoredDimensions?.length)?.unscoredReason}</em>
         </p>
 
         <h3 className="mt-5 text-base font-semibold">

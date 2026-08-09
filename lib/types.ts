@@ -75,6 +75,26 @@ export interface GaugeConfig {
    * that reuse must never be silent.
    */
   reuseNote?: string;
+  /**
+   * Dimension(s) this gauge appears on for display/grouping — its own
+   * card in that dimension's gauge grid, its own detail page — WITHOUT
+   * being scored or counted in that dimension's composite. Deliberately
+   * separate from `weights`, which is both membership *and* the composite
+   * weight: a gauge here has no entry in `weights` for the same
+   * dimension, so it's structurally excluded from every composite
+   * calculation (computeComposite, computeCompositeForAllCountries,
+   * computeHistoricalComposite already skip any gauge with no weight for
+   * the dimension in question — no extra "if unscored, skip" branch
+   * needed, exclusion follows from absence). A gauge here still shows its
+   * real data — first use case: cohesion-majority-acceptance, where only
+   * 4 of 9 peers have a 2019 wave and those four are precisely the
+   * highest scorers, so any computed score would be structurally biased
+   * upward. `unscoredReason` is mandatory alongside this — never render
+   * "not scored" without saying why.
+   */
+  unscoredDimensions?: DimensionId[];
+  /** Required alongside unscoredDimensions — the plain-English reason shown prominently on the gauge's own card and detail page. */
+  unscoredReason?: string;
   /** Defaults to "same-year" when omitted — see ScoringBasis. */
   scoringBasis?: ScoringBasis;
   /** Defaults to "hard-statistic" when omitted — see EvidenceStrength. */

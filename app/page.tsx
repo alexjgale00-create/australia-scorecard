@@ -1,8 +1,9 @@
-import { gaugesConfig, getGaugeData, getGaugesForDimension } from "@/lib/gauges-data";
+import { gaugesConfig, getGaugeData, getGaugesForDimension, isScoredInDimension } from "@/lib/gauges-data";
 import { computeGaugeScore } from "@/lib/scoring";
 import { getSiteContent } from "@/lib/content";
 import GaugeCard from "@/components/GaugeCard";
 import AwaitingDataCard from "@/components/AwaitingDataCard";
+import UnscoredGaugeCard from "@/components/UnscoredGaugeCard";
 import DimensionVerdict from "@/components/DimensionVerdict";
 import { computeMaturityCounts, summarizeMaturityCounts } from "@/lib/maturity";
 import type { GaugeConfig, GaugeData } from "@/lib/types";
@@ -65,7 +66,10 @@ export default function Home() {
             scores={scores}
             allConfigs={gaugesConfig.gauges}
             scoreBands={gaugesConfig.scoreBands}
-            totalGaugeCount={getGaugesForDimension(dimension.id).length}
+            totalGaugeCount={
+              getGaugesForDimension(dimension.id).filter((g) => isScoredInDimension(g, dimension.id))
+                .length
+            }
           />
         ))}
       </div>
@@ -83,6 +87,11 @@ export default function Home() {
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {dimensionGauges.map((config) => {
                 const withData = gaugesWithData.find((g) => g.config.id === config.id);
+                if (config.unscoredDimensions?.includes(dimension.id)) {
+                  return (
+                    <UnscoredGaugeCard key={config.id} config={config} data={withData?.data ?? null} />
+                  );
+                }
                 if (!withData) return <AwaitingDataCard key={config.id} config={config} />;
                 const score = scores.find((s) => s.gaugeId === config.id)!;
                 return (

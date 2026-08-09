@@ -344,12 +344,12 @@ record and CLAUDE.md's Phase E entry for the session-to-session summary.
 |---|---|---|---|
 | Housing affordability | 🟢 Live (reused) | OECD (SDMX) | Same data file and fetch as Power's `housing-pressure` — see `reuseNote` on this gauge's config entry. **Truncation guard active as of 2026-08-09** — see "Long tail: the truncation guard" below |
 | Life expectancy | 🟢 Live | World Bank | `SP.DYN.LE00.IN` — automated 2026-08-09, same generic World Bank route as 6 Power gauges |
-| Life satisfaction | ⚪ Awaiting data | Gallup World Poll, via World Happiness Report | Survey-based. A genuine fetch attempt against WHR's data panel is still owed |
+| Life satisfaction | 🟢 Live | Gallup World Poll, via World Happiness Report (dashboard API) | Survey-based. Automated 2026-08-11 — WHR's old data panel is dead, fetched instead via the dashboard's own backend API; column meaning (`LI`, not `EV`/`AV`) verified against the app's own source legend. See `pipeline/lib/whr.mjs` |
 | Personal safety | 🟢 Live, ⚠ intermittent | UNODC, via World Bank | `VC.IHR.PSRC.P5` — automated 2026-08-09. Two World Bank API timeouts on later Actions runs (2026-08-09) after a clean first landing — investigated 2026-08-09: not measurably slower/larger than other successful World Bank gauges from this project's own sandbox (near-identical response time and payload size to life-expectancy), so no gauge-specific fix applied; most likely cumulative network load from this pipeline's now-much-longer sequential run (2 OWID gauges × ~36 calls each, an xlsx download, multiple OECD calls, ~9 World Bank calls) rather than anything about this indicator itself |
 | Work-life balance | 🟡 Manual lane | OECD | 3 automation rounds, decided 2026-08-09 — the third surfaced a second, structurally different conflict (not just another dimension to pin), per the site owner's "no fourth round" rule. Real 1995-2019 data from the retired automated fetch is the current baseline; see "Work-life balance: OECD dimension pin" below and `data/manual/README.md` |
 | Air quality | 🟢 Live | World Bank (IHME GBD) | `EN.ATM.PM25.MC.M3` — automated 2026-08-09, same generic World Bank route |
 | Cohesion — minority experience | 🟢 Live | V-Dem (`v2clsocgrp`), via Our World in Data | Automated 2026-08-09 via the same proven OWID route as `internal-cohesion` (`pipeline/lib/vdem.mjs` generalised into a factory serving both) |
-| Cohesion — majority acceptance | ⚪ Awaiting data | Gallup Migrant Acceptance Index | Survey-based. Definitively manual — no bulk API found. See "Quality of Life dimension" below for the full source search |
+| Cohesion — majority acceptance | 🟢 Live, **not scored** | Gallup Migrant Acceptance Index (news releases) | Survey-based. Entered by hand 2026-08-11 from the two Gallup articles' own tables — real data (8/9 peers 2016/17, 4/9 peers 2019). **Converted to an unscored gauge same day**: the 2019 wave's 4 peers are precisely the highest scorers, so any computed score would be structurally biased upward. See "Unscored gauges" below |
 
 ### Internal cohesion — variable switch and scale note (2026-07-16)
 
@@ -457,9 +457,9 @@ each, placeholder pending Phase D):**
    Our World in Data republication route already built for
    `internal-cohesion`'s `v2cacamps`. Outcome (expert-assessed).
 8. **Cohesion — majority acceptance** — Gallup's Migrant Acceptance Index.
-   Outcome, survey evidence, scored on the "latest-wave-per-country" basis
-   — see "Alternate scoring basis" and the dedicated source-search
-   subsection below.
+   Outcome, survey evidence. **Not scored, as of 2026-08-11** — see
+   "Unscored gauges" and the dedicated source-search subsection below for
+   why fetching the real source changed this from the original plan.
 
 **Deferred to a second batch**, pending further source-feasibility work,
 not rejected: health system performance (avoidable mortality vs. health
@@ -494,12 +494,16 @@ file) — housing cost pressure is both a national economic-pressure signal
 live (Quality of Life). One fetch, one data file, two independent
 composite contributions at each dimension's own weight
 (`gauges.config.json`'s `weights: { "power": 0.0625, "quality-of-life":
-0.125 }`). Disclosed on the gauge's own page, on `/status` (a dedicated
-"Reused gauges" section), and here. Implementation note: a gauge's
-`weights` object (not a separate `dimensions` list) is the single source
-of truth for dimension membership — `Object.keys(weights)` always answers
-"which dimension(s) is this gauge in," so there's no second list that
-could silently drift out of sync with the actual weights.
+0.142857 }` — the Quality of Life side renormalised from 1/8 to 1/7 on
+2026-08-11 when cohesion-majority-acceptance became unscored, see
+"Unscored gauges" below). Disclosed on the gauge's own page, on `/status`
+(a dedicated "Reused gauges" section), and here. Implementation note: a
+gauge's `weights` object (not a separate `dimensions` list) is the single
+source of truth for *scored* dimension membership — `Object.keys(weights)`
+answers "which dimension(s) is this gauge scored in," so there's no
+second list that could silently drift out of sync with the actual
+weights. `unscoredDimensions` is the separate, parallel answer to "which
+dimension(s) does this gauge appear on without being scored."
 
 ### The social cohesion cluster
 
@@ -508,15 +512,19 @@ measured from both sides. Three questions were ruled on at Step 1:
 
 **(a) One gauge with two sub-scores, or paired gauges?** Ruled: **paired
 gauges**, not one gauge with two sub-scores — the site owner's own lean,
-confirmed. Each of Cohesion — minority experience and Cohesion — majority
-acceptance scores independently through the existing one-gauge-one-raw-
-series engine, no new multi-component scoring machinery needed (same
-reasoning that kept Inequality to OECD Gini alone, WID wealth-share as
-context only). The divergence between the two — minority experience
-improving while majority acceptance holds flat, or vice versa — is
-surfaced as a callout on both gauge pages, same spirit as "Two ways to
-read this," but is **not itself a scored or weighted input** — blending it
-in would double-count the same underlying theme.
+confirmed. Both were originally planned to score independently through the
+existing one-gauge-one-raw-series engine, no new multi-component scoring
+machinery needed (same reasoning that kept Inequality to OECD Gini alone,
+WID wealth-share as context only). **Amended 2026-08-11, once the real
+source was actually fetched**: Cohesion — minority experience scores as
+planned; Cohesion — majority acceptance turned out **unscored** — see
+"Unscored gauges" below for why. The originally-planned "divergence
+callout" between the two never got built, since a real callout comparing
+a score against something deliberately not scored would misrepresent the
+comparison as more solid than it is — the asymmetry between the two
+gauges' pages (one has a number, one plainly says why it doesn't) already
+carries the same "read both sides" spirit "Two ways to read this" was
+meant to give, without implying a false equivalence.
 
 **(b) How many gauges does the cluster warrant?** Ruled: **2 of the
 dimension's 8 launch slots (25%)** — enough to cover both directions of
@@ -534,20 +542,29 @@ discover by inspecting `lib/scoring.ts`.
 
 ### Alternate scoring basis: "latest-wave-per-country"
 
+**Currently unused as of 2026-08-11** — `cohesion-majority-acceptance` was
+the only gauge ever configured with this basis, and it's since become
+unscored entirely (see "Unscored gauges" below), so no gauge currently
+sets `scoringBasis: "latest-wave-per-country"`. The mechanism itself is
+kept, documented, and available for a future gauge in the same situation
+(irregular, non-synchronized survey waves per country) — not removed
+just because nothing uses it today.
+
 Every gauge on this site compares all 9 countries' values from the
-**same shared year** (`latestSharedYear` in `lib/scoring.ts`) — except
-gauges with `scoringBasis: "latest-wave-per-country"` set in
-`gauges.config.json`, currently only `cohesion-majority-acceptance`. On
-this basis, each country contributes its **own most recent available
-value**, even though that value comes from a different calendar year per
-country (`computeLevelScoreLatestWavePerCountry`,
+**same shared year** (`latestSharedYear` in `lib/scoring.ts`) — except a
+gauge with `scoringBasis: "latest-wave-per-country"` set in
+`gauges.config.json`. On this basis, each country contributes its
+**own most recent available value**, even though that value comes from a
+different calendar year per country
+(`computeLevelScoreLatestWavePerCountry`,
 `computeLevelScoreForAllCountriesLatestWave`,
 `computeRankLatestWavePerCountry` in `lib/scoring.ts`). This is a
-deliberate, disclosed departure, not an inconsistency — used only for
-attitude-survey gauges whose source fields irregular, non-synchronized
-waves per country (Gallup's Migrant Acceptance Index was fielded in most
-countries in 2016, the US and Canada in 2017, then a broader set again in
-2019 — requiring a shared year would exclude most of the peer set).
+deliberate, disclosed departure, not an inconsistency — for attitude-
+survey gauges whose source fields irregular, non-synchronized waves per
+country (Gallup's Migrant Acceptance Index, this basis's original and
+only real case, was fielded in most countries in 2016, the US in 2017,
+then a broader set again in 2019 — requiring a shared year would have
+excluded most of the peer set).
 
 Made visible everywhere the fork matters, per the site owner's explicit
 condition:
@@ -578,6 +595,58 @@ spanning 6+ years on this basis, so a real trend computation for that case
 isn't built yet — deliberately, rather than guessed at; build it for real
 once a gauge actually qualifies. Rendered as a distinct "?" glyph in
 `DirectionArrow.tsx`, never conflated with "Flat" or "No trend data."
+
+### Unscored gauges
+
+A gauge can appear on a dimension's page — its own card in that
+dimension's gauge grid, its own detail page, real data shown — **without**
+being scored or counted in that dimension's composite. New mechanism,
+built 2026-08-11 for a real, specific need: fetching
+`cohesion-majority-acceptance`'s actual source revealed its 2019 wave
+publishes only a global top-10 list — 4 of the 9 peers, and precisely the
+4 highest scorers (Canada, New Zealand, Australia, United States). Any
+score computed from that subset would be **structurally biased upward**,
+not just thin — a materially worse failure mode than "insufficient
+history" (too little data to trust a trend) or a disclosed missing-country
+gap (a real hole in an otherwise-valid comparison). Site owner's explicit
+ruling: a gauge that looks scored but isn't comparable is worse than no
+gauge — show the real data, state plainly why it isn't scored, never
+publish the biased number.
+
+**Implementation** (`GaugeConfig.unscoredDimensions` /
+`unscoredReason` in `lib/types.ts`): deliberately separate from `weights`,
+which is both dimension membership *and* the composite weight in one
+field. `unscoredDimensions` is membership only — a gauge listed there for
+a dimension has no entry in `weights` for that same dimension, so it's
+structurally excluded from every composite calculation
+(`computeComposite`, `computeCompositeForAllCountries`,
+`computeHistoricalComposite` already skip any gauge with no weight for
+the dimension in question — no extra "if unscored, skip" branch needed
+anywhere in the scoring engine; exclusion follows from absence, the same
+principle `weights` was already built on). `unscoredReason` is mandatory
+alongside it — the site never renders "not scored" without saying why,
+shown prominently (`components/UnscoredTag.tsx`, a new
+`components/UnscoredGaugeCard.tsx`, and a dedicated `UnscoredGaugeDetail`
+render branch on the gauge page, all distinct from the ordinary scored
+gauge treatment: no level score, no `DirectionArrow`, no dot strip, no
+rank chart — none of those are meaningful for data that was never fed
+into a composite).
+
+**Explicitly not the same as "Awaiting data"** — the site owner's own
+requirement, verified by construction rather than just asserted: an
+unscored gauge with real data renders via `UnscoredGaugeCard`/
+`UnscoredGaugeDetail` regardless of whether a data file exists, checked
+*before* the awaiting-data branch in both `app/page.tsx` and the gauge
+detail page. The "N further gauges awaiting data" disclosure math (the
+homepage's `DimensionVerdict` and `/status`'s per-dimension composite
+line) is scoped to *scored* gauges only (`isScoredInDimension` in
+`lib/gauges-data.ts`) — an unscored gauge with real data must never get
+miscounted as "awaiting" something it was never going to have, and
+conversely must never silently inflate a "gauges awaiting data" count
+once real data lands. Quality of Life's own gauge-set weights were
+renormalised the same day, 1/8 → 1/7 across the 7 gauges still actually
+scored, so a displayed weight always matches what the composite math
+actually does with it.
 
 ### Majority-attitude source search (Step 1, 2026-08) — the full record
 
