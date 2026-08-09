@@ -171,6 +171,60 @@ at a manual-lane gauge with no data yet (there's no pipeline step to run for
 those). Now branches on `accessType`, pointing manual gauges at
 `data/manual/README.md` instead.
 
+### Long tail, step 1: four automated fetchers, plus a new pipeline-wide truncation guard (2026-08-09)
+
+`life-expectancy`, `personal-safety`, and `air-quality` automated via the
+same generic World Bank route as 6 existing Power gauges — no new fetcher
+logic, just config + a thin `pipeline/gauges/*.mjs` wrapper each.
+`cohesion-minority-experience` automated via the same OWID V-Dem route as
+`internal-cohesion`; `pipeline/lib/vdem.mjs` was generalised into a
+`createVdemOwidFetcher(chartSlug, csvColumn)` factory the same day so both
+indicators (`v2cacamps` and `v2clsocgrp`) share one implementation —
+`internal-cohesion`'s exports are unchanged, verified by re-running it
+standalone before and after. All four verified standalone, then through a
+full pipeline run, before being wired into `pipeline/index.mjs`'s
+`GAUGE_IDS`, same discipline as every prior automated gauge on this site.
+
+**A real incident during this same push, and the fix it forced.** Merging
+in the site's first-ever real scheduled cron run (2026-08-01 — see "Data
+maturity" above) surfaced that this session's own local
+`housing-pressure` fetch had returned a single garbage data point (2015
+only) where 35 years of real history existed — a transient access flake,
+not a code bug (the Aug 1 scheduled run got clean, complete data from the
+same source). Caught by inspecting the diff before committing, not by any
+guard — reverted by hand that time. Site owner's ruling: that's a good
+catch, not a good enough system — a source returning dramatically fewer
+observations than the file already on disk must **fail loudly and refuse
+to write**, not depend on a human noticing a diff, especially now that
+`housing-pressure` is reused across both dimensions and a silent
+truncation would corrupt two verdicts at once.
+
+**Fix**: `assertNotTruncated` in `pipeline/lib/writeGaugeData.mjs`, the
+single chokepoint every gauge's fetcher writes through — protects all
+gauges uniformly, not just this one. Compares **total observations summed
+across every country** in the new payload against the existing file (not
+just Australia's count — a fetch could return a full Australia series
+while silently dropping every peer, equally a truncation). Throws,
+refusing the write entirely, if the new total is below 50% of the prior
+total (`TRUNCATION_FLOOR`) — deliberately conservative: real data can
+legitimately shrink a little, never by half. Only gates when the existing
+file is itself `LIVE` (sample data and first landings have nothing
+meaningful to compare against). A throw here propagates up through each
+gauge's `run()` into `pipeline/index.mjs`'s existing try/catch exactly like
+any other fetch error — reported as a genuine red failure, existing data
+retained and disclosed as such, no special-casing needed in the pipeline
+runner itself.
+
+**Verified live, not just unit-reasoned**: re-created the actual incident
+(fed the guard a real existing 36-point/288-total-observation
+`housing-pressure` file and a 1-point replacement) and confirmed it throws
+with the exact comparison numbers and leaves the file untouched. Then ran
+the full pipeline for real — one gauge (`housing-pressure`, this specific
+run) hit OECD's already-documented Cloudflare block instead of a
+truncation, confirming the two failure modes stay distinct: a hard block
+fails before ever reaching the write path, a bad-but-200 response is now
+what the new guard exists for.
+
 ## Phase D: started, then paused pending the data layer (2026)
 
 Phase D (methodology/editorial: band thresholds, weights, direction

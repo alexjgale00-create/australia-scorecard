@@ -80,6 +80,14 @@ const GAUGE_IDS = [
   "personal-safety",
   "air-quality",
   "cohesion-minority-experience",
+  // work-life-balance: coordinates found via corroborated web search
+  // 2026-08-09, not independently confirmed live (this sandbox's
+  // Cloudflare block on sdmx.oecd.org reproduced today). Single good-faith
+  // attempt via the generic discovery route, per the site owner's explicit
+  // stopping rule — if this fails structurally when actually run via
+  // Actions (not just an access block), it moves to the manual lane, not a
+  // second guess. See gauges.config.json's dataPolicy and CLAUDE.md.
+  "work-life-balance",
 ];
 
 /** Reads a gauge's currently-saved provenance, if any, without touching it. */
