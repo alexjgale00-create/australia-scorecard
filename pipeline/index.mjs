@@ -80,16 +80,12 @@ const GAUGE_IDS = [
   "personal-safety",
   "air-quality",
   "cohesion-minority-experience",
-  // work-life-balance: coordinates found via corroborated web search
-  // 2026-08-09. Round 1 surfaced a real conflicting-values error resolved
-  // by pinning WORKER_STATUS=_T. Round 2 saved cleanly but only 1995-2019.
-  // Round 3 (explicitly granted as a final round, 2026-08-09) adds a
-  // separate recent-years probe (2020+, WORKER_STATUS unpinned) to check
-  // for real 2020-2024 data the pin might be missing. No fourth round
-  // regardless of outcome — if this doesn't reach 2023+ data, it moves to
-  // the manual lane with the 2019 endpoint disclosed. See
-  // gauges.config.json's dataPolicy, METHODOLOGY.md, and CLAUDE.md.
-  "work-life-balance",
+  // work-life-balance moved to the manual lane 2026-08-09 after 3
+  // automation rounds — the third surfaced a second, structurally
+  // different conflict (not just another dimension to pin), per the site
+  // owner's "no fourth round" stopping rule. pipeline/gauges/
+  // work-life-balance.mjs was deleted. See gauges.config.json's
+  // dataPolicy, METHODOLOGY.md, and CLAUDE.md for the full 3-round record.
 ];
 
 /** Reads a gauge's currently-saved provenance, if any, without touching it. */

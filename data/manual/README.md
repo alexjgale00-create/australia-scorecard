@@ -13,12 +13,12 @@ entered but stays in this folder's process going forward (OECD publishes
 no fetchable endpoint for it, by design, not oversight — see below).
 
 **Quality of Life** (Phase E, 2026-08): **Life satisfaction** (World
-Happiness Report — a genuine fetch attempt against its data panel wasn't
-pursued once the manual entry was scoped small enough to do by hand
-alongside the others below; see its section) and **Cohesion — majority
-acceptance** (Gallup Migrant Acceptance Index — definitively manual, no
-bulk API exists; see its section for why this one is different from every
-other gauge on this site).
+Happiness Report) and **Cohesion — majority acceptance** (Gallup Migrant
+Acceptance Index — definitively manual, no bulk API exists; see its
+section for why this one is different from every other gauge on this
+site) and **Work-life balance** (OECD — 3 real automation rounds, the
+third surfacing a genuine structural ambiguity rather than one more
+pinnable dimension; see its section for the full record).
 
 Several gauges originally planned for this lane turned out to be
 automatable after all, verified live before being wired in: **Military
@@ -27,10 +27,7 @@ cohesion** (V-Dem's `v2cacamps`, via Our World in Data's re-publication),
 **Life expectancy**, **Personal safety**, **Air quality** (all three
 World Bank), and **Cohesion — minority experience** (V-Dem's
 `v2clsocgrp`, same OWID route as internal cohesion) — all now fetch by
-`npm run pipeline` like any other gauge. **Work-life balance** is a live
-open question as of this entry — see its own section below for the
-current status; it may or may not end up in this folder depending on the
-outcome of a live investigation still in progress. See `CLAUDE.md` and
+`npm run pipeline` like any other gauge. See `CLAUDE.md` and
 `METHODOLOGY.md` for the full per-gauge reasoning on which stayed manual
 and why.
 
@@ -289,28 +286,41 @@ a trend from) — this is expected, not an error.
 
 ---
 
-## Work-life balance — status TBD, template ready either way
+## Work-life balance
 
 **Measures:** OECD's average annual hours actually worked per worker.
 
-**As of this entry, this gauge's fate is still being decided live.**
-Three rounds of OECD SDMX automation: round 1 found and pinned a real
-dimension conflict (`WORKER_STATUS=_T`); round 2 landed clean but only
-covering 1995-2019; round 3 (explicitly granted as a final round — see
-CLAUDE.md and METHODOLOGY.md) adds a probe for 2020+ data. **If that
-probe reaches real 2023+ data, this gauge stays automated and this
-section — and the template below — can be deleted.** If it doesn't, this
-gauge moves here permanently with the 2019 endpoint disclosed on its own
-page, no further automation attempts.
+**Why manual:** 3 real automation rounds against
+`OECD.ELS.SAE,DSD_HW@DF_AVG_ANN_HRS_WKD,1.0`, decided 2026-08-09. Round 1
+found and pinned a real dimension conflict (`WORKER_STATUS=_T`, "Total").
+Round 2 landed clean but only covered 1995-2019, while a secondary source
+showed real OECD data through 2023. Round 3 (explicitly granted as a
+final round, given a gauge silently missing 2020-2024 would misrepresent
+the COVID-era hours-worked shift this gauge exists to capture) probed
+2020+ with `WORKER_STATUS` unpinned again — and hit a **second, different**
+conflict (DEU 2023, `WORKER_STATUS=_T` vs `ICSE93_1` disagreeing even in
+the recent window). That's structurally significant, not just one more
+pin needed: if `_T` genuinely carries 2023 data, the historical query
+(already pinned to `_T` across the full range) should have returned it
+directly — it didn't, meaning some *other* still-wildcarded dimension
+distinguishes an "old _T" series from a "new _T" series, invisible
+without yet another live round. Per the site owner's "no fourth round"
+stopping rule, this is a genuine structural ambiguity — the same shape of
+dead end this project hit with Inequality's OECD attempt, not a solvable
+one-more-guess situation. Full record in METHODOLOGY.md's "Work-life
+balance: OECD dimension pin".
 
-**If it lands here, download steps:**
+**The real 1995-2019 data already fetched (via the now-retired automated
+route) is the current baseline** — this gauge's `staleAfterMonths: 15`
+cadence check will flag it for a manual refresh on the normal schedule
+going forward, same as any other manual gauge.
+
+**Download steps:**
 
 1. Go to **https://data-explorer.oecd.org/vis?df%5Bag%5D=OECD.ELS.SAE&df%5Bid%5D=DSD_HW%40DF_AVG_ANN_HRS_WKD**
    ("Average annual hours actually worked per worker").
 2. Filter to: the 9 peer countries, Worker status = Total, Annual
    frequency.
-3. Download → CSV, then fill in `work-life-balance-template.csv`.
-
-`work-life-balance-template.csv` is already sitting in this folder either
-way — harmless to have prepared it before knowing the outcome, saves a
-round-trip if it's needed.
+3. Download → CSV, then fill in `work-life-balance-template.csv`. Note:
+   the existing 1995-2019 data is real and doesn't need re-entering — only
+   fill in 2020 onward, plus any future years, when you do this.

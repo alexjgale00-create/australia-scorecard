@@ -306,15 +306,21 @@ does what was being asked for.
    found no evidence of).
 3. **work-life-balance round 3, explicitly granted as a final round** —
    see the dedicated write-up in METHODOLOGY.md's "Work-life balance:
-   OECD dimension pin" for the full three-round history and design. Short
-   version: `pipeline/gauges/work-life-balance.mjs` now runs the proven
-   `WORKER_STATUS=_T` historical query plus a second, separate probe for
-   2020+ with `WORKER_STATUS` unpinned again, merging in any conflict-free
-   recent data found. Three explicitly-handled outcomes (merged real data,
-   confirmed-empty, a new conflict) — no fourth round regardless of which
-   one actually happens; a non-"merged" outcome sends this gauge to the
-   manual lane with the 2019 endpoint disclosed, per the site owner's own
-   stated fallback. Pushed, not yet tested via Actions as of this entry.
+   OECD dimension pin" for the full three-round history and design.
+   **Result, confirmed live via Actions the same day**: a *different*
+   conflict, not a merge — DEU 2023, `WORKER_STATUS=_T` vs `ICSE93_1`
+   disagreeing even in the probe's own recent-years window. Structurally
+   significant, not just another dimension to pin: the historical query
+   already had `_T` pinned across the *entire* range and still didn't
+   return 2020+ data, meaning some other still-wildcarded dimension
+   distinguishes an "old _T" series from a "new _T" one — invisible
+   without yet another live round. Per the "no fourth round" rule, this
+   gauge **moved to the manual lane the same day**:
+   `pipeline/gauges/work-life-balance.mjs` deleted, `accessType` flipped
+   in `gauges.config.json`, real 1995-2019 data (from the now-retired
+   automated fetch) kept as the current baseline rather than discarded,
+   `data/manual/README.md` updated with the full record and download
+   steps for 2020-onward entry.
 
 ## Phase D: started, then paused pending the data layer (2026)
 

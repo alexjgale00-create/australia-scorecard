@@ -346,7 +346,7 @@ record and CLAUDE.md's Phase E entry for the session-to-session summary.
 | Life expectancy | 🟢 Live | World Bank | `SP.DYN.LE00.IN` — automated 2026-08-09, same generic World Bank route as 6 Power gauges |
 | Life satisfaction | ⚪ Awaiting data | Gallup World Poll, via World Happiness Report | Survey-based. A genuine fetch attempt against WHR's data panel is still owed |
 | Personal safety | 🟢 Live, ⚠ intermittent | UNODC, via World Bank | `VC.IHR.PSRC.P5` — automated 2026-08-09. Two World Bank API timeouts on later Actions runs (2026-08-09) after a clean first landing — investigated 2026-08-09: not measurably slower/larger than other successful World Bank gauges from this project's own sandbox (near-identical response time and payload size to life-expectancy), so no gauge-specific fix applied; most likely cumulative network load from this pipeline's now-much-longer sequential run (2 OWID gauges × ~36 calls each, an xlsx download, multiple OECD calls, ~9 World Bank calls) rather than anything about this indicator itself |
-| Work-life balance | 🟢 Live, ⚠ under investigation | OECD | `OECD.ELS.SAE,DSD_HW@DF_AVG_ANN_HRS_WKD,1.0`, `WORKER_STATUS=_T` pinned — see "Work-life balance: OECD dimension pin" below. **Real caveat, not yet resolved**: series currently ends 1995–2019, but corroborating evidence (a secondary source citing OECD directly) shows real 2020–2023 values exist for Australia (1,713 hours, 2023) — the current pin is very likely truncating recent years, not capturing a genuine OECD publication ceiling. Open, pending further investigation |
+| Work-life balance | 🟡 Manual lane | OECD | 3 automation rounds, decided 2026-08-09 — the third surfaced a second, structurally different conflict (not just another dimension to pin), per the site owner's "no fourth round" rule. Real 1995-2019 data from the retired automated fetch is the current baseline; see "Work-life balance: OECD dimension pin" below and `data/manual/README.md` |
 | Air quality | 🟢 Live | World Bank (IHME GBD) | `EN.ATM.PM25.MC.M3` — automated 2026-08-09, same generic World Bank route |
 | Cohesion — minority experience | 🟢 Live | V-Dem (`v2clsocgrp`), via Our World in Data | Automated 2026-08-09 via the same proven OWID route as `internal-cohesion` (`pipeline/lib/vdem.mjs` generalised into a factory serving both) |
 | Cohesion — majority acceptance | ⚪ Awaiting data | Gallup Migrant Acceptance Index | Survey-based. Definitively manual — no bulk API found. See "Quality of Life dimension" below for the full source search |
@@ -859,10 +859,26 @@ that this dataflow has nothing past the historical range under any
 dimension combination, since the parser's union behavior means "found
 nothing" here is a meaningful negative result, not an inconclusive one.
 
-**Whichever of the three outcomes actually happened is recorded in this
-gauge's own `data/processed/work-life-balance.json` provenance note** (not
-duplicated here, to avoid the two ever disagreeing) — check that file, or
-`/status`, for the real result of this round. If the outcome wasn't a
-clean merge reaching 2023+ data, this gauge moves to the manual lane with
-the 2019 endpoint disclosed on its own page, and this section should be
-updated to say so plainly rather than left reading as still-open.
+**Actual result, confirmed live 2026-08-09**: the third outcome — a
+*different* conflict, not a merge. The probe hit DEU 2023,
+`WORKER_STATUS=_T` vs `ICSE93_1` disagreeing (1299.8 vs 1338.8) even in
+the recent window. This is more than "one more dimension to pin": if
+`_T` genuinely carries 2023 data, the historical query (already pinned to
+`_T` across the *entire* requested range, 1990-2026) should have returned
+it directly — it didn't. That means some *other* dimension, still
+wildcarded in both queries, distinguishes an "old `_T`" series
+(1995-2019) from a "new `_T`" series (2020+), invisible without yet
+another live round to isolate it. Per the site owner's explicit "no
+fourth round" stopping rule, this is treated as a genuine structural
+ambiguity — the same shape of dead end this project hit with Inequality's
+OECD attempt (see "Inequality: automation attempted and reverted" in
+CLAUDE.md), not a solvable one-more-guess situation.
+
+**Moved to the manual lane 2026-08-09.** `pipeline/gauges/
+work-life-balance.mjs` deleted (same treatment as `productivity.mjs`,
+`human-capital-depth.mjs`, and `inequality.mjs` before it — see
+CLAUDE.md). The real 1995-2019 data already fetched via the now-retired
+automated route is the current baseline, entered as this gauge's live
+data rather than discarded — only 2020 onward needs manual entry going
+forward. See `data/manual/README.md`'s "Work-life balance" section for
+the download instructions.
