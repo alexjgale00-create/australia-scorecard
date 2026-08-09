@@ -686,8 +686,13 @@ in full here so a future session never repeats this hunt from scratch:
    found: a genuinely recurring tracker (~3-yearly, most recently feeding
    a 2026 Ipsos/UNHCR report), confirmed live covering 8 of our 9 peers
    (Australia, Canada, Germany, UK, Japan, South Korea, New Zealand, USA)
-   — **missing the Netherlands**. **Named upgrade candidate**: revisit if
-   a fuller release confirms Netherlands coverage.
+   — **missing the Netherlands**. **Named upgrade condition, recorded
+   2026-08-11 as the trigger for a future session — not investigated or
+   built further now**: *"Ipsos Global Views on Immigration covers eight
+   of the nine peers (~3-yearly, missing the Netherlands). If a fuller
+   release covering the Netherlands is found, this gauge becomes
+   scoreable."* Also stated on the gauge's own page via
+   `gauges.config.json`'s `dataPolicy`.
 5. **Edelman Trust Barometer** — genuinely annual (published every
    January — the best cadence found among all five), 28 countries, but
    two problems: its relevant item is a generalized "hesitant to trust
