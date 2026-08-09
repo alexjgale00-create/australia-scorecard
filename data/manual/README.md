@@ -1,21 +1,38 @@
 # Manual-lane data entry — all gauges
 
 This folder holds the download template and instructions for every gauge
-that isn't fetched automatically by `npm run pipeline`. As of 2026-07-16,
-that's 3 gauges: **Productivity** and **Human capital depth** (OECD series
+that isn't fetched automatically by `npm run pipeline`, across **both**
+dimensions (Power and Quality of Life — see METHODOLOGY.md). As of
+2026-08-09, that's:
+
+**Power**: **Productivity** and **Human capital depth** (OECD series
 where the automated SDMX API route didn't pan out — full reasoning in
 `CLAUDE.md`); and **Inequality** (OECD Gini — blocked from this
 environment every attempt, see below). **Education** (PISA) has real data
 entered but stays in this folder's process going forward (OECD publishes
 no fetchable endpoint for it, by design, not oversight — see below).
-Three other gauges originally planned for this lane turned out to be
+
+**Quality of Life** (Phase E, 2026-08): **Life satisfaction** (World
+Happiness Report — a genuine fetch attempt against its data panel wasn't
+pursued once the manual entry was scoped small enough to do by hand
+alongside the others below; see its section) and **Cohesion — majority
+acceptance** (Gallup Migrant Acceptance Index — definitively manual, no
+bulk API exists; see its section for why this one is different from every
+other gauge on this site).
+
+Several gauges originally planned for this lane turned out to be
 automatable after all, verified live before being wired in: **Military
-capability** (SIPRI) and **Economic complexity** (Harvard Atlas), both
-2026-07-14, and **Internal cohesion** (V-Dem's `v2cacamps`, via Our World
-in Data's re-publication — V-Dem's own dataset stays registration-gated,
-but OWID's maintained mirror isn't), 2026-07-16. All three now fetch by
-`npm run pipeline` like any other gauge; see `CLAUDE.md` for the full
-per-gauge reasoning on which stayed manual and why.
+capability** (SIPRI), **Economic complexity** (Harvard Atlas), **Internal
+cohesion** (V-Dem's `v2cacamps`, via Our World in Data's re-publication),
+**Life expectancy**, **Personal safety**, **Air quality** (all three
+World Bank), and **Cohesion — minority experience** (V-Dem's
+`v2clsocgrp`, same OWID route as internal cohesion) — all now fetch by
+`npm run pipeline` like any other gauge. **Work-life balance** is a live
+open question as of this entry — see its own section below for the
+current status; it may or may not end up in this folder depending on the
+outcome of a live investigation still in progress. See `CLAUDE.md` and
+`METHODOLOGY.md` for the full per-gauge reasoning on which stayed manual
+and why.
 
 The process is the same for every gauge here — only the source website's
 filters, the template's columns, and the target file differ:
@@ -192,3 +209,108 @@ registration-gated). See `gauges.config.json`'s `dataPolicy` for that
 gauge and `CLAUDE.md`'s "Internal cohesion: automated via OWID" entry for
 the coverage verification and the two OWID export quirks the fetcher
 works around.
+
+---
+
+## Life satisfaction (Quality of Life)
+
+**Measures:** self-reported life evaluation, 0-10 Cantril ladder scale
+(0 = worst possible life, 10 = best possible life) — the World Happiness
+Report's own headline figure, a trailing 3-year rolling average of Gallup
+World Poll responses. **Evidence type: survey/self-report**, not a hard
+statistic — this gauge carries the site's "Survey-based" tag wherever
+it's shown.
+
+**Why manual:** a genuine fetch attempt against WHR's own downloadable
+data panel wasn't pursued once this gauge was scoped into the same manual
+sitting as the others in this folder — worth a real automation attempt in
+a future session (per this project's "verify live, don't guess" rule,
+that attempt has to actually happen before this gauge could move out of
+this folder, not be assumed).
+
+**Download steps:**
+
+1. Go to **https://worldhappiness.report/data/** and download the most
+   recent edition's data panel (usually an Excel file, "Table 2.1" or
+   similarly named — the sheet with each country's Cantril ladder score).
+2. For each of the 9 peer countries, note the life-evaluation score by
+   year. The report typically only publishes the current edition's
+   3-year rolling average, not a full annual back-series in one place —
+   enter whatever years you can find real published figures for (past
+   editions' PDFs/panels, if you want more history) rather than guessing
+   at years in between.
+3. Fill in `life-satisfaction-template.csv`.
+
+---
+
+## Cohesion — majority acceptance (Quality of Life)
+
+**Measures:** the Gallup Migrant Acceptance Index, 0-9 scale — how
+accepting the surveyed population is of migrants living in the country,
+as neighbours, and marrying into the family. **Evidence type:
+survey/self-report.**
+
+**This gauge is genuinely different from every other one in this
+folder.** It isn't "manual because automation wasn't attempted or didn't
+pan out" — a real, documented 5-source search (Gallup's own broader
+World Poll item, WVS Wave 8, Pew Global Attitudes, Ipsos Global Views on
+Immigration, Edelman Trust Barometer) found **no live, currently-updating,
+peer-complete public source at all** — see METHODOLOGY.md's "Majority-
+attitude source search" for the full record. Gallup's own last **freely
+published** waves are from **2016/17 and 2019** — that's genuinely as
+current as this data gets without a paid Gallup Analytics subscription.
+Entering this data doesn't make the gauge current; it makes the gauge
+honest about the best publicly available figures that exist.
+
+**Also different**: this gauge is scored on the
+**"latest-wave-per-country"** basis (see METHODOLOGY.md's "Alternate
+scoring basis"), not the site's usual same-year comparison — each
+country's own most recent wave is used even though the wave years differ
+by country. Direction will show **"Insufficient history"** rather than a
+computed trend (only 2 waves, too few and too irregularly spaced to trust
+a trend from) — this is expected, not an error.
+
+**Download steps:**
+
+1. The 2016/17 and 2019 wave figures are reported (though not tabulated
+   as a clean downloadable dataset) in Gallup's own news releases:
+   **https://news.gallup.com/poll/216377/new-index-shows-least-accepting-countries-migrants.aspx**
+   (2016/17 wave) and
+   **https://news.gallup.com/poll/320678/world-grows-less-accepting-migrants.aspx**
+   (2019 update, "World Grows Less Accepting of Migrants").
+2. For each of the 9 peer countries, note the Migrant Acceptance Index
+   score (0-9) for whichever wave(s) that country appears in — not every
+   country was surveyed in both waves.
+3. Fill in `cohesion-majority-acceptance-template.csv` — one row per
+   country per wave it actually has a published score for. **Do not
+   interpolate or estimate a value for a country/wave that isn't
+   published** — a gap here is itself part of what makes this gauge
+   honest.
+
+---
+
+## Work-life balance — status TBD, template ready either way
+
+**Measures:** OECD's average annual hours actually worked per worker.
+
+**As of this entry, this gauge's fate is still being decided live.**
+Three rounds of OECD SDMX automation: round 1 found and pinned a real
+dimension conflict (`WORKER_STATUS=_T`); round 2 landed clean but only
+covering 1995-2019; round 3 (explicitly granted as a final round — see
+CLAUDE.md and METHODOLOGY.md) adds a probe for 2020+ data. **If that
+probe reaches real 2023+ data, this gauge stays automated and this
+section — and the template below — can be deleted.** If it doesn't, this
+gauge moves here permanently with the 2019 endpoint disclosed on its own
+page, no further automation attempts.
+
+**If it lands here, download steps:**
+
+1. Go to **https://data-explorer.oecd.org/vis?df%5Bag%5D=OECD.ELS.SAE&df%5Bid%5D=DSD_HW%40DF_AVG_ANN_HRS_WKD**
+   ("Average annual hours actually worked per worker").
+2. Filter to: the 9 peer countries, Worker status = Total, Annual
+   frequency.
+3. Download → CSV, then fill in `work-life-balance-template.csv`.
+
+`work-life-balance-template.csv` is already sitting in this folder either
+way — harmless to have prepared it before knowing the outcome, saves a
+round-trip if it's needed.
