@@ -5,10 +5,12 @@
     "institution": "Harvard Growth Lab",
     "seriesId": "ECI",
     "seriesName": "Economic Complexity Index",
-    "url": "https://atlas.hks.harvard.edu/data-downloads/",
-    "retrievedAt": "2026-07-14T11:01:09.873Z",
+    "url": "https://atlas.hks.harvard.edu/api/graphql",
+    "retrievedAt": "2026-08-08T23:59:08.278Z",
     "note": "Live data: automated fetch of the Economic Complexity Index via the Atlas's public GraphQL API.",
-    "missingCountries": []
+    "missingCountries": [],
+    "scheduledRefreshCount": 0,
+    "lastScheduledRefreshAt": null
   },
   "countries": {
     "AUS": {

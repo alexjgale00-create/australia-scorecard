@@ -1,5 +1,5 @@
 {
-  "_readme": "This file defines every gauge on the Scorecard: its data source, its polarity (which direction counts as 'better'), and its weight in the composite verdict. Every polarity choice must be signed off by the site owner before use — see polarityJustification on each gauge. Phase C in progress: all 16 gauges configured (weights equally split 1/16, still a placeholder pending Phase D calibration). 'accessType: api' gauges are fetched by /pipeline (run `npm run pipeline`); 'accessType: manual' gauges are entered by hand via data/manual/ — see its README.md. Until a gauge has real data, its file keeps SAMPLE_DATA status (or doesn't exist yet) and the site shows it as sample/awaiting data, never silently as live. See CLAUDE.md and METHODOLOGY.md.",
+  "_readme": "This file defines every gauge on the Scorecard: its data source, its polarity (which direction counts as 'better'), and its weight(s) in the composite verdict(s). Every polarity choice must be signed off by the site owner before use — see polarityJustification on each gauge. Phase E: the site now scores TWO independent dimensions (see 'dimensions' below) — Power (the original 16-gauge national-trajectory composite) and Quality of Life (new, launched with 8 gauges). A gauge's 'weights' object is the single source of truth for which dimension(s) it feeds and at what weight — a gauge with weights in both dimensions is deliberately reused (see its 'reuseNote'), never a silent duplicate. Weights are equally split within each dimension, still a placeholder pending Phase D calibration (which will now cover both dimensions together). 'accessType: api' gauges are fetched by /pipeline (run `npm run pipeline`); 'accessType: manual' gauges are entered by hand via data/manual/ — see its README.md. Until a gauge has real data, its file keeps SAMPLE_DATA status (or doesn't exist yet) and the site shows it as sample/awaiting data, never silently as live. See CLAUDE.md and METHODOLOGY.md.",
   "peerCountries": [
     {
       "code": "AUS",
@@ -41,7 +41,23 @@
   "_directionBasisNote": "Direction (improving/flat/deteriorating) shown everywhere on the site — cards, dot strips, What's Moving — is peer-relative: it classifies the trend in Australia's level SCORE (position vs the 9-country peer set), not the trend in the raw published number. The raw-value trend is still shown, separately, in the 'Two ways to read this' block on each gauge detail page. See METHODOLOGY.md.",
   "directionThresholdPctPerYear": 0.3,
   "directionThresholdScorePointsPerYear": 0.5,
-  "_scoreBandsTodo": "TODO(Phase D): the thresholds below (24/44/59/79) are placeholders picked for a clean 5-way split of 0-100. They have NOT been calibrated against real data and MUST be reviewed before any public release, once all 16 gauges are live with real numbers.",
+  "dimensions": [
+    {
+      "id": "power",
+      "name": "Power",
+      "shortName": "Power",
+      "tagline": "Is Australia's national trajectory rising or falling?",
+      "description": "The original 16-gauge composite: economic weight, institutional strength, and strategic position, scored peer-relative against the same 9-country set. Never combined with Quality of Life — the tension between the two verdicts is itself the point. See METHODOLOGY.md."
+    },
+    {
+      "id": "quality-of-life",
+      "name": "Quality of Life",
+      "shortName": "Quality of Life",
+      "tagline": "Does Australia remain a good place to live?",
+      "description": "Launched Phase E (2026): a second, independently-scored composite covering health, safety, housing, work-life balance, and social cohesion. Same peer set, same min-max scoring, same maturity and provenance rules as Power — see 'Quality of Life dimension' in METHODOLOGY.md for the full gauge-by-gauge rationale and every ruling behind it."
+    }
+  ],
+  "_scoreBandsTodo": "TODO(Phase D): the thresholds below (24/44/59/79) are placeholders picked for a clean 5-way split of 0-100. They have NOT been calibrated against real data and MUST be reviewed before any public release, once all 16 Power gauges AND all 8 Quality of Life gauges are live with real numbers. Shared by both dimensions' composites for now — whether they should ever diverge is an open Phase D question, not decided here.",
   "scoreBands": [
     {
       "id": "falling-behind",
@@ -89,14 +105,16 @@
       "accessType": "api",
       "polarity": "higher_is_better",
       "polarityJustification": "Higher GDP per capita, PPP-adjusted, means more real purchasing power per person — an unambiguous 'more is better' metric.",
-      "weight": 0.0625,
       "source": {
         "institution": "World Bank",
         "seriesId": "NY.GDP.PCAP.PP.KD",
         "seriesName": "GDP per capita, PPP (constant 2021 international $)",
         "url": "https://data.worldbank.org/indicator/NY.GDP.PCAP.PP.KD"
       },
-      "oneLiner": "How much real economic output there is per person, adjusted for prices."
+      "oneLiner": "How much real economic output there is per person, adjusted for prices.",
+      "weights": {
+        "power": 0.0625
+      }
     },
     {
       "id": "productivity",
@@ -107,7 +125,6 @@
       "accessType": "manual",
       "polarity": "higher_is_better",
       "polarityJustification": "Higher output per hour worked means the economy generates more value for the same labour input — the standard productivity definition.",
-      "weight": 0.0625,
       "staleAfterMonths": 15,
       "dataPolicy": "OECD's live SDMX endpoint for this dataflow (DF_PDB_LV) redirects to an archive endpoint carrying the annotation NonProductionDataflow=true — OECD's own metadata flagging it as not intended for automated production queries. After three fix attempts (missing Accept headers, missing references=all on the redirect, a generic unhandled server exception on the archive endpoint itself) the query never returned data. Moved to a manual lane rather than continuing to debug infrastructure OECD itself has marked non-production — see CLAUDE.md for the full history. The same numbers are downloaded by hand from data-explorer.oecd.org using the template and instructions in data/manual/, then entered into data/processed/productivity.json directly. Not fetched automatically — update it by hand periodically.",
       "source": {
@@ -117,7 +134,10 @@
         "url": "https://data-explorer.oecd.org/"
       },
       "oneLiner": "How much economic value an hour of work produces.",
-      "_seriesIdCorrection": "The brief-assumed code (PDB_LV alone, via stats.oecd.org) is dead — OECD retired OECD.Stat / the old SDMX API in favour of a new SDMX API at sdmx.oecd.org with restructured agency/dataflow/version coordinates. Verified live 2026-07-14: the dataflow still exists as OECD.SDD.TPS,DSD_PDB@DF_PDB_LV,1.0, but is itself flagged NonProductionDataflow and redirects to an archive endpoint — see dataPolicy above and CLAUDE.md."
+      "_seriesIdCorrection": "The brief-assumed code (PDB_LV alone, via stats.oecd.org) is dead — OECD retired OECD.Stat / the old SDMX API in favour of a new SDMX API at sdmx.oecd.org with restructured agency/dataflow/version coordinates. Verified live 2026-07-14: the dataflow still exists as OECD.SDD.TPS,DSD_PDB@DF_PDB_LV,1.0, but is itself flagged NonProductionDataflow and redirects to an archive endpoint — see dataPolicy above and CLAUDE.md.",
+      "weights": {
+        "power": 0.0625
+      }
     },
     {
       "id": "education",
@@ -128,7 +148,6 @@
       "accessType": "manual",
       "polarity": "higher_is_better",
       "polarityJustification": "A higher average PISA score reflects stronger measured student performance across the three tested domains.",
-      "weight": 0.0625,
       "staleAfterMonths": 45,
       "dataPolicy": "PISA publishes three separate domain scores (reading, mathematics, science), never a pre-blended figure — this gauge's value is the average of the three, computed from OECD's own published per-domain numbers, not sourced pre-averaged. Cadence was 3-yearly through 2022; OECD is moving to a 4-year cycle from PISA 2025 onward (results due 8 Sept 2026) — staleAfterMonths is set to 45 (3.75 years) to give a realistic publication-lag grace period without nagging monthly for a source that only updates every 3-4 years. Complete as of 2026-07-16: all 4 cycles back to PISA's earliest reasonable comparison point (2012, 2015, 2018, 2022) are entered, real data throughout, no fabricated back-years. 2018/2022 retrieved directly from OECD's PISA Data Explorer; 2012/2015 retrieved via NCES's (nces.ed.gov) plain-HTML republication of OECD's own published tables (a US federal statistical agency republishing OECD's numbers verbatim, not an independent or derived source) — anchor-verified against an independently-supplied value before ingest (2015 science: AUS 510, CAN 528, JPN 538, exact match) and cross-cycle plausibility-checked (no country moves more than 40 points between any adjacent cycle). Direction now computes from real cross-cycle movement (see the computeGaugeScore null-direction fix in lib/scoring.ts, 2026-07-16, which is what made a single-point gauge show 'no trend' honestly rather than a false 'flat' before any backfill existed). Earlier cycles (2000, 2003, 2006, 2009) would extend history further but weren't pursued this round.",
       "source": {
@@ -137,7 +156,10 @@
         "seriesName": "PISA mean score (maths + reading + science average)",
         "url": "https://www.oecd.org/en/about/programmes/pisa.html"
       },
-      "oneLiner": "How well 15-year-olds perform on a standardised international test."
+      "oneLiner": "How well 15-year-olds perform on a standardised international test.",
+      "weights": {
+        "power": 0.0625
+      }
     },
     {
       "id": "innovation",
@@ -148,14 +170,16 @@
       "accessType": "api",
       "polarity": "higher_is_better",
       "polarityJustification": "Higher R&D spending as a share of GDP means more of the economy's resources are going toward developing new products, processes, and technologies.",
-      "weight": 0.0625,
       "source": {
         "institution": "World Bank",
         "seriesId": "GB.XPD.RSDV.GD.ZS",
         "seriesName": "Research and development expenditure (% of GDP)",
         "url": "https://data.worldbank.org/indicator/GB.XPD.RSDV.GD.ZS"
       },
-      "oneLiner": "How much of the economy is invested in research and development."
+      "oneLiner": "How much of the economy is invested in research and development.",
+      "weights": {
+        "power": 0.0625
+      }
     },
     {
       "id": "external-position",
@@ -167,14 +191,16 @@
       "polarity": "higher_is_better",
       "_polarityDecision": "SIGNED OFF by site owner, 2026-07-14: 'surplus = better' is a deliberate framework choice, not a claim of settled economics — see the Methodology page for the explicit caveat that this is contestable.",
       "polarityJustification": "This Scorecard treats external self-sufficiency — a stronger surplus / smaller deficit, i.e. less reliance on foreign capital — as the 'better' end of the scale. Economists legitimately debate current account polarity (a deficit can also reflect healthy foreign investment inflows); this is a stated framework choice, not an assertion that surpluses are objectively superior. See the Methodology page.",
-      "weight": 0.0625,
       "source": {
         "institution": "World Bank",
         "seriesId": "BN.CAB.XOKA.GD.ZS",
         "seriesName": "Current account balance (% of GDP)",
         "url": "https://data.worldbank.org/indicator/BN.CAB.XOKA.GD.ZS"
       },
-      "oneLiner": "Whether the country is a net lender or net borrower to the rest of the world."
+      "oneLiner": "Whether the country is a net lender or net borrower to the rest of the world.",
+      "weights": {
+        "power": 0.0625
+      }
     },
     {
       "id": "rule-of-law-corruption",
@@ -185,7 +211,6 @@
       "accessType": "api",
       "polarity": "higher_is_better",
       "polarityJustification": "Higher WGI estimates mean stronger rule of law and lower perceived corruption — unambiguously better for governance quality.",
-      "weight": 0.0625,
       "_seriesIdCorrection": "The brief's original assumed codes (RL.EST, CC.EST) are dead on the current World Bank API — confirmed via live test call, they return 'indicator not found'. The correct current codes, verified live 2026-07-14, are GOV_WGI_RL.EST and GOV_WGI_CC.EST under World Bank source 3 (Worldwide Governance Indicators, last updated 2026-03-18). Documented per the brief's instruction to log series ID corrections here and in METHODOLOGY.md.",
       "source": {
         "institution": "World Bank (Worldwide Governance Indicators)",
@@ -203,7 +228,10 @@
           }
         ]
       },
-      "oneLiner": "How strong legal institutions are and how well corruption is controlled."
+      "oneLiner": "How strong legal institutions are and how well corruption is controlled.",
+      "weights": {
+        "power": 0.0625
+      }
     },
     {
       "id": "demographic-momentum",
@@ -214,14 +242,16 @@
       "accessType": "api",
       "polarity": "higher_is_better",
       "polarityJustification": "Faster working-age population growth means a larger future labour supply and growth potential — several peers in this set (Japan, South Korea, Germany) face the opposite problem of a shrinking working-age population straining growth and pensions, which this gauge is meant to surface.",
-      "weight": 0.0625,
       "source": {
         "institution": "World Bank",
         "seriesId": "SP.POP.1564.TO",
         "seriesName": "Population ages 15-64, total (pipeline derives year-over-year % growth from this level series)",
         "url": "https://data.worldbank.org/indicator/SP.POP.1564.TO"
       },
-      "oneLiner": "How fast the working-age population is growing or shrinking."
+      "oneLiner": "How fast the working-age population is growing or shrinking.",
+      "weights": {
+        "power": 0.0625
+      }
     },
     {
       "id": "trade",
@@ -232,14 +262,16 @@
       "accessType": "api",
       "polarity": "higher_is_better",
       "polarityJustification": "A larger share of world exports reflects greater economic weight and competitiveness in global trade — a size/influence metric, not a policy tradeoff like the external-position gauge.",
-      "weight": 0.0625,
       "source": {
         "institution": "World Bank",
         "seriesId": "NE.EXP.GNFS.CD",
         "seriesName": "Exports of goods and services, share of world total (derived: country ÷ WLD aggregate)",
         "url": "https://data.worldbank.org/indicator/NE.EXP.GNFS.CD"
       },
-      "oneLiner": "How much of world trade in goods and services Australia accounts for."
+      "oneLiner": "How much of world trade in goods and services Australia accounts for.",
+      "weights": {
+        "power": 0.0625
+      }
     },
     {
       "id": "economic-output",
@@ -250,7 +282,6 @@
       "accessType": "api",
       "polarity": "higher_is_better",
       "polarityJustification": "A larger share of world GDP (PPP) reflects greater economic weight — a size/influence metric like Trade, not a policy tradeoff.",
-      "weight": 0.0625,
       "dataPolicy": "IMF's World Economic Outlook mixes its own forward projections into the published series, with no machine-readable flag in this API to tell an actual from a projection. Policy: any year from the current calendar year onward is excluded, so a forecast is never presented on this site as an achieved fact.",
       "maturityOverride": {
         "tier": "live",
@@ -262,7 +293,10 @@
         "seriesName": "GDP based on PPP, share of world (World Economic Outlook)",
         "url": "https://www.imf.org/external/datamapper/PPPSH@WEO"
       },
-      "oneLiner": "How much of the world economy Australia accounts for, adjusted for prices."
+      "oneLiner": "How much of the world economy Australia accounts for, adjusted for prices.",
+      "weights": {
+        "power": 0.0625
+      }
     },
     {
       "id": "debt-burden",
@@ -273,14 +307,16 @@
       "accessType": "api",
       "polarity": "lower_is_better",
       "polarityJustification": "A lower combined household and government debt burden relative to GDP means less financial fragility and less exposure to a rise in interest rates or a credit shock.",
-      "weight": 0.0625,
       "source": {
         "institution": "Bank for International Settlements (BIS)",
         "seriesId": "WS_TC (Total Credit), borrower sectors H+G summed",
         "seriesName": "Credit to households & NPISHs + credit to general government, % of GDP",
         "url": "https://data.bis.org/topics/TOTAL_CREDIT"
       },
-      "oneLiner": "How much combined household and government debt there is relative to the size of the economy."
+      "oneLiner": "How much combined household and government debt there is relative to the size of the economy.",
+      "weights": {
+        "power": 0.0625
+      }
     },
     {
       "id": "housing-pressure",
@@ -291,14 +327,18 @@
       "accessType": "api",
       "polarity": "lower_is_better",
       "polarityJustification": "A lower (or slower-rising) price-to-income ratio means housing is more affordable relative to earnings — higher values mean it takes more years of income to buy a home.",
-      "weight": 0.0625,
       "source": {
         "institution": "OECD",
         "seriesId": "OECD.ECO.MPD,DSD_AN_HOUSE_PRICES@DF_HOUSE_PRICES,1.0",
         "seriesName": "Analytical House Price Indicators — price-to-income ratio",
         "url": "https://data-explorer.oecd.org/"
       },
-      "oneLiner": "How expensive housing is relative to income."
+      "oneLiner": "How expensive housing is relative to income.",
+      "reuseNote": "Scored in both dimensions from the same underlying data — housing affordability is both a national economic-pressure signal (Power) and a direct determinant of whether Australia is a good place to live (Quality of Life). One fetch, one data file, two independent composite contributions at each dimension's own weight. Disclosed here, on /status, and in METHODOLOGY.md's 'Quality of Life dimension' section, per the site owner's explicit condition that reuse must never be silent.",
+      "weights": {
+        "power": 0.0625,
+        "quality-of-life": 0.125
+      }
     },
     {
       "id": "human-capital-depth",
@@ -309,7 +349,6 @@
       "accessType": "manual",
       "polarity": "higher_is_better",
       "polarityJustification": "A higher share of 25-34 year-olds with tertiary education means a more highly-skilled incoming workforce.",
-      "weight": 0.0625,
       "staleAfterMonths": 15,
       "dataPolicy": "OECD's SDMX API for this series returned no matching data after three attempts with different dimension keys (see CLAUDE.md for the full debugging history). Moved to a manual lane: the same numbers are downloaded by hand from data-explorer.oecd.org using the template and instructions in data/manual/, then entered into data/processed/human-capital-depth.json directly. Not fetched automatically, so it won't refresh on the monthly pipeline run — update it by hand periodically.",
       "source": {
@@ -318,7 +357,10 @@
         "seriesName": "Educational attainment distribution — tertiary, 25-34 year-olds, % of age group",
         "url": "https://data-explorer.oecd.org/"
       },
-      "oneLiner": "What share of young adults have completed tertiary education."
+      "oneLiner": "What share of young adults have completed tertiary education.",
+      "weights": {
+        "power": 0.0625
+      }
     },
     {
       "id": "military-capability",
@@ -329,7 +371,6 @@
       "accessType": "api",
       "polarity": "higher_is_better",
       "polarityJustification": "Higher military spending relative to GDP is read here as capability, deterrence, and alliance credibility, not as militarization or opportunity cost — a genuine values choice, signed off by the site owner 2026-07-14, not a factual default. Could reasonably be flipped by a future site owner, but only as a deliberate re-decision, not a silent drift — see CLAUDE.md.",
-      "weight": 0.0625,
       "dataPolicy": "SIPRI's Military Expenditure Database publishes spending in several forms (current/constant USD, per-capita, share of government spending, share of GDP). This gauge uses the 'Share of GDP' figures specifically, for consistency with this project's other normalized, cross-country-comparable gauges (external-position, trade, debt-burden) — not absolute spending, which would favour larger economies regardless of actual military priority. Fetched automatically: verified live 2026-07-14 that SIPRI publishes the full database as a direct .xlsx download with no login/API key, parsed by pipeline/lib/xlsx.mjs + pipeline/lib/sipri.mjs — see CLAUDE.md.",
       "source": {
         "institution": "SIPRI",
@@ -337,7 +378,10 @@
         "seriesName": "Military expenditure, share of GDP",
         "url": "https://www.sipri.org/databases/milex"
       },
-      "oneLiner": "How much of the economy goes toward military spending."
+      "oneLiner": "How much of the economy goes toward military spending.",
+      "weights": {
+        "power": 0.0625
+      }
     },
     {
       "id": "economic-complexity",
@@ -348,7 +392,6 @@
       "accessType": "api",
       "polarity": "higher_is_better",
       "polarityJustification": "A higher Economic Complexity Index reflects a more diversified, sophisticated export base with more embedded knowhow — the standard reading of ECI, and uncontroversial (unlike military capability or inequality, this polarity had no real open question).",
-      "weight": 0.0625,
       "dataPolicy": "Fetched automatically via Harvard Growth Lab's public, unauthenticated GraphQL API (atlas.hks.harvard.edu/api/graphql) — verified live 2026-07-14 via schema introspection, not assumed from documentation. Country IDs are UN M49 numeric codes, resolved dynamically each run rather than hardcoded (pipeline/lib/harvardAtlas.mjs) — see CLAUDE.md.",
       "source": {
         "institution": "Harvard Growth Lab",
@@ -356,7 +399,10 @@
         "seriesName": "Economic Complexity Index",
         "url": "https://atlas.hks.harvard.edu/data-downloads/"
       },
-      "oneLiner": "How diversified and technologically sophisticated the economy's exports are."
+      "oneLiner": "How diversified and technologically sophisticated the economy's exports are.",
+      "weights": {
+        "power": 0.0625
+      }
     },
     {
       "id": "inequality",
@@ -367,7 +413,6 @@
       "accessType": "manual",
       "polarity": "lower_is_better",
       "polarityJustification": "A lower Gini coefficient means income is more evenly distributed across the population — the standard reading of income inequality.",
-      "weight": 0.0625,
       "staleAfterMonths": 24,
       "dataPolicy": "This gauge is scored from OECD's Income Distribution Database Gini coefficient only, signed off by the site owner 2026-07-14. The World Inequality Database's top-wealth-share figure is shown on this gauge's detail page as context (income and wealth inequality are genuinely different things) via GaugeData.contextSeries, but does not feed the composite score — keeps this gauge to one raw series like every other gauge on the site, rather than building new multi-component scoring machinery for this one case. Stays manual: OECD's SDMX endpoint for this dataflow returned a Cloudflare bot-protection page on 3/3 live attempts from this environment (2026-07-14) — rather than build a fetcher against a dataflow whose real structure was never verified, this is entered by hand via data/manual/. OECD's Gini data updates on a rolling basis with uneven lag across countries (some countries' most recent year may be 2-3 years older than others') — staleAfterMonths is set to 24 rather than the usual 15 to reflect that real, expected lag rather than treating it as always overdue. See CLAUDE.md for the full reasoning.",
       "source": {
@@ -376,7 +421,10 @@
         "seriesName": "Income Distribution Database — Gini coefficient, disposable income",
         "url": "https://data-explorer.oecd.org/vis?df%5Bds%5D=DisseminateFinalDMZ&df%5Bid%5D=DSD_WISE_IDD%40DF_IDD&df%5Bag%5D=OECD.WISE.INE"
       },
-      "oneLiner": "How evenly income is distributed across the population."
+      "oneLiner": "How evenly income is distributed across the population.",
+      "weights": {
+        "power": 0.0625
+      }
     },
     {
       "id": "internal-cohesion",
@@ -387,7 +435,6 @@
       "accessType": "api",
       "polarity": "lower_is_better",
       "polarityJustification": "A lower score means society is less divided into hostile, antagonistic political camps — read as stronger internal cohesion. A higher score means more cross-camp hostility and discouraged interaction along ideological lines. Polarity flipped 2026-07-16 as part of the v2cacamps switch (see dataPolicy) — v2x_cspart, the prior series, was higher_is_better.",
-      "weight": 0.0625,
       "dataPolicy": "Tracks V-Dem's Political polarization indicator (v2cacamps) — switched 2026-07-16 from the originally-chosen v2x_cspart (Civil Society Participation Index) after site-owner review found v2x_cspart measures civil-society consultation/participation, a different concept from the polarization/internal-order-and-disorder concept this gauge was actually specified for. v2cacamps directly matches the brief: V-Dem's own definition is 'the extent to which society is divided into hostile political camps' and political differences 'discourage interaction across ideological lines.' v2x_polyarchy and v2x_egaldem, the two alternatives weighed against v2x_cspart in the original (2026-07-14) decision, were never polarization measures either and remain correctly rejected — see CLAUDE.md for the full reversal history and why the original candidate set never included a polarization variable at all. Scale note: unlike v2x_cspart and every other V-Dem series on this site, v2cacamps is a raw, single-question expert-survey component, not one of V-Dem's smoothed 0-1 'v2x_' aggregate indices — its published values are an interval-converted score, mean-centered at 0 across all country-years (roughly -4 to +4 in practice, 0 = global average polarization), not a bounded share. A country's value can repeat unchanged across consecutive years between V-Dem's expert re-coding rounds — real data, not a gap. Automated 2026-07-16: fetched via Our World in Data's maintained, public re-publication of V-Dem, not V-Dem directly — V-Dem's own dataset download is registration-gated (no direct URL), and the only freely-fetchable file (via V-Dem Institute's own GitHub org) is a 33MB R binary (.RData) with no safe dependency-free parsing path. Every fetch's provenance.note carries OWID's own citation chain verbatim (V-Dem version -> OWID dataset -> this site) plus OWID's self-reported lastUpdated/nextUpdate for this indicator, fetched fresh each run rather than hardcoded, so a lagging republication would show up as a disclosed staleness note rather than a silently stale version string. See pipeline/lib/vdem.mjs and CLAUDE.md for the coverage verification and two OWID CSV export quirks the fetcher works around (a time-range query collapses to just its two endpoints; combining an explicit year with a country filter causes the filter to be ignored) — worked around by fetching one explicit year at a time and filtering client-side. Verified live 2026-07-16: full 1990-2025 annual coverage for all 9 peers, zero gaps, zero missing countries.",
       "source": {
         "institution": "V-Dem Institute (via Our World in Data)",
@@ -395,7 +442,164 @@
         "seriesName": "Political polarization",
         "url": "https://ourworldindata.org/grapher/political-polarization-score"
       },
-      "oneLiner": "How divided a society has become into hostile, antagonistic political camps."
+      "oneLiner": "How divided a society has become into hostile, antagonistic political camps.",
+      "weights": {
+        "power": 0.0625
+      }
+    },
+    {
+      "id": "life-expectancy",
+      "name": "Life expectancy",
+      "shortName": "Life expectancy",
+      "unit": "Life expectancy at birth, total (years)",
+      "historyStartYear": 1990,
+      "accessType": "api",
+      "polarity": "higher_is_better",
+      "polarityJustification": "Higher life expectancy at birth directly reflects a population's health and mortality outcomes — the standard, uncontroversial reading of this World Bank indicator.",
+      "dataPolicy": "Phase E launch gauge. Verified live 2026-08-06: SP.DYN.LE00.IN resolves on the World Bank API and returns real, current values for all 9 peer countries (2024 data, 78.9-84.0 years — checked via a direct API call, not assumed). Automated 2026-08-09 via the same generic World Bank route already proven across 6 Power-dimension gauges (pipeline/lib/simpleWorldBankGauge.mjs) — no gauge-specific fetcher code, just this config entry and pipeline/gauges/life-expectancy.mjs's thin wrapper.",
+      "source": {
+        "institution": "World Bank",
+        "seriesId": "SP.DYN.LE00.IN",
+        "seriesName": "Life expectancy at birth, total (years)",
+        "url": "https://data.worldbank.org/indicator/SP.DYN.LE00.IN"
+      },
+      "oneLiner": "How many years a newborn today is expected to live, on average.",
+      "weights": {
+        "quality-of-life": 0.125
+      }
+    },
+    {
+      "id": "life-satisfaction",
+      "name": "Life satisfaction",
+      "shortName": "Life satisfaction",
+      "unit": "Cantril ladder life evaluation, 0–10 scale (Gallup World Poll, 3-year rolling average)",
+      "historyStartYear": 2012,
+      "accessType": "manual",
+      "polarity": "higher_is_better",
+      "polarityJustification": "A higher self-reported life evaluation (0 = worst possible life, 10 = best possible life) is the standard, uncontroversial reading of the Cantril ladder question.",
+      "evidenceStrength": "survey",
+      "dataPolicy": "Phase E launch gauge (2026-08-06). Sourced from the World Happiness Report's own published data panel — Gallup World Poll's Cantril ladder question, reported as each edition's trailing 3-year average; all 9 peers report every edition. A genuine fetch attempt against WHR's downloadable data-panel file is still owed before this is finalised as manual vs. automated, per this project's 'verify live, don't assume' rule — not yet attempted as of this entry, deferred to the long-tail fetcher phase. Evidence strength: survey/self-report, not a hard statistic — carries the site's 'Survey-based' tag, same treatment as cohesion-majority-acceptance. This is also the gauge most directly relevant to the OECD Better Life Index overlap question — see 'OECD Better Life Index overlap' in METHODOLOGY.md's Quality of Life section.",
+      "staleAfterMonths": 15,
+      "source": {
+        "institution": "Gallup World Poll, via World Happiness Report",
+        "seriesId": "WHR_CANTRIL_LADDER",
+        "seriesName": "Life evaluation (Cantril ladder), 3-year average",
+        "url": "https://worldhappiness.report/data/"
+      },
+      "oneLiner": "How people rate their own lives on a 0–10 ladder from worst to best possible.",
+      "weights": {
+        "quality-of-life": 0.125
+      }
+    },
+    {
+      "id": "personal-safety",
+      "name": "Personal safety",
+      "shortName": "Personal safety",
+      "unit": "Intentional homicide rate (per 100,000 population)",
+      "historyStartYear": 1990,
+      "accessType": "api",
+      "polarity": "lower_is_better",
+      "polarityJustification": "A lower intentional homicide rate means fewer violent deaths per capita — the standard, uncontroversial reading of this UNODC-sourced measure.",
+      "dataPolicy": "Phase E launch gauge. Verified live 2026-08-06: VC.IHR.PSRC.P5 (UNODC's intentional homicide data, hosted by the World Bank) resolves and returns real, current values for all 9 peer countries (2021-2023 data, 0.23-5.76 per 100,000 — checked via a direct API call, not assumed). Automated 2026-08-09 via the same generic World Bank route as life-expectancy and air-quality.",
+      "source": {
+        "institution": "UNODC, via World Bank",
+        "seriesId": "VC.IHR.PSRC.P5",
+        "seriesName": "Intentional homicides (per 100,000 people)",
+        "url": "https://data.worldbank.org/indicator/VC.IHR.PSRC.P5"
+      },
+      "oneLiner": "How many people are victims of intentional homicide, per 100,000 population.",
+      "weights": {
+        "quality-of-life": 0.125
+      }
+    },
+    {
+      "id": "work-life-balance",
+      "name": "Work-life balance",
+      "shortName": "Work-life balance",
+      "unit": "Average annual hours actually worked per worker",
+      "historyStartYear": 1990,
+      "accessType": "manual",
+      "polarity": "lower_is_better",
+      "polarityJustification": "Fewer average annual hours actually worked per worker is read here as more room for life outside paid work — OECD's own commentary on this indicator uses the same reading. A genuine values choice (a reader could equally read more hours as more opportunity or income), flagged the same way military-capability's polarity is flagged in this file — not asserted as a settled fact.",
+      "dataPolicy": "Phase E launch gauge (2026-08-06). OECD publishes this indicator (confirmed live via oecd.org/en/data/indicators/hours-worked.html — all 9 peers are OECD members and reported, 2023 range roughly 1,340-2,200 hours). The exact SDMX dataflow/series coordinates (agency, dataflow id, dimension keys) have NOT been confirmed live — deliberately left as TBD below rather than guessed, per this project's standing rule never to enter an unverified series ID. Intended route is OECD SDMX, the same family of source that produced housing-pressure (automated, after a 5-round debugging arc) but also productivity, human-capital-depth, and inequality (all still manual after real attempts — see CLAUDE.md's 'OECD SDMX trio' and 'Inequality: automation attempted and reverted'). Genuinely uncertain which outcome this gauge gets; a real attempt is owed in the long-tail fetcher phase before either seriesId or accessType is finalised.",
+      "staleAfterMonths": 15,
+      "source": {
+        "institution": "OECD",
+        "seriesId": "TBD — exact SDMX dataflow not yet confirmed live",
+        "seriesName": "Average annual hours actually worked per worker",
+        "url": "https://www.oecd.org/en/data/indicators/hours-worked.html"
+      },
+      "oneLiner": "How many hours a year the average worker actually works.",
+      "weights": {
+        "quality-of-life": 0.125
+      }
+    },
+    {
+      "id": "air-quality",
+      "name": "Air quality",
+      "shortName": "Air quality",
+      "unit": "PM2.5 air pollution, mean annual exposure (micrograms per cubic meter)",
+      "historyStartYear": 1990,
+      "accessType": "api",
+      "polarity": "lower_is_better",
+      "polarityJustification": "Lower mean annual PM2.5 exposure means less fine-particulate air pollution reaching the population — the standard, uncontroversial reading of this World Bank/IHME indicator.",
+      "dataPolicy": "Phase E launch gauge. Verified live 2026-08-06: EN.ATM.PM25.MC.M3 resolves and returns real, current values for all 9 peer countries (2023 data, 6.4-21.9 μg/m³ — checked via a direct API call, not assumed; South Korea is a clear outlier here, worth watching once real history is loaded). Sourced from IHME's Global Burden of Disease study via the World Bank; same generic World Bank fetch route as life-expectancy and personal-safety, automated 2026-08-09. Note this indicator does not update strictly annually — GBD vintages are released periodically, not every calendar year — a missing recent year here is that publication cadence, not a broken fetch; the fetcher handles this by omission (no estimation), same as any other gauge with an uneven reporting cadence.",
+      "source": {
+        "institution": "World Bank (IHME Global Burden of Disease)",
+        "seriesId": "EN.ATM.PM25.MC.M3",
+        "seriesName": "PM2.5 air pollution, mean annual exposure (micrograms per cubic meter)",
+        "url": "https://data.worldbank.org/indicator/EN.ATM.PM25.MC.M3"
+      },
+      "oneLiner": "How much fine-particulate air pollution the average person is exposed to.",
+      "weights": {
+        "quality-of-life": 0.125
+      }
+    },
+    {
+      "id": "cohesion-minority-experience",
+      "name": "Cohesion — minority experience",
+      "shortName": "Minority experience",
+      "unit": "V-Dem social group equality in civil liberties score (interval scale, mean-centered at 0 across all country-years — not a 0-1 share)",
+      "historyStartYear": 1990,
+      "accessType": "api",
+      "polarity": "higher_is_better",
+      "polarityJustification": "A higher score means social groups — defined by language, ethnicity, religion, race, region, and/or caste — are more equally free from forced labor, more equally have property rights and access to justice, and more equally enjoy freedom of movement. The standard reading of V-Dem's own definition; higher is unambiguously better here.",
+      "dataPolicy": "Phase E launch gauge, the 'minority experience' half of the social cohesion cluster — paired with cohesion-majority-acceptance, with the divergence between the two surfaced as a non-scored callout on both gauge pages rather than blended into one score (site owner's explicit ruling, Step 1). Tracks V-Dem's v2clsocgrp ('Social group equality in respect for civil liberties') — a raw, single-question expert-survey component, same scale character as internal-cohesion's v2cacamps (interval-converted, mean-centered at 0, not a bounded share). Verified live 2026-08-06: Our World in Data republishes this exact indicator at ourworldindata.org/grapher/equality-of-civil-liberties-across-social-groups-score (confirmed via its metadata endpoint — description matches the v2clsocgrp codebook definition word for word) with real 2023 data for all 9 peers (range -0.33 to 3.49) — fetched via a direct CSV pull, not assumed. Automated 2026-08-09 via the same proven OWID-republication route already built for internal-cohesion (pipeline/lib/vdem.mjs, generalised into a factory the same day so both indicators share one fetch implementation), including its documented CSV export quirks (a country filter is ignored once an explicit year is present — worked around by fetching the full file and filtering client-side). Untested from GitHub Actions specifically as of this build — same caveat internal-cohesion carried at its own launch.",
+      "source": {
+        "institution": "V-Dem Institute (via Our World in Data)",
+        "seriesId": "v2clsocgrp",
+        "seriesName": "Social group equality in respect for civil liberties",
+        "url": "https://ourworldindata.org/grapher/equality-of-civil-liberties-across-social-groups-score"
+      },
+      "oneLiner": "How equally different social groups experience civil liberties — freedom of movement, property rights, access to justice.",
+      "weights": {
+        "quality-of-life": 0.125
+      }
+    },
+    {
+      "id": "cohesion-majority-acceptance",
+      "name": "Cohesion — majority acceptance",
+      "shortName": "Majority acceptance",
+      "unit": "Gallup Migrant Acceptance Index, 0–9 scale",
+      "historyStartYear": 2016,
+      "accessType": "manual",
+      "scoringBasis": "latest-wave-per-country",
+      "evidenceStrength": "survey",
+      "polarity": "higher_is_better",
+      "polarityJustification": "A higher index score means the surveyed population is more likely to view migrants living in the country, becoming neighbours, and marrying into the family as good things — the standard, uncontroversial reading of Gallup's own index.",
+      "dataPolicy": "No public, peer-complete majority-attitude series is currently available for these nine countries. Gallup continues to field the underlying question, but country-level results since 2019 are published only behind a paid subscription (Gallup Analytics). This gauge therefore uses the last freely published waves (2016/17 and 2019). The absence of a current public series is itself a finding. Full search record — all 5 sources checked (Gallup's own broader World Poll item, WVS Wave 8, Pew Global Attitudes, Ipsos Global Views on Immigration, Edelman Trust Barometer) and why each fell short — is recorded in METHODOLOGY.md's 'Quality of Life dimension' section, so a future session doesn't repeat the hunt. Two named upgrade candidates for a later phase: Ipsos Global Views on Immigration (8 of 9 peers confirmed, missing Netherlands, ~3-yearly) and WVS Wave 8 (results expected after its December 2026 fieldwork ends) — see METHODOLOGY.md for the specific condition each would need to meet before replacing this gauge's source. Scored on the 'latest-wave-per-country' basis (see ScoringBasis in lib/types.ts and describeScoringBasis in lib/scoring.ts) — a deliberate, disclosed departure from this site's usual same-year peer comparison, since this source's two waves don't land on the same calendar year for every country. Direction reports 'insufficient-history' rather than a computed trend: 2 waves ~3 years apart cannot distinguish a real trend from noise between two snapshots.",
+      "staleDisclosure": "This gauge's underlying data is genuinely 7 years old (last freely published wave: 2019) — not a slow-but-normal cadence like Education/PISA's 3-4-yearly cycle, but the practical end of what's publicly available at all. See the dataPolicy note above and 'Quality of Life dimension' in METHODOLOGY.md for the full search record behind this.",
+      "staleAfterMonths": 24,
+      "source": {
+        "institution": "Gallup",
+        "seriesId": "MIGRANT_ACCEPTANCE_INDEX",
+        "seriesName": "Migrant Acceptance Index",
+        "url": "https://news.gallup.com/poll/320678/world-grows-less-accepting-migrants.aspx"
+      },
+      "oneLiner": "How accepting the surveyed population is of migrants living in the country, as neighbours, and marrying into the family.",
+      "weights": {
+        "quality-of-life": 0.125
+      }
     }
   ]
 }

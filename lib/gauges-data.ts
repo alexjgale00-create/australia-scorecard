@@ -1,12 +1,23 @@
 import { existsSync, readFileSync } from "fs";
 import { join } from "path";
 import gaugesConfigRaw from "@/gauges.config.json";
-import type { GaugeData, GaugesConfigFile } from "@/lib/types";
+import type { DimensionId, GaugeData, GaugesConfigFile } from "@/lib/types";
 
 export const gaugesConfig = gaugesConfigRaw as unknown as GaugesConfigFile;
 
 export function getGaugeConfig(id: string) {
   return gaugesConfig.gauges.find((g) => g.id === id) ?? null;
+}
+
+/**
+ * A gauge's `weights` object is the single source of truth for dimension
+ * membership (see GaugeConfig in lib/types.ts) — this is the one place that
+ * reads it, so every page asks the same question the same way rather than
+ * re-deriving it. A gauge reused across dimensions (currently only
+ * housing-pressure) appears in both lists.
+ */
+export function getGaugesForDimension(dimensionId: DimensionId) {
+  return gaugesConfig.gauges.filter((g) => g.weights[dimensionId] !== undefined);
 }
 
 /**

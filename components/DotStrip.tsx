@@ -70,8 +70,8 @@ export default function DotStrip({
           <span
             key={p.code}
             tabIndex={0}
-            title={`${p.name}: ${Math.round(p.score)}`}
-            aria-label={`${p.name}: ${Math.round(p.score)} of 100`}
+            title={p.asOfYear ? `${p.name}: ${Math.round(p.score)} (${p.asOfYear})` : `${p.name}: ${Math.round(p.score)}`}
+            aria-label={p.asOfYear ? `${p.name}: ${Math.round(p.score)} of 100, as of ${p.asOfYear}` : `${p.name}: ${Math.round(p.score)} of 100`}
             className="absolute rounded-full cursor-default"
             style={{
               left: `${p.score}%`,
@@ -93,8 +93,16 @@ export default function DotStrip({
             style={{ left: `${highlight.score}%`, top: "50%", transform: "translate(-50%, -50%)", zIndex: 2 }}
           >
             <span
-              title={`${highlight.name}: ${Math.round(highlight.score)}`}
-              aria-label={`${highlight.name}: ${Math.round(highlight.score)} of 100`}
+              title={
+                highlight.asOfYear
+                  ? `${highlight.name}: ${Math.round(highlight.score)} (${highlight.asOfYear})`
+                  : `${highlight.name}: ${Math.round(highlight.score)}`
+              }
+              aria-label={
+                highlight.asOfYear
+                  ? `${highlight.name}: ${Math.round(highlight.score)} of 100, as of ${highlight.asOfYear}`
+                  : `${highlight.name}: ${Math.round(highlight.score)} of 100`
+              }
               className="rounded-full"
               style={{
                 width: cfg.highlightDot,
@@ -130,6 +138,8 @@ export default function DotStrip({
             ● Australia
           </span>{" "}
           vs {peers.length} of {totalPeerCount} peer countries in grey. Hover a dot for its score.
+          {points.some((p) => p.asOfYear !== undefined) &&
+            " Each dot is that country's own latest available wave — the years differ by country; hover for each one's."}
         </p>
       )}
 

@@ -4,7 +4,12 @@ import DirectionArrow from "@/components/DirectionArrow";
 import DotStrip from "@/components/DotStrip";
 import AnchoredSparkline from "@/components/AnchoredSparkline";
 import MaturityTag from "@/components/MaturityTag";
-import { computeGaugeHistoricalLevelScores, computeLevelScoreForAllCountries } from "@/lib/scoring";
+import EvidenceTag from "@/components/EvidenceTag";
+import {
+  computeGaugeHistoricalLevelScores,
+  computeLevelScoreForAllCountries,
+  computeLevelScoreForAllCountriesLatestWave,
+} from "@/lib/scoring";
 import { computeMaturity } from "@/lib/maturity";
 
 export default function GaugeCard({
@@ -18,9 +23,12 @@ export default function GaugeCard({
   score: GaugeScore;
   bands: ScoreBand[];
 }) {
-  const dotStripPoints = score.latestYear
-    ? computeLevelScoreForAllCountries(data, config, score.latestYear)
-    : [];
+  const dotStripPoints =
+    config.scoringBasis === "latest-wave-per-country"
+      ? computeLevelScoreForAllCountriesLatestWave(data, config)
+      : score.latestYear
+        ? computeLevelScoreForAllCountries(data, config, score.latestYear)
+        : [];
   const historicalScores = computeGaugeHistoricalLevelScores(data, config, "AUS");
   const maturity = computeMaturity(config, data);
 
@@ -30,9 +38,10 @@ export default function GaugeCard({
       className="block rounded-lg border border-[var(--gridline)] bg-[var(--surface-1)] p-5 transition hover:border-[var(--accent-australia)]"
     >
       <div className="flex items-start justify-between gap-3">
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <h3 className="font-semibold text-[var(--text-primary)]">{config.name}</h3>
           <MaturityTag tier={maturity.tier} reason={maturity.reason} />
+          <EvidenceTag strength={config.evidenceStrength} />
         </div>
         <div className="text-2xl font-bold tabular-nums text-[var(--accent-australia)]">
           {score.levelScore !== null ? Math.round(score.levelScore) : "—"}

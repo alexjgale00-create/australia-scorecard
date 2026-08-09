@@ -6,9 +6,11 @@
     "seriesId": "BN.CAB.XOKA.GD.ZS",
     "seriesName": "Current account balance (% of GDP)",
     "url": "https://data.worldbank.org/indicator/BN.CAB.XOKA.GD.ZS",
-    "retrievedAt": "2026-07-14T11:00:58.497Z",
+    "retrievedAt": "2026-08-08T23:58:47.095Z",
     "note": "Live data from World Bank, all 9 peer countries.",
-    "missingCountries": []
+    "missingCountries": [],
+    "scheduledRefreshCount": 0,
+    "lastScheduledRefreshAt": null
   },
   "countries": {
     "AUS": {

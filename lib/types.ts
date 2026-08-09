@@ -2,6 +2,41 @@ export type Polarity = "higher_is_better" | "lower_is_better";
 
 export type AccessType = "api" | "manual";
 
+/**
+ * Phase E: the site scores two independent dimensions — "power" (national
+ * trajectory, the original 16-gauge composite) and "quality-of-life" (is
+ * Australia still a good place to live). They share every mechanism
+ * (scoring, maturity, provenance) but are never combined into one number —
+ * see METHODOLOGY.md's "Quality of Life dimension" section.
+ */
+export type DimensionId = "power" | "quality-of-life";
+
+export interface DimensionConfig {
+  id: DimensionId;
+  name: string;
+  shortName: string;
+  tagline: string;
+  description: string;
+}
+
+/**
+ * How a gauge's cross-country comparison is built. Almost every gauge uses
+ * "same-year" (the default when omitted): every country's value from the
+ * same shared year, per latestSharedYear. "latest-wave-per-country" is a
+ * deliberate, disclosed departure — each country's own most recent
+ * available value is compared, even when countries' values come from
+ * different calendar years — used only for attitude-survey gauges whose
+ * source fields irregular, non-synchronized waves per country (e.g.
+ * cohesion-majority-acceptance's Gallup Migrant Acceptance Index). See
+ * describeScoringBasis in lib/scoring.ts and METHODOLOGY.md — this must
+ * never be a fact only readable in code, per the site owner's explicit
+ * ruling.
+ */
+export type ScoringBasis = "same-year" | "latest-wave-per-country";
+
+/** Hard statistics are the unmarked default; survey/attitude data gets a quiet "Survey-based" tag — see EvidenceTag. */
+export type EvidenceStrength = "hard-statistic" | "survey";
+
 export type CountryCode =
   | "AUS"
   | "CAN"
@@ -23,9 +58,38 @@ export interface GaugeConfig {
   accessType: AccessType;
   polarity: Polarity;
   polarityJustification: string;
-  weight: number;
+  /**
+   * Which dimension(s) this gauge feeds, and its weight within each. A
+   * gauge with more than one key here is deliberately reused across
+   * dimensions (e.g. housing-pressure, scored in both Power and Quality of
+   * Life) — always with its own `reuseNote` disclosing why. A dimension not
+   * present as a key here simply doesn't include this gauge; that's the
+   * single source of truth for dimension membership, not a separate list
+   * that could drift out of sync with the weights.
+   */
+  weights: Partial<Record<DimensionId, number>>;
+  /**
+   * Set only on a gauge reused across more than one dimension — the
+   * disclosure shown on every one of that gauge's dimension pages, plus
+   * /status and METHODOLOGY.md, per the site owner's explicit condition
+   * that reuse must never be silent.
+   */
+  reuseNote?: string;
+  /** Defaults to "same-year" when omitted — see ScoringBasis. */
+  scoringBasis?: ScoringBasis;
+  /** Defaults to "hard-statistic" when omitted — see EvidenceStrength. */
+  evidenceStrength?: EvidenceStrength;
   /** A source-specific data-handling rule worth surfacing (e.g. excluding forecast years) — shown on the Methodology page alongside polarity. */
   dataPolicy?: string;
+  /**
+   * Overrides the generic "due for a refresh" staleness copy for a manual
+   * gauge whose real state isn't "overdue on a normal cadence" — e.g.
+   * cohesion-majority-acceptance, whose last freely-published wave is 7
+   * years old because no newer comparable public wave exists, not because
+   * anyone forgot to re-download it. Always shown verbatim wherever manual
+   * staleness would otherwise render — see lib/maturity.ts.
+   */
+  staleDisclosure?: string;
   /**
    * For accessType "manual" gauges only: how many months old this gauge's
    * data can get before the monthly pipeline report flags it as due for a
@@ -73,6 +137,9 @@ export interface GaugesConfigFile {
   directionThresholdPctPerYear: number;
   /** Threshold for the peer-relative direction — the primary "improving/flat/deteriorating" basis used everywhere (cards, dot strips, What's Moving). */
   directionThresholdScorePointsPerYear: number;
+  /** The two independently-scored dimensions — see DimensionConfig. Order here is display order (Power first, matching the site's original identity). */
+  dimensions: DimensionConfig[];
+  /** Shared by both dimensions' composites — still provisional pending Phase D, which will decide whether the two dimensions ever need separate bands. */
   scoreBands: ScoreBand[];
   gauges: GaugeConfig[];
 }
@@ -141,11 +208,27 @@ export interface GaugeData {
     lastScheduledRefreshAt?: string | null;
   };
   countries: Partial<Record<CountryCode, CountrySeries>>;
-  /** Optional, gauge-specific — see ContextSeries. Absent for every gauge except where explicitly wired up. */
-  contextSeries?: ContextSeries;
+  /**
+   * Optional, gauge-specific — see ContextSeries. Absent for every gauge
+   * except where explicitly wired up. An array (not a single block) since
+   * Phase E's cohesion-majority-acceptance gauge is planned to carry two
+   * (Scanlon Foundation, Australia-only; Eurobarometer, NLD/DEU-only) —
+   * see METHODOLOGY.md.
+   */
+  contextSeries?: ContextSeries[];
 }
 
-export type Direction = "improving" | "flat" | "deteriorating";
+/**
+ * "insufficient-history" is distinct from both "flat" (a real trend was
+ * computed and it happens to be small) and null/"no trend data" (no
+ * comparable data exists at all) — it means real data exists but too
+ * little of it, spaced too irregularly, to trust a computed trend. Currently
+ * only reachable via the "latest-wave-per-country" scoring basis — see
+ * ScoringBasis and computeGaugeScore in lib/scoring.ts. Must render
+ * visually distinct from both neighbours wherever direction is shown — see
+ * DirectionArrow.
+ */
+export type Direction = "improving" | "flat" | "deteriorating" | "insufficient-history";
 
 export interface GaugeScore {
   gaugeId: string;
@@ -160,6 +243,14 @@ export interface CountryScorePoint {
   code: CountryCode;
   name: string;
   score: number;
+  /**
+   * Set only for gauges scored on the "latest-wave-per-country" basis: the
+   * calendar year this specific country's value actually comes from, since
+   * — unlike every same-year gauge — that year can differ dot to dot.
+   * DotStrip shows it in the tooltip when present, so the departure from
+   * the site's usual same-year comparison is visible, not just documented.
+   */
+  asOfYear?: number;
 }
 
 export interface LevelScoreDelta {

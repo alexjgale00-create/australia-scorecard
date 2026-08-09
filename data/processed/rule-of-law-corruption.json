@@ -6,9 +6,11 @@
     "seriesId": "GOV_WGI_RL.EST + GOV_WGI_CC.EST (averaged)",
     "seriesName": "Rule of Law & Control of Corruption, governance estimates",
     "url": "https://databank.worldbank.org/source/worldwide-governance-indicators",
-    "retrievedAt": "2026-07-14T11:00:58.656Z",
+    "retrievedAt": "2026-08-08T23:58:47.812Z",
     "note": "Average of two World Bank WGI governance estimates: GOV_WGI_RL.EST (Rule of Law) and GOV_WGI_CC.EST (Control of Corruption), averaged only for years where both are available.",
-    "missingCountries": []
+    "missingCountries": [],
+    "scheduledRefreshCount": 0,
+    "lastScheduledRefreshAt": null
   },
   "countries": {
     "AUS": {

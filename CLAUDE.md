@@ -92,6 +92,85 @@ limitation — see "Pipeline environment quirks" below), so the unattended
 pipeline can never refresh it even though local runs keep it current.
 Capped at Live with that reason displayed on `/status`.
 
+## Phase E: Quality of Life dimension — Step 1 ruled, Step 2 checkpoint landed (2026-08)
+
+A second, independently-scored composite alongside Power: does Australia
+remain a good place to live? Same peers, same scoring/maturity/provenance
+machinery, **never folded into Power's composite** — two verdicts, equal
+prominence, side by side. Full reasoning, the complete gauge-set rationale,
+the 5-source majority-attitude search record, and every ruling behind this
+are in METHODOLOGY.md's "Quality of Life dimension" section — this entry is
+the short, action-oriented pointer so a future session doesn't re-derive any
+of it from scratch.
+
+**Gauge set (8 launched, signed off across two rounds):** Life expectancy,
+Housing affordability (reused from Power's `housing-pressure`), Life
+satisfaction, Personal safety, Work-life balance, Air quality, and the
+2-gauge social cohesion cluster (Cohesion — minority experience via V-Dem's
+`v2clsocgrp`; Cohesion — majority acceptance via Gallup's Migrant Acceptance
+Index). 4 more deferred to a second batch (health system performance,
+incarceration rate, road deaths, social support/trust); paid parental
+leave, statutory holiday, NEET rate, commute time, and broadband excluded
+outright — see METHODOLOGY.md for why each.
+
+**Three rulings worth flagging here specifically, since they touch shared
+site mechanics, not just this one dimension:**
+
+1. **Gauge reuse is real, not hypothetical**: `housing-pressure` now scores
+   in both dimensions from one data file, at independent weights
+   (`gauges.config.json`'s `weights` object, e.g. `{ "power": 0.0625,
+   "quality-of-life": 0.125 }`) — the single source of truth for which
+   dimension(s) a gauge belongs to. Disclosed on the gauge's own page,
+   `/status`, and METHODOLOGY.md, per the site owner's standing condition
+   that reuse must never be silent.
+2. **A new alternate scoring basis exists**: `scoringBasis:
+   "latest-wave-per-country"` on `cohesion-majority-acceptance` — compares
+   each country's own most recent value rather than requiring a shared
+   year, since Gallup's index doesn't field every country the same year.
+   This is a genuine methodology fork, recorded prominently in
+   METHODOLOGY.md (not just a code comment) and flagged on every page that
+   touches it, per explicit instruction. Comes with a new direction state,
+   **"insufficient-history"** — distinct from both "Flat" and "No trend
+   data" — for gauges with too few, too irregularly-spaced waves to trust a
+   computed trend from (currently gates on <3 waves or <6yr span; see
+   `MIN_WAVES_FOR_TREND` / `MIN_SPAN_YEARS_FOR_TREND` in `lib/scoring.ts`).
+3. **`cohesion-majority-acceptance` ships knowingly thin**: its source
+   (Gallup Migrant Acceptance Index) has only 2 freely-published waves
+   (2016/17, 2019) — a real, documented search across 5 candidate sources
+   (Gallup's own broader item, WVS Wave 8, Pew, Ipsos, Edelman) found
+   nothing better with full 9-peer coverage. The gauge's `dataPolicy` and
+   `staleDisclosure` both say this plainly rather than dressing it up as a
+   normal slow-cadence source like PISA — see METHODOLOGY.md for the full
+   record and the two named upgrade candidates (Ipsos Global Views on
+   Immigration, WVS Wave 8) with the specific condition each would need to
+   meet.
+
+**Step 2 checkpoint, per the site owner's explicit scoping** ("data model
+and homepage first, then stop before the long tail of fetchers"): the full
+two-dimension data model, both `DimensionVerdict` homepage blocks, `/status`
+and the gauge detail page extended for dimensions/reuse/scoring-basis/
+evidence-strength, and this documentation all landed. **Deliberately not
+built yet**: any of the 7 new fetchers, `data/manual/` templates for the
+manual-lane gauges, and the Scanlon/Eurobarometer context data entry — next
+phase's work, handed over as a manual download list separately. 3 of the 7
+new gauges' series IDs were verified live against their real APIs during
+this build (not assumed): World Bank's `SP.DYN.LE00.IN`, `VC.IHR.PSRC.P5`,
+and `EN.ATM.PM25.MC.M3` all confirmed full 9-peer coverage; Our World in
+Data's republication of V-Dem's `v2clsocgrp` (grapher slug
+`equality-of-civil-liberties-across-social-groups-score`) likewise
+confirmed live with full 9-peer 2023 coverage. `work-life-balance`'s exact
+OECD SDMX dataflow was deliberately left as `seriesId: "TBD"` rather than
+guessed, per this project's standing rule against entering an unverified
+series ID.
+
+A genuine correctness fix landed as a side effect of this build, not
+Phase-E-specific but caught while touching the gauge detail page: the
+Awaiting-data state previously told every gauge to "run `npm run pipeline`"
+regardless of `accessType`, which would have actively misled anyone looking
+at a manual-lane gauge with no data yet (there's no pipeline step to run for
+those). Now branches on `accessType`, pointing manual gauges at
+`data/manual/README.md` instead.
+
 ## Phase D: started, then paused pending the data layer (2026)
 
 Phase D (methodology/editorial: band thresholds, weights, direction

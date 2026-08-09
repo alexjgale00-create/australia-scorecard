@@ -182,7 +182,15 @@ export function describeWhatsNext(
 
   if (config.accessType === "manual") {
     const staleness = manualStaleness(config, data);
-    if (staleness?.stale) return `Due for a refresh — ${staleness.ageDescription}.`;
+    if (staleness?.stale) {
+      // A gauge can carry a custom staleDisclosure when "due for a refresh"
+      // would misrepresent its real state — e.g. cohesion-majority-
+      // acceptance, whose age isn't a missed routine re-download (like
+      // PISA's 3-4-yearly cadence) but the practical end of what's publicly
+      // available at all. Always shown verbatim in that case, never
+      // softened into the generic cadence phrasing.
+      return config.staleDisclosure ?? `Due for a refresh — ${staleness.ageDescription}.`;
+    }
     return "Real data, settled methodology — manual-lane gauges top out at Live, since there's no unattended refresh loop to survive.";
   }
 

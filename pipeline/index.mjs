@@ -67,6 +67,19 @@ const GAUGE_IDS = [
   // scheduled run as the real confirmation this source isn't
   // environment-sensitive too, not an assumption baked in here.
   "internal-cohesion",
+  // Phase E (Quality of Life), 2026-08-09: the four launch gauges verified
+  // live against their real APIs before being wired in here (see
+  // gauges.config.json's dataPolicy on each and METHODOLOGY.md's "Quality
+  // of Life dimension"). life-expectancy, personal-safety, and air-quality
+  // reuse the same proven World Bank route as living-standards etc.
+  // cohesion-minority-experience reuses the same proven OWID V-Dem route as
+  // internal-cohesion (pipeline/lib/vdem.mjs, generalised into a factory
+  // the same day to support both indicators without duplicating the fetch
+  // logic).
+  "life-expectancy",
+  "personal-safety",
+  "air-quality",
+  "cohesion-minority-experience",
 ];
 
 /** Reads a gauge's currently-saved provenance, if any, without touching it. */

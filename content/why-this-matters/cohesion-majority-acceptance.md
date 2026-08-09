@@ -1,0 +1,3 @@
+[DRAFT — edit freely]
+
+Whether the majority population actually welcomes migrants — as neighbours, as coworkers, as family — shapes daily life for a lot of Australians in a way that no institutional measure fully captures. This is the other half of this Scorecard's social cohesion cluster, paired with Cohesion — minority experience. Its own gauge page is unusually candid about a limitation: no live, currently-updating, peer-complete measure of this exists publicly for these nine countries, so this gauge runs on Gallup's last freely published waves, several years old. That absence is itself worth knowing, not just the number.

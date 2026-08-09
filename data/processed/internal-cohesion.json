@@ -6,7 +6,7 @@
     "seriesId": "v2cacamps",
     "seriesName": "Political polarization",
     "url": "https://ourworldindata.org/grapher/political-polarization-score",
-    "retrievedAt": "2026-07-16T00:25:18.671Z",
+    "retrievedAt": "2026-08-08T23:59:25.359Z",
     "note": "Full source chain: V-Dem (2026) – processed by Our World in Data. “Political polarization score – V-Dem” [dataset]. V-Dem, “Democracy report v16” [original data]. — fetched via OWID's grapher CSV export (https://ourworldindata.org/grapher/political-polarization-score), not directly from V-Dem (V-Dem's own dataset download is registration-gated; see CLAUDE.md). OWID last updated this indicator 2026-03-17. OWID's next scheduled refresh of this indicator is due 2027-03-17.",
     "missingCountries": [],
     "scheduledRefreshCount": 0,

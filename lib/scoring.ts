@@ -3,6 +3,7 @@ import type {
   CountryCode,
   CountryScorePoint,
   Direction,
+  DimensionId,
   GaugeConfig,
   GaugeData,
   GaugeScore,
@@ -98,6 +99,94 @@ export function computeRank(
   if (idx === -1) return null;
   return { rank: idx + 1, of: sorted.length };
 }
+
+/**
+ * The "latest-wave-per-country" counterpart to computeLevelScore: instead
+ * of comparing every country's value from one shared year, each country
+ * contributes its own most recent available value, whatever year that
+ * happens to be. Deliberate, disclosed departure from the site's usual
+ * same-year rule — see ScoringBasis in lib/types.ts and
+ * describeScoringBasis below. Used only when config.scoringBasis is
+ * "latest-wave-per-country" (currently: cohesion-majority-acceptance).
+ */
+export function computeLevelScoreLatestWavePerCountry(
+  data: GaugeData,
+  config: GaugeConfig,
+  code: CountryCode
+): number | null {
+  const values = Object.entries(data.countries)
+    .map(([c, series]) => {
+      if (series.series.length === 0) return null;
+      const latest = series.series.reduce((a, b) => (b.year > a.year ? b : a));
+      return { code: c as CountryCode, value: latest.value, year: latest.year };
+    })
+    .filter((v): v is { code: CountryCode; value: number; year: number } => v !== null);
+
+  if (values.length < 2) return null;
+  const target = values.find((v) => v.code === code);
+  if (!target) return null;
+
+  const nums = values.map((v) => v.value);
+  const min = Math.min(...nums);
+  const max = Math.max(...nums);
+  if (max === min) return 50;
+
+  const raw = (target.value - min) / (max - min);
+  const normalized = config.polarity === "higher_is_better" ? raw : 1 - raw;
+  return Math.round(normalized * 1000) / 10;
+}
+
+/** latest-wave-per-country counterpart to computeLevelScoreForAllCountries — each point carries its own asOfYear, since they genuinely differ. */
+export function computeLevelScoreForAllCountriesLatestWave(
+  data: GaugeData,
+  config: GaugeConfig
+): CountryScorePoint[] {
+  return Object.entries(data.countries)
+    .map((entry): CountryScorePoint | null => {
+      const [code, country] = entry;
+      if (country.series.length === 0) return null;
+      const latest = country.series.reduce((a, b) => (b.year > a.year ? b : a));
+      const score = computeLevelScoreLatestWavePerCountry(data, config, code as CountryCode);
+      return score === null ? null : { code: code as CountryCode, name: country.name, score, asOfYear: latest.year };
+    })
+    .filter((p): p is CountryScorePoint => p !== null);
+}
+
+/** latest-wave-per-country counterpart to computeRank. */
+export function computeRankLatestWavePerCountry(
+  data: GaugeData,
+  config: GaugeConfig,
+  code: CountryCode
+): { rank: number; of: number } | null {
+  const values = Object.entries(data.countries)
+    .map(([c, series]) => {
+      if (series.series.length === 0) return null;
+      const latest = series.series.reduce((a, b) => (b.year > a.year ? b : a));
+      return { code: c as CountryCode, value: latest.value };
+    })
+    .filter((v): v is { code: CountryCode; value: number } => v !== null);
+
+  if (values.length < 1) return null;
+  const sorted = [...values].sort((a, b) =>
+    config.polarity === "higher_is_better" ? b.value - a.value : a.value - b.value
+  );
+  const idx = sorted.findIndex((v) => v.code === code);
+  if (idx === -1) return null;
+  return { rank: idx + 1, of: sorted.length };
+}
+
+/**
+ * How few waves is too few to trust a computed trend from. Two points ~3
+ * years apart (e.g. Gallup MAI's 2016/17 and 2019 waves) can't distinguish
+ * a real trend from noise between two snapshots — this gate exists
+ * specifically so the site never manufactures a confident-looking arrow out
+ * of that. Only applied on the "latest-wave-per-country" basis — every
+ * same-year gauge keeps its existing null-based "no trend data" handling
+ * untouched, since this is a new, narrower honesty rule, not a general
+ * tightening of the site's existing direction logic.
+ */
+const MIN_WAVES_FOR_TREND = 3;
+const MIN_SPAN_YEARS_FOR_TREND = 6;
 
 /**
  * The trailing-~10y comparison point: the latest point at or before
@@ -286,11 +375,22 @@ export function computeLevelScoreForAllCountries(
     .filter((p): p is CountryScorePoint => p !== null);
 }
 
+/**
+ * Only gauges carrying a weight for `dimensionId` in their config
+ * contribute — a gauge outside this dimension is simply not part of its
+ * math, same "not included, nothing to disclose" treatment as an unknown
+ * gauge id in computeComposite below. A reused gauge (weighted in more than
+ * one dimension) naturally participates in each dimension's composite
+ * independently, using that dimension's own weight.
+ */
 export function computeCompositeForAllCountries(
-  gaugesData: { data: GaugeData; config: GaugeConfig }[]
+  gaugesData: { data: GaugeData; config: GaugeConfig }[],
+  dimensionId: DimensionId
 ): CountryScorePoint[] {
+  const inDimension = gaugesData.filter(({ config }) => config.weights[dimensionId] !== undefined);
+
   const allCodes = new Set<CountryCode>();
-  for (const { data } of gaugesData) {
+  for (const { data } of inDimension) {
     for (const code of Object.keys(data.countries)) allCodes.add(code as CountryCode);
   }
 
@@ -298,13 +398,13 @@ export function computeCompositeForAllCountries(
   for (const code of allCodes) {
     let name: string | null = null;
     const weighted: { score: number; weight: number }[] = [];
-    for (const { data, config } of gaugesData) {
+    for (const { data, config } of inDimension) {
       const country = data.countries[code];
       if (!country) continue;
       name = country.name;
       const year = latestSharedYear(data);
       const score = year ? computeLevelScore(data, config, code, year) : null;
-      if (score !== null) weighted.push({ score, weight: config.weight });
+      if (score !== null) weighted.push({ score, weight: config.weights[dimensionId]! });
     }
     if (!name || weighted.length === 0) continue;
     const totalWeight = weighted.reduce((sum, w) => sum + w.weight, 0);
@@ -332,12 +432,58 @@ export function computeGaugeHistoricalLevelScores(
     .filter((p): p is { year: number; score: number } => p !== null);
 }
 
+/**
+ * The "latest-wave-per-country" counterpart to the main computeGaugeScore
+ * path below. Direction here is deliberately conservative: with fewer than
+ * MIN_WAVES_FOR_TREND waves or less than MIN_SPAN_YEARS_FOR_TREND years
+ * between the earliest and latest, it reports "insufficient-history"
+ * rather than guessing at a trend from too little data. No gauge currently
+ * has enough waves to exercise a real trend computation on this basis
+ * (cohesion-majority-acceptance has 2) — that path is intentionally not
+ * built yet rather than guessed at; build it for real once a gauge actually
+ * has 3+ waves spanning 6+ years to compute from.
+ */
+function computeGaugeScoreLatestWave(
+  data: GaugeData,
+  config: GaugeConfig,
+  code: CountryCode
+): GaugeScore {
+  const levelScore = computeLevelScoreLatestWavePerCountry(data, config, code);
+  const rankInfo = computeRankLatestWavePerCountry(data, config, code);
+
+  const countryPoints = data.countries[code]?.series ?? [];
+  const years = countryPoints.map((p) => p.year);
+  const latestYear = years.length > 0 ? Math.max(...years) : 0;
+  const span = years.length > 0 ? Math.max(...years) - Math.min(...years) : 0;
+
+  let direction: Direction | null = null;
+  if (levelScore !== null) {
+    direction =
+      countryPoints.length < MIN_WAVES_FOR_TREND || span < MIN_SPAN_YEARS_FOR_TREND
+        ? "insufficient-history"
+        : null; // see comment above — a real computation for 3+ waves isn't built yet
+  }
+
+  return {
+    gaugeId: config.id,
+    latestYear,
+    levelScore,
+    direction,
+    australiaRank: rankInfo?.rank ?? null,
+    peerCount: rankInfo?.of ?? 0,
+  };
+}
+
 export function computeGaugeScore(
   data: GaugeData,
   config: GaugeConfig,
   thresholdScorePointsPerYear: number,
   code: CountryCode = "AUS"
 ): GaugeScore {
+  if (config.scoringBasis === "latest-wave-per-country") {
+    return computeGaugeScoreLatestWave(data, config, code);
+  }
+
   const year = latestSharedYear(data);
   const levelScore = year ? computeLevelScore(data, config, code, year) : null;
   const direction = year
@@ -355,20 +501,41 @@ export function computeGaugeScore(
   };
 }
 
+/**
+ * One plain-English sentence naming a gauge's scoring basis when it isn't
+ * the site's default — so the "same-year vs latest-wave-per-country" fork
+ * is visible on the gauge page, /status, and Methodology without anyone
+ * having to read lib/scoring.ts to know which gauges use which. Returns
+ * null for the default "same-year" basis (the unmarked common case).
+ */
+export function describeScoringBasis(config: GaugeConfig): string | null {
+  if (config.scoringBasis !== "latest-wave-per-country") return null;
+  return (
+    `${config.shortName} is scored differently from every other gauge on this site: instead of ` +
+    `comparing all 9 countries' values from the same year, each country's own most recent available ` +
+    `value is used, even though that year differs from country to country. This gauge's underlying ` +
+    `source publishes irregular, non-synchronized survey waves per country, so requiring a shared year ` +
+    `would exclude most of the peer set. See "Alternate scoring basis" in METHODOLOGY.md.`
+  );
+}
+
 export function computeHistoricalComposite(
-  gaugesData: { data: GaugeData; config: GaugeConfig }[]
+  gaugesData: { data: GaugeData; config: GaugeConfig }[],
+  dimensionId: DimensionId
 ): { year: number; composite: number }[] {
-  const allYears = gaugesData
+  const inDimension = gaugesData.filter(({ config }) => config.weights[dimensionId] !== undefined);
+
+  const allYears = inDimension
     .flatMap(({ data }) => data.countries.AUS?.series.map((p) => p.year) ?? [])
     .filter((y, i, arr) => arr.indexOf(y) === i)
     .sort((a, b) => a - b);
 
   const points: { year: number; composite: number }[] = [];
   for (const year of allYears) {
-    const weighted = gaugesData
+    const weighted = inDimension
       .map(({ data, config }) => {
         const score = computeLevelScore(data, config, "AUS", year);
-        return score === null ? null : { score, weight: config.weight };
+        return score === null ? null : { score, weight: config.weights[dimensionId]! };
       })
       .filter((w): w is { score: number; weight: number } => w !== null);
 
@@ -383,7 +550,18 @@ export function computeHistoricalComposite(
   return points;
 }
 
-export function computeComposite(scores: GaugeScore[], configs: GaugeConfig[]): CompositeResult {
+/**
+ * Scoped to one dimension: `scores` may cover gauges from both dimensions
+ * (the homepage computes the full scores array once and calls this twice),
+ * but only gauges weighted in `dimensionId` are included or excluded here —
+ * a gauge outside this dimension is simply not this composite's business,
+ * same as an unrecognised gauge id.
+ */
+export function computeComposite(
+  scores: GaugeScore[],
+  configs: GaugeConfig[],
+  dimensionId: DimensionId
+): CompositeResult {
   const includedGaugeIds: string[] = [];
   const excludedGaugeIds: string[] = [];
   const weighted: { score: number; weight: number }[] = [];
@@ -391,12 +569,14 @@ export function computeComposite(scores: GaugeScore[], configs: GaugeConfig[]): 
   for (const s of scores) {
     const config = configs.find((c) => c.id === s.gaugeId);
     if (!config) continue; // not a real gauge — neither included nor "excluded" (nothing to disclose)
+    const weight = config.weights[dimensionId];
+    if (weight === undefined) continue; // not part of this dimension at all
     if (s.levelScore === null) {
       excludedGaugeIds.push(s.gaugeId);
       continue;
     }
     includedGaugeIds.push(s.gaugeId);
-    weighted.push({ score: s.levelScore, weight: config.weight });
+    weighted.push({ score: s.levelScore, weight });
   }
 
   const totalWeight = weighted.reduce((sum, w) => sum + w.weight, 0);
