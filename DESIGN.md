@@ -226,6 +226,21 @@ type Gauge = {
    thresholds under methodology review (Methods §3.1)."
 8. **Apparatus block** — right column, `2px --ink` left spine. Three labelled lines,
    identical structure on all ~24 gauges: **CAUSE / PRECEDENT / SCALE**.
+
+   > **REORDERED (implementation ruling, 2026): PRECEDENT / CAUSE / SCALE.**
+   > The inventory behind this ruling (see CLAUDE.md) found PRECEDENT
+   > systematically easier to establish than CAUSE — peer trajectories are
+   > directly observable in data already held, while attributing one
+   > composite's movement to one mechanism is genuinely hard (~6 of 20
+   > gauges can currently carry a cited CAUSE; most can carry a PRECEDENT).
+   > The original CAUSE-first order assumed the cause leads; with CAUSE
+   > absent on most gauges, that opened every page on a decline. PRECEDENT
+   > is also the more diagnostic content — an observed peer trajectory
+   > tells a reader more about whether a gap is fixable than a contested
+   > attribution does, which was the point of choosing a diagnostic
+   > register in the first place. Fixed three-line structure throughout;
+   > only the order changed. Every "CAUSE / PRECEDENT / SCALE" below should
+   > now be read as **PRECEDENT / CAUSE / SCALE**.
 9. **CITE AS block** — `1px --chrome` box: full citation string + `COPY` button
    (label → `COPIED ✓` for 1600ms). Button: mono 10px/700, `1px --ink` border,
    inverts to `--ink` background on hover.
@@ -311,6 +326,23 @@ support. So:
   (it is arithmetic on the gap, not a causal claim).
 Reference: Table 6.2 (both not established), Table 4.9 (CAUSE not established, PRECEDENT
 present but explicitly non-attributed).
+
+> **EXTENDED (implementation ruling, 2026): a third variant, CONTESTED, not just
+> NOT ESTABLISHED.** The inventory behind the reorder above also surfaced that
+> "no attribution meets the bar" conflates two different claims: *nobody has
+> written this yet* (could change — `NOT ESTABLISHED`) versus *the evidence
+> genuinely won't converge on one cause here, and that's the permanent answer*
+> (`CONTESTED`). The second is a stronger, more interesting statement than the
+> first, and collapsing them loses that. Both render identically — same
+> `--stamp`, same typographic weight, same "never an empty cell" rule above —
+> only the label word (`CONTESTED` vs `NOT ESTABLISHED`) and the body text
+> differ; this is content, not a new visual state. Applied so far to two real
+> gauges whose own existing content already argues the case: `life-expectancy`
+> (inherently multi-causal — healthcare, chronic disease, injury prevention,
+> social conditions all plausibly contribute, with no decomposition that
+> isolates one) and `external-position` (its own polarity is a live,
+> unresolved economist's disagreement, not just its cause). See
+> content/register-draft-lines.ts for both drafts, marked UNREVIEWED.
 
 ### S4 — Missing peer data
 - Absent peers are **omitted from the strip, declared in a note**: a `1px --chrome` box

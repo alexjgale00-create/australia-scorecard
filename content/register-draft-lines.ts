@@ -31,3 +31,61 @@ export const REGISTER_DRAFT_LINES: Record<string, string> = {
   "air-quality": "Australia's air quality is 6.41 (PM2.5 air pollution); the peer median is 8.7. Australia ranks 1st of 9 (lower is better on this gauge).",
   "cohesion-minority-experience": "Australia's cohesion — minority experience is 1.33 (V-Dem social group equality in civil liberties score); the peer median is 1.7. Australia ranks 6th of 9."
 };
+
+/**
+ * Draft CAUSE copy — the six Tier 1 gauges identified in the authoring
+ * inventory (see CLAUDE.md) as naming a real, specific driver in existing
+ * repo content, rather than being purely definitional. Per the site
+ * owner's rule: transcription with citation, not invention — every claim
+ * below was checked live (WebSearch, this session) against a real source
+ * before being written here, not carried over unverified from the
+ * `why-this-matters` drafts (which are themselves marked "[DRAFT — edit
+ * freely]" and were never held to a citation bar).
+ *
+ * UNREVIEWED. Nothing here merges to main until the site owner has read
+ * and, if needed, edited it — same rule as the plain-language lines.
+ *
+ * economic-complexity is flagged separately (see the site owner's report):
+ * its citation is the Growth Lab's own interpretive commentary on the
+ * index it computes, not an independent third party's finding — a
+ * different kind of source than e.g. the RBA explaining debt-burden. This
+ * is exactly the question Methods §3.2 needs to settle: does a data
+ * provider's own gloss on its own index meet the evidence bar, or does
+ * that read as too close to circular?
+ */
+export const REGISTER_DRAFT_CAUSES: Record<string, string> = {
+  "innovation":
+    "The Australian Government's Strategic Examination of R&D (‘Ambitious Australia’, final report, March 2026) identifies persistently low business and government R&D investment as a structural weakness in the national innovation system, prompting 20 recommendations to lift it. (Dept. of Industry, Science and Resources, ‘Ambitious Australia: Strategic Examination of Research and Development’, final report, March 2026)",
+
+  "economic-output":
+    "Australia's falling share of world GDP reflects faster growth elsewhere, not a shrinking Australian economy: the IMF's April 2026 World Economic Outlook projects China and India growing well above both the global average and the advanced-economy average through 2026. (IMF World Economic Outlook, April 2026 — this gauge's own source series)",
+
+  "debt-burden":
+    "The RBA's Financial Stability Review attributes the long-run rise in Australian household debt principally to the mortgage market: the household debt-to-income ratio has risen from around 120% in the mid-2000s to around 140%, alongside rising house prices. (RBA Financial Stability Review, 2025–26 editions)",
+
+  "housing-pressure":
+    "Analysis cited by Treasury and the Productivity Commission attributes Australia's rising price-to-income ratio to an accumulated housing undersupply — estimated at over 200,000 dwellings — compounded by construction-sector labour productivity growing far slower than the rest of the economy (15% since 1994, against a 46% economy-wide average). A distinct driver from debt-burden's (which is about financing, not supply), even though the two gauges are cross-linked. (Treasury housing supply and affordability analysis; Productivity Commission housing supply inquiry, 2025–26)",
+
+  // Cause-of-the-lead (S2) — demographic-momentum is AUS-leads, not a gap.
+  "demographic-momentum":
+    "Australia's comparatively high net overseas migration — around 73% of national population growth in the 2024–25 financial year — is the primary driver of its working-age population continuing to grow while several peers' shrink. (ABS, Overseas Migration, 2024–25 financial year)",
+
+  // FLAGGED — see the module comment above and the site owner's report:
+  // self-referential source (the index provider explaining its own index).
+  "economic-complexity":
+    "The Atlas of Economic Complexity's own analysis attributes Australia's low and worsening ranking (74th of 145 economies tracked, second-lowest in the OECD) directly to a lack of export diversification — iron ore, coal, and petroleum gas alone account for roughly two-thirds of net exports. (Harvard Growth Lab, The Atlas of Economic Complexity, country profile: Australia)",
+};
+
+/**
+ * Draft CONTESTED copy (Attribution.kind: "contested") — applied only
+ * where the site's own existing `why-this-matters` content already argues
+ * the case, per the site owner's ruling. Drawn from that existing content,
+ * not new research. UNREVIEWED, same rule as everything else here.
+ */
+export const REGISTER_CONTESTED_CAUSES: Record<string, string> = {
+  "life-expectancy":
+    "Life expectancy folds together healthcare access, chronic disease management, injury prevention, and social conditions into one number — there is no single decomposition that isolates one of these as the dominant driver of Australia's own trajectory. This is not an evidence gap further research would close; it is a property of what this measure is. (See this gauge's own ‘why this matters’ note.)",
+
+  "external-position":
+    "Whether Australia's persistent current account deficit reflects financial fragility or a benign pattern of foreign investment financing resource development is a live, unresolved disagreement among economists — this Scorecard's own polarity choice for this gauge is flagged as contestable for the same reason (see Methodology). Any single causal attribution here would be taking a side in that dispute, not reporting a settled one. (See this gauge's own ‘why this matters’ note and the Methodology page.)",
+};

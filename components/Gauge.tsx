@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { GaugeView, Peer } from "@/lib/gauge-view";
+import type { Attribution, GaugeView, Peer } from "@/lib/gauge-view";
 
 /**
  * REGISTER's core component — see DESIGN.md for the full spec and the
@@ -269,19 +269,25 @@ function UnscoredDeclaration({ view }: { view: Extract<GaugeView, { scored: fals
 }
 
 // ---------------------------------------------------------------------------
-// Apparatus: CAUSE / PRECEDENT (or CHALLENGER) / SCALE
+// Apparatus: PRECEDENT (or CHALLENGER) / CAUSE / SCALE.
+//
+// Reordered from the original CAUSE-first handoff (site owner's ruling):
+// the strongest available line goes first, and PRECEDENT is the more
+// diagnostic content — an observed peer trajectory tells a reader more
+// about whether a gap is fixable than a contested attribution does. Fixed
+// three-line structure throughout; only the order changed.
 // ---------------------------------------------------------------------------
 
 function Apparatus({ view }: { view: GaugeView }) {
   const isChallenger = view.scored && view.leads;
   return (
     <div className="font-public-sans text-[13px] sm:text-[14.5px] leading-[1.55] grid gap-4">
-      <ApparatusLine label="CAUSE" attribution={view.cause} />
       <ApparatusLine
         label={isChallenger ? "CHALLENGER" : "PRECEDENT"}
         rubric={isChallenger ? "replaces PRECEDENT when Australia leads: there is no peer ahead to draw precedent from." : undefined}
         attribution={view.precedent}
       />
+      <ApparatusLine label="CAUSE" attribution={view.cause} />
       <div>
         <div className="font-martian-mono text-[9.5px] sm:text-[10.5px] font-bold tracking-[.16em] mb-1">SCALE</div>
         {view.scale}
@@ -290,6 +296,12 @@ function Apparatus({ view }: { view: GaugeView }) {
   );
 }
 
+/** Label + body per Attribution.kind — "not-established" and "contested" render at identical typographic weight (R5); only the label word and body text differ. */
+const ATTRIBUTION_LABEL: Record<"not-established" | "contested", string> = {
+  "not-established": "NOT ESTABLISHED",
+  contested: "CONTESTED",
+};
+
 function ApparatusLine({
   label,
   rubric,
@@ -297,7 +309,7 @@ function ApparatusLine({
 }: {
   label: string;
   rubric?: string;
-  attribution: { kind: "established"; body: React.ReactNode } | { kind: "not-established"; body: React.ReactNode };
+  attribution: Attribution;
 }) {
   return (
     <div>
@@ -305,13 +317,15 @@ function ApparatusLine({
         {label}
         {rubric && <span className="font-normal text-ink-3 normal-case tracking-normal"> — {rubric}</span>}
       </div>
-      {attribution.kind === "not-established" ? (
+      {attribution.kind === "established" ? (
+        attribution.body
+      ) : (
         <>
-          <span className="font-martian-mono text-[12px] font-medium text-stamp">NOT ESTABLISHED</span>
+          <span className="font-martian-mono text-[12px] font-medium text-stamp">
+            {ATTRIBUTION_LABEL[attribution.kind]}
+          </span>
           <span className="text-ink-2"> — {attribution.body}</span>
         </>
-      ) : (
-        attribution.body
       )}
     </div>
   );

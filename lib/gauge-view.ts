@@ -55,17 +55,24 @@ export interface MissingPeer {
   reason: string;
 }
 
+/**
+ * Three variants, not two — "nobody has written this yet" and "the
+ * evidence genuinely won't support attribution here" are different claims.
+ * Both non-established variants render identically in --stamp, at the
+ * same typographic weight (R5) — the distinction is the label and body
+ * text a component chooses per kind, never styling.
+ */
 export type Attribution =
   | { kind: "established"; body: ReactNode }
-  | { kind: "not-established"; body: ReactNode };
+  /** No attribution yet meets the evidence bar — could change if someone finds/writes a citable driver. The default for every gauge with no authored content. */
+  | { kind: "not-established"; body: ReactNode }
+  /** Attribution is actively disputed, or inherently multi-causal with no way to isolate one mechanism — this is the permanent answer, not a placeholder pending more research. */
+  | { kind: "contested"; body: ReactNode };
 
 /**
- * Every CAUSE/PRECEDENT currently rendered by buildGaugeView is this
- * constant — no gauge has real, citable causal content authored yet (that's
- * a future editorial step, deliberately not attempted here — see the
- * conversation record on why drafting causal content isn't mine to do
- * unilaterally). S3 is therefore the honest default for every real gauge
- * today, not a fallback for missing data.
+ * The default CAUSE/PRECEDENT for every gauge without drafted content —
+ * most gauges today, since only 6 have a drafted CAUSE (content/
+ * register-draft-lines.ts) and none has a drafted PRECEDENT yet.
  */
 export const NOT_ESTABLISHED: Attribution = {
   kind: "not-established",
@@ -268,6 +275,76 @@ export function resolveAxisOutlier(
 }
 
 // ---------------------------------------------------------------------------
+// Trend framing — the zero-crossing/near-zero guard (Fix A's lesson one
+// level up, made a code rule rather than a drafting caution).
+// ---------------------------------------------------------------------------
+
+export type TrendFramingResult =
+  | { kind: "pct"; totalPctChange: number }
+  | { kind: "absolute"; delta: number };
+
+/**
+ * A percentage change computed against a start value near zero, or across
+ * a sign change, is a denominator artifact, not a real magnitude — e.g.
+ * external-position USA (0.07 → −3.63) computes as −4972%, and
+ * internal-cohesion KOR (−0.043 → 1.438) as +3444%. Neither number means
+ * anything, even though both trajectories are real. This exists as code,
+ * not a note in a drafting guide, because whoever reads a generated
+ * trajectory table later has no way to know to distrust a specific cell —
+ * the guard has to already have run before the number reaches them.
+ */
+const NEAR_ZERO_FRACTION_OF_SERIES_RANGE = 0.1;
+
+export function resolveTrendFraming(
+  seriesValuesForScale: number[],
+  startValue: number,
+  endValue: number
+): TrendFramingResult {
+  const crossesZero = startValue !== 0 && endValue !== 0 && Math.sign(startValue) !== Math.sign(endValue);
+  const maxAbs = Math.max(0, ...seriesValuesForScale.map((v) => Math.abs(v)), Math.abs(startValue), Math.abs(endValue));
+  const nearZero = maxAbs > 0 && Math.abs(startValue) < NEAR_ZERO_FRACTION_OF_SERIES_RANGE * maxAbs;
+
+  if (startValue === 0 || crossesZero || nearZero) {
+    return { kind: "absolute", delta: Math.round((endValue - startValue) * 100) / 100 };
+  }
+  const totalPctChange = ((endValue - startValue) / Math.abs(startValue)) * 100;
+  return { kind: "pct", totalPctChange: Math.round(totalPctChange * 10) / 10 };
+}
+
+/**
+ * For a future PRECEDENT: how much did a given peer's own value move over
+ * its full available history? NOT called from buildGaugeView yet — no
+ * gauge has drafted PRECEDENT content (the site owner's explicit hold, to
+ * see how the Korea story reads once before it's written across five
+ * gauges). Built now so the guard above is load-bearing by the time that
+ * drafting happens, not something a future pass has to remember to add.
+ */
+export function computePeerTrajectory(
+  data: GaugeData,
+  peerCode: CountryCode
+): {
+  code: CountryCode;
+  name: string;
+  startYear: number;
+  endYear: number;
+  startValue: number;
+  endValue: number;
+  framing: TrendFramingResult;
+} | null {
+  const country = data.countries[peerCode];
+  if (!country || country.series.length < 2) return null;
+  const sorted = [...country.series].sort((a, b) => a.year - b.year);
+  const start = sorted[0];
+  const end = sorted[sorted.length - 1];
+  const framing = resolveTrendFraming(
+    sorted.map((p) => p.value),
+    start.value,
+    end.value
+  );
+  return { code: peerCode, name: country.name, startYear: start.year, endYear: end.year, startValue: start.value, endValue: end.value, framing };
+}
+
+// ---------------------------------------------------------------------------
 // Small helpers
 // ---------------------------------------------------------------------------
 
@@ -305,11 +382,27 @@ export interface BuildGaugeViewArgs {
   definition: ReactNode;
   sourcesNote: ReactNode;
   revisions?: { date: string; note: string }[];
+  /** Defaults to NOT_ESTABLISHED — most gauges have no drafted CAUSE yet. See content/register-draft-lines.ts for the ones that do. */
+  cause?: Attribution;
+  /** Defaults to NOT_ESTABLISHED. No gauge has drafted PRECEDENT content yet, deliberately — see the site owner's ruling on drafting the Korea story once, not five times. */
+  precedent?: Attribution;
 }
 
 export function buildGaugeView(args: BuildGaugeViewArgs): GaugeView {
-  const { config, data, gaugesConfig, dimensionId, plate, section, plainLine, definition, sourcesNote, revisions } =
-    args;
+  const {
+    config,
+    data,
+    gaugesConfig,
+    dimensionId,
+    plate,
+    section,
+    plainLine,
+    definition,
+    sourcesNote,
+    revisions,
+    cause = NOT_ESTABLISHED,
+    precedent = NOT_ESTABLISHED,
+  } = args;
 
   const isUnscored = (config.unscoredDimensions ?? []).includes(dimensionId);
   const maturity = computeMaturity(config, data);
@@ -331,8 +424,8 @@ export function buildGaugeView(args: BuildGaugeViewArgs): GaugeView {
     observation: data?.provenance.seriesName ?? config.source.seriesName,
     isSampleData: data?.provenance.status === "SAMPLE_DATA",
     plainLine,
-    cause: NOT_ESTABLISHED,
-    precedent: NOT_ESTABLISHED,
+    cause,
+    precedent,
   };
 
   if (isUnscored) {
@@ -420,13 +513,25 @@ export function buildGaugeView(args: BuildGaugeViewArgs): GaugeView {
     ? computeRawValueTrend(data, "AUS", year, gaugesConfig.directionThresholdPctPerYear)
     : null;
   const deltaLabel = rawTrend
-    ? `Δ ${rawTrend.startYear}–${rawTrend.endYear}: ${rawTrend.totalPctChange > 0 ? "+" : ""}${rawTrend.totalPctChange}% ${
-        peerMedianRaw !== null
-          ? Math.abs(ausRawValue - peerMedianRaw) > Math.abs((rawTrend.startValue ?? ausRawValue) - peerMedianRaw)
-            ? "⟶ widening"
-            : "⟶ narrowing"
-          : ""
-      }`.trim()
+    ? (() => {
+        // Same zero-crossing/near-zero guard as computePeerTrajectory —
+        // AUS's own trend is just as capable of tripping it as a peer's,
+        // even though no gauge currently does (checked before shipping).
+        const ausValues = (data.countries.AUS?.series ?? []).map((p) => p.value);
+        const framing = resolveTrendFraming(ausValues, rawTrend.startValue, rawTrend.endValue);
+        const unitShort = config.unit.split(",")[0].split("(")[0].trim();
+        const magnitude =
+          framing.kind === "pct"
+            ? `${framing.totalPctChange > 0 ? "+" : ""}${framing.totalPctChange}%`
+            : `${framing.delta > 0 ? "+" : ""}${framing.delta} ${unitShort}`;
+        const direction =
+          peerMedianRaw !== null
+            ? Math.abs(ausRawValue - peerMedianRaw) > Math.abs(rawTrend.startValue - peerMedianRaw)
+              ? "⟶ widening"
+              : "⟶ narrowing"
+            : "";
+        return `Δ ${rawTrend.startYear}–${rawTrend.endYear}: ${magnitude} ${direction}`.trim();
+      })()
     : "n.a.";
 
   const leads = rankInfo?.rank === 1;
