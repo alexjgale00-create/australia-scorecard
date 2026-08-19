@@ -33,25 +33,23 @@ export const REGISTER_DRAFT_LINES: Record<string, string> = {
 };
 
 /**
- * Draft CAUSE copy — the six Tier 1 gauges identified in the authoring
+ * Draft CAUSE copy — five Tier 1 gauges, live. Identified in the authoring
  * inventory (see CLAUDE.md) as naming a real, specific driver in existing
  * repo content, rather than being purely definitional. Per the site
  * owner's rule: transcription with citation, not invention — every claim
  * below was checked live (WebSearch, this session) against a real source
  * before being written here, not carried over unverified from the
  * `why-this-matters` drafts (which are themselves marked "[DRAFT — edit
- * freely]" and were never held to a citation bar).
+ * freely]" and were never held to a citation bar — see the site owner's
+ * why-this-matters audit in CLAUDE.md for how unverified that content
+ * turned out to be).
  *
  * UNREVIEWED. Nothing here merges to main until the site owner has read
  * and, if needed, edited it — same rule as the plain-language lines.
  *
- * economic-complexity is flagged separately (see the site owner's report):
- * its citation is the Growth Lab's own interpretive commentary on the
- * index it computes, not an independent third party's finding — a
- * different kind of source than e.g. the RBA explaining debt-burden. This
- * is exactly the question Methods §3.2 needs to settle: does a data
- * provider's own gloss on its own index meet the evidence bar, or does
- * that read as too close to circular?
+ * A sixth candidate, economic-complexity, was drafted and then HELD OUT
+ * by explicit site owner ruling — see the commented-out entry below for
+ * why. Not deleted: restorable once §3.2 settles the question it raises.
  */
 export const REGISTER_DRAFT_CAUSES: Record<string, string> = {
   "innovation":
@@ -61,19 +59,26 @@ export const REGISTER_DRAFT_CAUSES: Record<string, string> = {
     "Australia's falling share of world GDP reflects faster growth elsewhere, not a shrinking Australian economy: the IMF's April 2026 World Economic Outlook projects China and India growing well above both the global average and the advanced-economy average through 2026. (IMF World Economic Outlook, April 2026 — this gauge's own source series)",
 
   "debt-burden":
-    "The RBA's Financial Stability Review attributes the long-run rise in Australian household debt principally to the mortgage market: the household debt-to-income ratio has risen from around 120% in the mid-2000s to around 140%, alongside rising house prices. (RBA Financial Stability Review, 2025–26 editions)",
+    "The RBA's Financial Stability Review attributes the long-run rise in Australian household debt principally to the mortgage market: the household debt-to-income ratio has risen from around 120% in the mid-2000s to around 140%, alongside rising house prices. (RBA Financial Stability Review, 2025–26 editions) This is the financing side of the same dynamic Housing pressure (Table 1.11) tracks from the price side — see that gauge for the supply-side driver.",
 
   "housing-pressure":
-    "Analysis cited by Treasury and the Productivity Commission attributes Australia's rising price-to-income ratio to an accumulated housing undersupply — estimated at over 200,000 dwellings — compounded by construction-sector labour productivity growing far slower than the rest of the economy (15% since 1994, against a 46% economy-wide average). A distinct driver from debt-burden's (which is about financing, not supply), even though the two gauges are cross-linked. (Treasury housing supply and affordability analysis; Productivity Commission housing supply inquiry, 2025–26)",
+    "Analysis cited by Treasury and the Productivity Commission attributes Australia's rising price-to-income ratio to an accumulated housing undersupply — estimated at over 200,000 dwellings — compounded by construction-sector labour productivity growing far slower than the rest of the economy (15% since 1994, against a 46% economy-wide average). (Treasury housing supply and affordability analysis; Productivity Commission housing supply inquiry, 2025–26) This is the supply side of the same dynamic Debt burden (Table 1.10) tracks from the financing side — a distinct driver, not a restatement of that gauge's.",
 
   // Cause-of-the-lead (S2) — demographic-momentum is AUS-leads, not a gap.
   "demographic-momentum":
     "Australia's comparatively high net overseas migration — around 73% of national population growth in the 2024–25 financial year — is the primary driver of its working-age population continuing to grow while several peers' shrink. (ABS, Overseas Migration, 2024–25 financial year)",
 
-  // FLAGGED — see the module comment above and the site owner's report:
-  // self-referential source (the index provider explaining its own index).
-  "economic-complexity":
-    "The Atlas of Economic Complexity's own analysis attributes Australia's low and worsening ranking (74th of 145 economies tracked, second-lowest in the OECD) directly to a lack of export diversification — iron ore, coal, and petroleum gas alone account for roughly two-thirds of net exports. (Harvard Growth Lab, The Atlas of Economic Complexity, country profile: Australia)",
+  // economic-complexity HELD OUT, not shipped — site owner's ruling: the
+  // Growth Lab explaining why its own Atlas ranks Australia low is the
+  // measurer commenting on its own measurement, not independent
+  // corroboration, and structurally the weakest kind of citation this site
+  // could normalise (most index-based gauges could manufacture a CAUSE the
+  // same way if a provider's self-gloss cleared the bar). Pending the
+  // §3.2 ruling on provider self-commentary specifically. If §3.2 later
+  // admits it, restore deliberately — do not silently re-enable.
+  //
+  // "economic-complexity":
+  //   "The Atlas of Economic Complexity's own analysis attributes Australia's low and worsening ranking (74th of 145 economies tracked, second-lowest in the OECD) directly to a lack of export diversification — iron ore, coal, and petroleum gas alone account for roughly two-thirds of net exports. (Harvard Growth Lab, The Atlas of Economic Complexity, country profile: Australia)",
 };
 
 /**

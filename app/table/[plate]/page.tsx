@@ -51,9 +51,11 @@ export default async function TablePage({ params }: { params: Promise<{ plate: s
         <div className="mx-auto max-w-[720px] px-4 bg-paper p-8 font-public-sans text-ink">
           <div className="font-martian-mono text-[13px] font-bold tracking-[.1em]">TABLE {plate}</div>
           <h1 className="font-bold text-[28px] leading-[1.1] tracking-[-.01em] mt-2 mb-3">{config.name}</h1>
-          <div className="font-martian-mono text-[11px] font-medium tracking-[.06em] uppercase text-stamp mb-4">
-            AWAITING DATA
-          </div>
+          {/* Same typographic status as NOT ESTABLISHED / n.a. / NOT SCORED
+              elsewhere in <Gauge> — text-[12px] font-medium text-stamp,
+              nothing added (no uppercase, no extra tracking) that would
+              make this read as a different, lesser tier of declaration. */}
+          <div className="font-martian-mono text-[12px] font-medium text-stamp mb-4">AWAITING DATA</div>
           <p className="text-[15px] leading-[1.5] text-ink-2">
             This gauge is configured but has no data yet.{" "}
             {config.accessType === "manual"
