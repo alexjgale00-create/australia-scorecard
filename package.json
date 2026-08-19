@@ -5,7 +5,7 @@
   "scripts": {
     "predev": "node scripts/sync-public-data.mjs",
     "dev": "next dev",
-    "prebuild": "node scripts/sync-public-data.mjs",
+    "prebuild": "node scripts/sync-public-data.mjs && node scripts/verify-gauge-invariants.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",

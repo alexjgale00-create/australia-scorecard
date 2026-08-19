@@ -194,6 +194,17 @@ export interface GaugeConfig {
     alternateBand?: string;
     /** Required when status is "outlier-dependent": which peer's position is doing the work. */
     dependsOnCountry?: CountryCode;
+    /**
+     * Required when status is "outlier-dependent": which way the currently
+     * displayed band is wrong relative to the alternate-bounds band. Only
+     * "overstates" ever renders a reader-facing qualifier — a gauge that
+     * understates when the same peer is excluded is logged here for Phase D
+     * but shown with no on-page qualifier, since the site declines to tell
+     * readers Australia might be doing better than shown. Getting this
+     * backwards would silence exactly the case this field exists to
+     * surface, so it's required rather than inferred.
+     */
+    direction?: "overstates" | "understates";
     /** Methods section anchor cited in the declared qualifier, e.g. "§3.3". */
     methodsRef?: string;
     /** Optional free-text record of why this status was set — e.g. trade's "robust" is structural (no USA data that year), not merely tested-and-stable, worth recording so a future reader doesn't wonder why it's marked explicitly. */

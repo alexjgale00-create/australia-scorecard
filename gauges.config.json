@@ -540,7 +540,8 @@
         "alternateBand": "strengthening",
         "dependsOnCountry": "USA",
         "methodsRef": "§3.3",
-        "note": "Read-only bounds-exclusion test, 2026: AUS shows Leading (80.9, 2024) with USA in the min-max bounds; Strengthening (69.6) with USA excluded from the bounds only. USA has the lowest life expectancy of the 9 peers, which currently inflates every other country’s apparent standing, including Australia’s. Score and band left exactly as computed — this is disclosure, not correction. See CLAUDE.md for the full quantification."
+        "note": "Read-only bounds-exclusion test, 2026: AUS shows Leading (80.9, 2024) with USA in the min-max bounds; Strengthening (69.6) with USA excluded from the bounds only. USA has the lowest life expectancy of the 9 peers, which currently inflates every other country’s apparent standing, including Australia’s. Score and band left exactly as computed — this is disclosure, not correction. See CLAUDE.md for the full quantification.",
+        "direction": "overstates"
       }
     },
     {
@@ -600,7 +601,8 @@
         "alternateBand": "strengthening",
         "dependsOnCountry": "USA",
         "methodsRef": "§3.3",
-        "note": "Read-only bounds-exclusion test, 2026: AUS shows Leading (88.7, 2023) with USA in the min-max bounds; Strengthening (64.3) with USA excluded from the bounds only. USA has by far the highest homicide rate of the 9 peers, which currently inflates every other country’s apparent standing, including Australia’s. Score and band left exactly as computed — this is disclosure, not correction. See CLAUDE.md for the full quantification."
+        "note": "Read-only bounds-exclusion test, 2026: AUS shows Leading (88.7, 2023) with USA in the min-max bounds; Strengthening (64.3) with USA excluded from the bounds only. USA has by far the highest homicide rate of the 9 peers, which currently inflates every other country’s apparent standing, including Australia’s. Score and band left exactly as computed — this is disclosure, not correction. See CLAUDE.md for the full quantification.",
+        "direction": "overstates"
       }
     },
     {

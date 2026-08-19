@@ -50,6 +50,18 @@ render an Australian value without peer context in the same visual frame. If a c
 you build can render a solo AUS number, it is wrong. This includes OG images, embeds,
 and any future API-driven widget.
 
+> **STRENGTHENED (implementation ruling, 2026).** R3 is a type-level and
+> build-level invariant, not a rendering convention. `lib/gauge-view.ts`'s
+> `Peer[]` is a non-empty tuple (`[Peer, ...Peer[]]`) — a scored gauge with
+> zero peers cannot typecheck. Separately, `assertMinimumPeerCoverage`
+> (called from `buildGaugeView`, and independently from
+> `scripts/verify-gauge-invariants.mjs` on every build) fails the build
+> outright if a scored gauge has fewer than 3 peers with a usable score
+> after `missingPeers` exclusion — below 3, rank/median/"position among
+> peers" are incoherent, not just thin. A gauge that can't clear that bar
+> gets an S4 (missing peer data) or S7 (unscored) treatment instead, never
+> a normal scored render with an empty or near-empty peer set.
+
 **R4 — Recency is visible.** Every gauge carries an as-of date, set in mono, treated as
 information not fine print. Stale and unavailable data are declared, never hidden.
 
