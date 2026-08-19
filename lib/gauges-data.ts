@@ -43,3 +43,30 @@ export function getGaugeData(id: string): GaugeData | null {
 export function getAllGaugeIds(): string[] {
   return gaugesConfig.gauges.map((g) => g.id);
 }
+
+/**
+ * Every real plate on the site — one gauge, one plate, always (see the
+ * housing-pressure fix in CLAUDE.md/DESIGN.md's R8 note). Powers
+ * /table/[plate]'s generateStaticParams; a gauge weighted or listed in two
+ * dimensions still contributes exactly one entry here, since `plates` only
+ * ever has one key.
+ */
+export function getAllPlates(): { plate: string; gaugeId: string; dimensionId: DimensionId }[] {
+  return gaugesConfig.gauges.flatMap((g) =>
+    (Object.entries(g.plates) as [DimensionId, string][]).map(([dimensionId, plate]) => ({
+      plate,
+      gaugeId: g.id,
+      dimensionId,
+    }))
+  );
+}
+
+/** Resolves a plate string (route param) back to its one gauge + dimension, or null if no gauge claims it. */
+export function resolvePlate(plate: string): { config: GaugeConfig; dimensionId: DimensionId } | null {
+  for (const g of gaugesConfig.gauges) {
+    for (const [dimensionId, p] of Object.entries(g.plates) as [DimensionId, string][]) {
+      if (p === plate) return { config: g, dimensionId };
+    }
+  }
+  return null;
+}
