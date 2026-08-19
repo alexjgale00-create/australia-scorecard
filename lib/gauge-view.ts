@@ -72,14 +72,25 @@ export const NOT_ESTABLISHED: Attribution = {
   body: "no attribution currently meets the evidence standard (Methods §3.2). Candidate explanations, where any exist, are logged in the source view; none is asserted here.",
 };
 
+/**
+ * Which framing the sidecar badge uses — a mechanical function of the
+ * gauge's `valueScale` (config, human-set), never a per-gauge display
+ * preference. "ratio" is legible for ratio-scale quantities with a
+ * meaningful zero (GDP share, spend, a rate like homicides per 100k, where
+ * "2.9× the next-closest peer" is how the quantity is normally read).
+ * "absolute-gap" is for interval-scale quantities (years of life
+ * expectancy, an index score) where a ratio can compute fine but reads as
+ * near-meaningless (0.98× says almost nothing next to a real 1.9-year gap).
+ */
+export type OutlierComparison =
+  | { comparison: "ratio"; multiple: number }
+  | { comparison: "absolute-gap"; gap: number; unit: string };
+
 export interface AxisOutlier {
   code: CountryCode;
   name: string;
   value: number;
-  /** Ratio to the next-closest non-outlier peer. Meaningful for ratio-scale quantities (shares, rates with a true zero); can read oddly close to 1.0 for interval-scale quantities like years of life expectancy — gapAbsolute is the primary, universally-meaningful framing for exactly that reason. */
-  multiple: number;
-  /** Signed difference from the next-closest non-outlier peer, in the gauge's own unit — always meaningful, unlike multiple. */
-  gapAbsolute: number;
+  comparison: OutlierComparison;
   /** Which end of the track the sidecar badge sits at — derived from real data + polarity, never config, never defaulted. See resolveAxisOutlier. */
   endsAt: "ahead" | "behind";
 }
@@ -204,7 +215,9 @@ export function assertMinimumPeerCoverage(gaugeId: string, peers: Peer[]): asser
 export function resolveAxisOutlier(
   peers: Peer[],
   outlierCountry: CountryCode,
-  polarity: Polarity
+  polarity: Polarity,
+  valueScale: "ratio" | "interval",
+  unit: string
 ): AxisOutlier | null {
   const outlier = peers.find((p) => p.code === outlierCountry);
   const rest = peers.filter((p) => p.code !== outlierCountry);
@@ -222,6 +235,13 @@ export function resolveAxisOutlier(
     // data than is live now), not something to silently paper over by
     // guessing an end. Loud failure, matching this project's existing
     // "fail rather than mislead" convention (see the truncation guard).
+    // This throws inside buildGaugeView, which every consuming page calls
+    // during its own render — under `output: "export"` there is no
+    // request-time render at all, only build-time static generation, so
+    // this failure can only ever surface as a failed `next build`, never
+    // a broken page served to a reader. Verified live, not just reasoned:
+    // see CLAUDE.md for the deliberate misconfiguration test that
+    // confirmed this exact throw fails the build.
     throw new Error(
       `axisTreatment.outlierCountry ${outlierCountry} is not actually the min or max among this gauge's ` +
         `peers (value ${outlier.value}, field runs ${restMin}–${restMax}) — axisTreatment config is stale ` +
@@ -233,12 +253,16 @@ export function resolveAxisOutlier(
   const highEndIs: "ahead" | "behind" = polarity === "higher_is_better" ? "ahead" : "behind";
   const lowEndIs: "ahead" | "behind" = polarity === "higher_is_better" ? "behind" : "ahead";
 
+  const comparison: OutlierComparison =
+    valueScale === "ratio"
+      ? { comparison: "ratio", multiple: nextClosest !== 0 ? Math.round((outlier.value / nextClosest) * 10) / 10 : NaN }
+      : { comparison: "absolute-gap", gap: Math.round((outlier.value - nextClosest) * 100) / 100, unit };
+
   return {
     code: outlier.code,
     name: outlier.name,
     value: outlier.value,
-    multiple: nextClosest !== 0 ? Math.round((outlier.value / nextClosest) * 10) / 10 : NaN,
-    gapAbsolute: Math.round((outlier.value - nextClosest) * 100) / 100,
+    comparison,
     endsAt: isHighExtreme ? highEndIs : lowEndIs,
   };
 }
@@ -424,7 +448,20 @@ export function buildGaugeView(args: BuildGaugeViewArgs): GaugeView {
 
   let axisOutlier: AxisOutlier | undefined;
   if (config.axisTreatment?.mode === "outlier-note" && config.axisTreatment.outlierCountry) {
-    axisOutlier = resolveAxisOutlier(peers, config.axisTreatment.outlierCountry, config.polarity) ?? undefined;
+    if (!config.valueScale) {
+      throw new Error(
+        `${config.id}: axisTreatment.mode is "outlier-note" but valueScale is unset — required so the ` +
+          `sidecar badge knows whether a ratio or an absolute gap is the legible framing for this quantity.`
+      );
+    }
+    axisOutlier =
+      resolveAxisOutlier(
+        peers,
+        config.axisTreatment.outlierCountry,
+        config.polarity,
+        config.valueScale,
+        config.unit.split(",")[0].split("(")[0].trim()
+      ) ?? undefined;
   }
 
   let bandRobustness: ScoredGauge["bandRobustness"];

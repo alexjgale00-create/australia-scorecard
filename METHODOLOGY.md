@@ -1053,3 +1053,18 @@ automated route is the current baseline, entered as this gauge's live
 data rather than discarded — only 2020 onward needs manual entry going
 forward. See `data/manual/README.md`'s "Work-life balance" section for
 the download instructions.
+
+**Peer coverage flagged as a Phase D question, 2026 (REGISTER build).**
+This gauge currently has usable data for only 3 of the 8 peers (NZL, USA,
+JPN) at its latest shared year (2019) — the site's new R3 peer-coverage
+floor (`MIN_PEERS_FOR_SCORING` in `lib/gauge-view.ts`,
+`scripts/verify-gauge-invariants.mjs`) requires at least 3, so this gauge
+currently passes, but sits exactly on the floor rather than comfortably
+above it. `verify-gauge-invariants.mjs` now warns (not fails) on any
+gauge at exactly the floor specifically so this doesn't need rediscovering
+the next time the build log is read. This is a coverage question, not a
+rendering one — the manual lane's real constraint is how many peers have
+published comparable OECD hours data for this dataflow at all, not
+anything about how the gauge displays. Logged here for the Phase D
+checkpoint alongside band-threshold recalibration (§3.1) and the min-max
+normalisation finding (§3.3), not acted on now.

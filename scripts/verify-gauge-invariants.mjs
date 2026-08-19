@@ -31,6 +31,7 @@ function latestSharedYear(data) {
 }
 
 const failures = [];
+const warnings = [];
 
 for (const g of config.gauges) {
   const isScored = Object.keys(g.weights).length > 0;
@@ -60,12 +61,24 @@ for (const g of config.gauges) {
       `  - ${g.id}: only ${peerCount} peer(s) with a usable score — needs ${MIN_PEERS}. ` +
         `Move it to an S4 (missing peer data) or S7 (unscored) treatment, don't render it as a normal scored gauge.`
     );
+  } else if (peerCount === MIN_PEERS) {
+    // Sitting exactly on the floor is not a failure, but it's one bad data
+    // refresh away from becoming one — visible here so it's noticed before
+    // it becomes a build failure, not after. See CLAUDE.md / METHODOLOGY.md
+    // (Phase D) for work-life-balance specifically: this is a genuine
+    // coverage question for that review, not something this script or a
+    // rendering change can fix.
+    warnings.push(`  - ${g.id}: exactly ${peerCount} peers — right on the floor, not below it (yet).`);
   }
 }
 
 if (failures.length > 0) {
   console.error("✖ verify-gauge-invariants: R3 peer-coverage floor violated\n" + failures.join("\n"));
   process.exit(1);
+}
+
+if (warnings.length > 0) {
+  console.warn("⚠ verify-gauge-invariants: peer coverage sitting exactly on the floor\n" + warnings.join("\n"));
 }
 
 console.log(`✓ verify-gauge-invariants: all scored gauges have ≥${MIN_PEERS} peers with a usable score`);

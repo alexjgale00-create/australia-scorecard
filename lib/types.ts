@@ -166,14 +166,25 @@ export interface GaugeConfig {
     /**
      * Required when mode is "outlier-note": the peer excluded from the
      * strip's spatial scale and declared instead in a fixed-width sidecar
-     * badge (true value + multiple over the next-highest peer). Never
-     * assume this is USA in component code — on some gauges it may not be.
-     * The badge's position (BEHIND end vs AHEAD end of the track) follows
-     * which end this country's value actually falls on for this gauge's
-     * polarity, never defaults to one side.
+     * badge. Never assume this is USA in component code — on some gauges
+     * it may not be. The badge's position (BEHIND end vs AHEAD end of the
+     * track) follows which end this country's value actually falls on for
+     * this gauge's polarity, never defaults to one side.
      */
     outlierCountry?: CountryCode;
   };
+  /**
+   * Required when axisTreatment.mode is "outlier-note" — nothing else in
+   * this config or the data distinguishes a ratio-scale quantity (a
+   * meaningful zero, where "2.9× the next-closest peer" is legible — GDP,
+   * spend, wealth, a rate like homicides per 100k) from an interval-scale
+   * one (years of life expectancy, an index score) where a ratio can read
+   * as meaningless even though it's technically computable (0.98× reads as
+   * almost nothing, even when the underlying 1.9-year gap is real and
+   * large). Human-set, never inferred — see CLAUDE.md for the
+   * life-expectancy/personal-safety reasoning behind each current value.
+   */
+  valueScale?: "ratio" | "interval";
   /**
    * Declares when this gauge's band assignment for Australia is NOT robust
    * to a specific peer's position dominating the min-max bounds — a

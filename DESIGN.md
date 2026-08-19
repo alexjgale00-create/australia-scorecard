@@ -282,6 +282,15 @@ Rank 1 makes "PRECEDENT" incoherent — there is no one ahead to learn from. Sol
 - **PRECEDENT re-titles to CHALLENGER**, with an inline rubric in the label row:
   `CHALLENGER — replaces PRECEDENT when AUS leads (§3.4)`. Body names the nearest peer,
   its trajectory, and the rate at which it is closing.
+
+  > **CORRECTED (implementation ruling, 2026).** `§3.4` never existed — another
+  > dangling mockup citation, same class of problem as the original `§3.1`/`§3.2`
+  > (see "Required states" above). Rather than author a fourth methodology
+  > section for a purely mechanical rule, the shipped rubric explains the
+  > mechanic in plain English in place: *"replaces PRECEDENT when Australia
+  > leads: there is no peer ahead to draw precedent from."* No `§3.4` reference.
+  > **Do not re-add one** — if a future pass wants a numbered citation here,
+  > that's a fresh decision, not a restoration of this line.
 - CAUSE becomes cause-of-the-lead. SCALE becomes margin-held, in human units.
 - Summary row gains `margin over 2nd: +59`.
 - Geometry is otherwise identical, so a leading gauge is visibly the same instrument.

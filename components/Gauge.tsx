@@ -230,17 +230,25 @@ function PeerMark({ peer, index }: { peer: Peer; index: number }) {
 }
 
 function OutlierBadge({ outlier }: { outlier: NonNullable<Extract<GaugeView, { scored: true }>["axisOutlier"]> }) {
+  const secondary =
+    outlier.comparison.comparison === "ratio"
+      ? `${outlier.comparison.multiple}× the next-closest peer`
+      : `${outlier.comparison.gap > 0 ? "+" : ""}${outlier.comparison.gap} ${outlier.comparison.unit} vs next-closest peer`;
+
   return (
     <div
       className="shrink-0 flex flex-col justify-center font-martian-mono text-[8.5px] sm:text-[10.5px] leading-tight text-ink"
-      title={`${outlier.name} is off this scale: ${outlier.value}, ${outlier.multiple}× the next-closest peer (gap ${outlier.gapAbsolute > 0 ? "+" : ""}${outlier.gapAbsolute}). Shown as a note, not a position, to keep the scale readable for the rest of the field.`}
+      title={`${outlier.name} is off this scale: ${outlier.value}, ${secondary}. Shown as a note, not a position, to keep the scale readable for the rest of the field.`}
     >
       <span className="tabular-nums">
         {outlier.code} ⟶ {fmtValue(outlier.value)}
       </span>
       <span className="text-ink-2 tabular-nums">
-        ({outlier.gapAbsolute > 0 ? "+" : ""}
-        {outlier.gapAbsolute} · {outlier.multiple}×)
+        (
+        {outlier.comparison.comparison === "ratio"
+          ? `${outlier.comparison.multiple}×`
+          : `${outlier.comparison.gap > 0 ? "+" : ""}${outlier.comparison.gap}`}
+        )
       </span>
     </div>
   );
