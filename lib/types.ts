@@ -133,6 +133,65 @@ export interface GaugeConfig {
     tier: "live" | "provisional";
     reason: string;
   };
+  /**
+   * REGISTER's citable table numbers (R8 — "Table 1.4 is the citable
+   * identifier and /table/1.4 resolves to it"). Explicit, stored, per
+   * dimension — never derived from array position or recomputed, because a
+   * citation that shifts when a gauge is reordered or added is worse than
+   * none. A gauge reused across dimensions (see `weights`) gets one plate
+   * per dimension it's weighted or listed in, e.g. housing-pressure is both
+   * `{ power: "1.11", "quality-of-life": "2.1" }`. Once assigned, a plate is
+   * permanent: if a gauge is retired, its number retires with it and is
+   * never reissued to a different gauge.
+   */
+  plates: Partial<Record<DimensionId, string>>;
+  /**
+   * How this gauge's band strip positions peers spatially. Defaults to
+   * "linear" (the ordinary case) when omitted. Human-set only, never
+   * auto-detected from the data — same convention as staleAfterMonths —
+   * and applied sparingly: a declared exception only reads as one if most
+   * gauges don't need it. See DESIGN.md's axis-treatment ruling for why a
+   * scrollable or silently-rescaled axis was rejected, and CLAUDE.md's
+   * min-max normalisation finding for which gauges currently qualify.
+   */
+  axisTreatment?: {
+    mode: "linear" | "outlier-note";
+    /**
+     * Required when mode is "outlier-note": the peer excluded from the
+     * strip's spatial scale and declared instead in a fixed-width sidecar
+     * badge (true value + multiple over the next-highest peer). Never
+     * assume this is USA in component code — on some gauges it may not be.
+     * The badge's position (BEHIND end vs AHEAD end of the track) follows
+     * which end this country's value actually falls on for this gauge's
+     * polarity, never defaults to one side.
+     */
+    outlierCountry?: CountryCode;
+  };
+  /**
+   * Declares when this gauge's band assignment for Australia is NOT robust
+   * to a specific peer's position dominating the min-max bounds — a
+   * one-line, read-only sensitivity check (exclude one country from the
+   * bounds only; the shipped score, band, and composite never change).
+   * Defaults to robust when omitted. Set to "outlier-dependent" only where
+   * that test showed the band moving AND the currently-displayed band
+   * overstates Australia's position — a band that understates is judged
+   * survivable and left as the default; see CLAUDE.md for the full
+   * finding and ruling. This is disclosure, not correction: nothing here
+   * changes what computeLevelScore/bandForScore produce, it only decides
+   * whether a declared qualifier renders next to the band. See
+   * Methods §3.3 for what the sensitivity check means and how it's run.
+   */
+  bandRobustness?: {
+    status: "robust" | "outlier-dependent";
+    /** Required when status is "outlier-dependent": the band this gauge would show with `dependsOnCountry` excluded from the bounds, computed once by hand, never live-recomputed. */
+    alternateBand?: string;
+    /** Required when status is "outlier-dependent": which peer's position is doing the work. */
+    dependsOnCountry?: CountryCode;
+    /** Methods section anchor cited in the declared qualifier, e.g. "§3.3". */
+    methodsRef?: string;
+    /** Optional free-text record of why this status was set — e.g. trade's "robust" is structural (no USA data that year), not merely tested-and-stable, worth recording so a future reader doesn't wonder why it's marked explicitly. */
+    note?: string;
+  };
   source: {
     institution: string;
     seriesId: string;
@@ -148,7 +207,26 @@ export interface ScoreBand {
   label: string;
   min: number;
   max: number;
+  /**
+   * @deprecated Under the REGISTER design system (2026), no colour may ever
+   * encode a band, value, or rank (R1 — see DESIGN.md). This field is kept,
+   * unremoved, only because the pre-REGISTER components (GaugeCard, DotStrip,
+   * RankChart, TimeSeriesChart) still read it and are not yet retired — see
+   * DESIGN.md's implementation addendum on staged rollout. No REGISTER
+   * component (`components/Gauge.tsx` and anything built alongside it) may
+   * import or render this field. Remove it, and this comment, only once
+   * every pre-REGISTER component that reads it has actually been retired —
+   * not before.
+   */
   color: string;
+  /**
+   * The severity tick glyph for this band (e.g. "∙∙∙∙∙"), tertiary channel
+   * only per R2 — position and the glyph itself carry the meaning, weight
+   * and rule thickness never do alone. Human-set per band, most ticks on
+   * the worst band, fewest on the best — see DESIGN.md "R2 — Severity
+   * channel order."
+   */
+  ticks: string;
 }
 
 export interface GaugesConfigFile {

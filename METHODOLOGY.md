@@ -225,6 +225,103 @@ all 9 peers at Australia's `latestSharedYear` per gauge (this is what
 today's 9-country spread against both the current and proposed bands, and
 median/max absolute decade-over-decade change.
 
+## 3. Presentation apparatus disclosures (REGISTER)
+
+Added during the REGISTER design implementation (2026). The REGISTER gauge
+apparatus cites specific "Methods §3.x" anchors inline — in the band-strip
+disclaimer, in the `NOT ESTABLISHED` state, and in the new band-robustness
+qualifier below. The design handoff (`DESIGN.md`) that specified this
+apparatus used those same citation numbers in its reference HTML, but they
+were fictional — the handoff tool had no access to this file and could not
+have known whether `§3.1`/`§3.2` existed. They didn't. This section is
+where they now live for real, numbered to match what the shipped apparatus
+actually cites.
+
+### §3.1 — Band thresholds under review
+
+Pointer, not new content: this is the "Phase D, Item 1" section immediately
+above. Band thresholds (0–24 / 25–44 / 45–59 / 60–79 / 80–100) are
+placeholders, not yet calibrated against the complete 16-gauge composite,
+and the site does not launch until that's resolved — see above for the
+full ruling, the recorded signal from the 11-gauge pass, and the exact
+reproduction method for the re-run.
+
+### §3.2 — Evidence standard for a causal attribution
+
+**Not yet written — flagged, not drafted.** The `NOT ESTABLISHED` state
+(and its counterpart, an established `CAUSE`/`PRECEDENT`) needs a real,
+site-owner-set standard for what "meets the evidence standard" means: how
+direct a citation has to be, whether a single source is enough, how a
+correlational finding is distinguished from an attributed one. This is
+causal, editorial, liability-bearing content in exactly the sense
+DESIGN.md's own "Content & liability" section warns about — deliberately
+not drafted here the way §3.3 below was, since drafting an evidence
+standard is a different kind of decision than drafting an arithmetic
+plain-language sentence. Needs the site owner's own text before the
+`NOT ESTABLISHED` state's citation resolves to something real rather than
+a pointer to an empty section.
+
+### §3.3 — Band robustness: the bounds-exclusion sensitivity test
+
+> **DRAFT — UNREVIEWED.** Written during the REGISTER implementation pass
+> to give the new `bandRobustness` qualifier (see `GaugeConfig` in
+> `lib/types.ts`) a real citation target before launch. Arithmetic and
+> methodology description only, no causal or evaluative claims — same
+> drafting rule as the plain-language lines. Stays on the implementation
+> branch until edited.
+
+Every gauge's level score comes from min-max normalisation across the
+9-country peer set (`computeLevelScore`, `lib/scoring.ts`): Australia's
+position is `(value − min) / (max − min)` of whatever the 9 countries
+report that year, flipped for `lower_is_better` polarity. This means a
+single country sitting far outside the other 8 can compress everyone
+else's score into a narrow sub-range — the country at the extreme isn't
+just "also compared," it's setting the ruler the other 8 are measured
+against.
+
+**The test.** For a given gauge and year, recompute Australia's score and
+band with one named peer excluded from the min/max calculation only —
+every other country, including the excluded peer itself, is still scored
+and shown; nothing about the shipped page changes. This is a read-only
+diagnostic, run by hand, not a live recalculation: it does not touch
+`lib/scoring.ts`, does not change any score, band, or composite anyone
+sees, and does not run automatically on a future data refresh. A gauge is
+marked `bandRobustness: { status: "outlier-dependent" }` only when a human
+has run this test, seen the band move, and judged the *currently displayed*
+band to overstate Australia's position as a result — a band that
+understates when the same peer is excluded is treated as a survivable,
+ordinary property of the placeholder thresholds above (§3.1), not flagged
+here.
+
+**What "outlier-dependent" does and doesn't mean.** It means: the band
+shown for this gauge is not robust to how the scale's bounds are drawn —
+specifically, it depends on one named peer sitting at the extreme end of
+the field. It does not mean the score is wrong, fabricated, or under
+dispute — the score and band are exactly what the site's stated method
+(`computeLevelScore`/`bandForScore`) produces, computed the same way as
+every other gauge. This is disclosure of a property of the method, not a
+correction of the result.
+
+**Currently flagged, and why.** Two gauges, both discovered via this test
+during the REGISTER build (2026): `life-expectancy` and `personal-safety`
+each currently show Australia as **Leading**, and each drops to
+**Strengthening** the moment the USA — the lowest life expectancy and by
+far the highest homicide rate of the 9 peers on their respective gauges —
+is excluded from the bounds. Every other gauge that showed any band
+movement under this test moved in the *other* direction (Australia's band
+understated, not overstated) and is left at the default `"robust"` status
+per the rule above. `trade` is marked `"robust"` explicitly rather than
+left at the unset default, since the USA has no data for that gauge's
+latest shared year — its robustness is structural, not merely
+tested-and-found-stable like the rest.
+
+**Scope.** This section describes a presentation-layer disclosure only.
+The underlying question — whether min-max normalisation should be replaced
+with something robust to outliers (median/IQR-based, or rank-based) — is a
+scoring-methodology change with knock-on effects on every historical score
+and every band on the site, logged for the Phase D checkpoint alongside
+band-threshold recalibration (§3.1), not decided or implemented here.
+
 ## Data maturity tiers
 
 Separate from the score bands above (which grade Australia's *performance*

@@ -24,6 +24,35 @@
 
   --background: var(--page-plane);
   --foreground: var(--text-primary);
+
+  /* REGISTER (2026 design pass) — see DESIGN.md "Design Tokens." A fixed,
+     single palette by design (no dark variant — see the "Dark mode dropped"
+     note below), so these are declared once, unconditionally, and NEVER
+     redefined inside the prefers-color-scheme: dark block above or below.
+     No other colour may be added to this list (R1). */
+  --register-paper: #f8f8f7;
+  --register-desk: #ecedeb;
+  --register-ink: #202224;
+  --register-ink-2: #55585b;
+  --register-ink-3: #7c7f82;
+  --register-chrome: #b9bcbf;
+  --register-grid: #dcdddb;
+  --register-stamp: #8a5a44;
+}
+
+/*
+ * Dark mode dropped, deliberately, for REGISTER surfaces only (2026
+ * ruling — see DESIGN.md). REGISTER is a paper-and-ink conceit with no
+ * dark palette specified; --register-* above is intentionally absent from
+ * the prefers-color-scheme: dark block, so it never changes regardless of
+ * system theme. This scoping class forces native form-control chrome
+ * (scrollbars, checkboxes, etc.) to light too, without touching the rest
+ * of the site — old components elsewhere keep their existing dark-mode
+ * support (see the media query above) untouched. Applied at the root of
+ * any REGISTER route (/table/[plate], /section/[n]) once those exist.
+ */
+.register {
+  color-scheme: light;
 }
 
 @theme inline {
@@ -43,6 +72,26 @@
   --color-status-critical: var(--status-critical);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  /* REGISTER (2026 design pass) — see DESIGN.md. A separate, additive token
+     set: old components above keep reading their own tokens unchanged. Two
+     inks, paper, structure, one stamp — R1 governs every use, no other
+     colour may be added to this list. */
+  --color-paper: var(--register-paper);
+  --color-desk: var(--register-desk);
+  --color-ink: var(--register-ink);
+  --color-ink-2: var(--register-ink-2);
+  --color-ink-3: var(--register-ink-3);
+  --color-chrome: var(--register-chrome);
+  --color-grid: var(--register-grid);
+  --color-stamp: var(--register-stamp);
+
+  /* Public Sans (display/body) and Martian Mono (data/apparatus) — see
+     DESIGN.md "Typography." Named for the actual typeface, deliberately
+     not --font-sans/--font-mono, so nothing here can silently repaint an
+     old component that still reads those. */
+  --font-public-sans: var(--register-font-public-sans);
+  --font-martian-mono: var(--register-font-martian-mono);
 }
 
 @media (prefers-color-scheme: dark) {
