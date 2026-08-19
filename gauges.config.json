@@ -383,8 +383,7 @@
         "quality-of-life": 0.142857
       },
       "plates": {
-        "power": "1.11",
-        "quality-of-life": "2.1"
+        "power": "1.11"
       }
     },
     {
@@ -530,7 +529,7 @@
         "quality-of-life": 0.142857
       },
       "plates": {
-        "quality-of-life": "2.2"
+        "quality-of-life": "2.1"
       },
       "axisTreatment": {
         "mode": "outlier-note",
@@ -566,7 +565,7 @@
         "quality-of-life": 0.142857
       },
       "plates": {
-        "quality-of-life": "2.3"
+        "quality-of-life": "2.2"
       }
     },
     {
@@ -590,7 +589,7 @@
         "quality-of-life": 0.142857
       },
       "plates": {
-        "quality-of-life": "2.4"
+        "quality-of-life": "2.3"
       },
       "axisTreatment": {
         "mode": "outlier-note",
@@ -626,7 +625,7 @@
         "quality-of-life": 0.142857
       },
       "plates": {
-        "quality-of-life": "2.5"
+        "quality-of-life": "2.4"
       }
     },
     {
@@ -650,7 +649,7 @@
         "quality-of-life": 0.142857
       },
       "plates": {
-        "quality-of-life": "2.6"
+        "quality-of-life": "2.5"
       }
     },
     {
@@ -674,7 +673,7 @@
         "quality-of-life": 0.142857
       },
       "plates": {
-        "quality-of-life": "2.7"
+        "quality-of-life": "2.6"
       }
     },
     {
@@ -703,7 +702,7 @@
       "oneLiner": "How accepting the surveyed population is of migrants living in the country, as neighbours, and marrying into the family.",
       "weights": {},
       "plates": {
-        "quality-of-life": "2.8"
+        "quality-of-life": "2.7"
       }
     }
   ]

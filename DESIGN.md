@@ -68,6 +68,18 @@ fastest way this reads as amateur.
 `/table/4.2` resolves to it. Plate numbers appear in the gauge header and in the
 copyable citation block.
 
+> **ADDED (implementation ruling, 2026).** One gauge, one plate — always, no
+> exceptions. A gauge reused across dimensions (housing-pressure is the only
+> current case, scored in both Power and Quality of Life) still gets exactly
+> one citable number, its primary dimension's. The other dimension's
+> overview page shows it as a **cross-reference row** — name, a note that
+> it's scored in the primary dimension, a link to the one real plate — never
+> a second `Table X.Y`. Two URLs resolving to identical content breaks R8's
+> own "resolves to it" promise and is a duplicate-content problem the moment
+> this is public. Caught and fixed before anything external could have
+> cited the duplicate — plate numbers are permanent once assigned, so this
+> had to happen now.
+
 ---
 
 ## Peer set

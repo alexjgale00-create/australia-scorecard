@@ -135,14 +135,21 @@ export interface GaugeConfig {
   };
   /**
    * REGISTER's citable table numbers (R8 — "Table 1.4 is the citable
-   * identifier and /table/1.4 resolves to it"). Explicit, stored, per
-   * dimension — never derived from array position or recomputed, because a
-   * citation that shifts when a gauge is reordered or added is worse than
-   * none. A gauge reused across dimensions (see `weights`) gets one plate
-   * per dimension it's weighted or listed in, e.g. housing-pressure is both
-   * `{ power: "1.11", "quality-of-life": "2.1" }`. Once assigned, a plate is
-   * permanent: if a gauge is retired, its number retires with it and is
-   * never reissued to a different gauge.
+   * identifier and /table/1.4 resolves to it"). Explicit, stored, never
+   * derived from array position or recomputed, because a citation that
+   * shifts when a gauge is reordered or added is worse than none.
+   *
+   * EXACTLY ONE ENTRY, always — one gauge, one plate, no exceptions. A
+   * gauge reused across dimensions (see `weights`) still gets only one:
+   * its primary dimension's. A dimension key present in `weights` but
+   * absent here means that dimension's overview page renders this gauge as
+   * a cross-reference row (name + "scored in [primary dimension]" + a link
+   * to its real plate), never a second citable number — two routes serving
+   * identical content is both an R8 violation and a duplicate-content
+   * problem. housing-pressure is the only current case: `{ power: "1.11" }`
+   * only, even though it's also weighted in quality-of-life. Once assigned,
+   * a plate is permanent: if a gauge is retired, its number retires with it
+   * and is never reissued.
    */
   plates: Partial<Record<DimensionId, string>>;
   /**
