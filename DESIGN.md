@@ -74,6 +74,18 @@ copyable citation block.
 `AUS` plus eight: `CAN NZL GBR IRL NLD SWE DNK KOR`.
 USA is deliberately excluded (distorts per-capita axes). Peer set is config, not hard-coded.
 
+> **SUPERSEDED (implementation ruling, 2026).** This design tool had read-only
+> repo access and could not run the pipeline — the peer set above is a mockup
+> invention with no data behind it (IRL/SWE/DNK have no series in this
+> project at all). The live peer set, which governs implementation, is
+> `AUS` + `CAN GBR NZL KOR NLD USA DEU JPN` — nine countries, **including**
+> USA. Every figure in `Register.dc.html` is likewise fabricated; treat the
+> reference HTML as layout indication only, never as content or as evidence
+> for which countries belong in the set. This file's peer set is left
+> unedited above so the discrepancy stays visible rather than silently
+> smoothed over — do not "fix" line 74 to match reality, the mismatch is the
+> record.
+
 ---
 
 ## Design Tokens
@@ -216,6 +228,25 @@ The dense layer is the same page and same component — never a separate "advanc
 
 ## Required states — build all of them
 
+> **CORRECTED (implementation ruling, 2026).** Two changes to what's below:
+> 1. There is a seventh state, **S7 — Unscored**, added after S6. It was
+>    missing from this handoff entirely — the tool had no visibility into
+>    `unscoredDimensions` (see lib/types.ts), a real, shipped mechanism for
+>    a gauge that shows real data but is deliberately excluded from every
+>    composite.
+> 2. "Geometry is otherwise identical" below (S2) describes S1–S6 only.
+>    **S7 does not share the band strip, rank, or delta row** — an unscored
+>    gauge has no level score, so drawing a band strip for it would
+>    fabricate a position. S7 shares the header/plate/as-of/apparatus/CITE
+>    AS chrome with every other state; where the band strip would sit, it
+>    renders a declared statement of why there is no score instead. See S7
+>    below.
+>
+> Also: every `Table X.Y` reference below (4.2, 7.6, 6.2, 4.9) is a mockup
+> plate number with no corresponding real gauge — see the peer-set note
+> above. The real plate assigned to each state's actual gauge is recorded
+> in `gauges.config.json`, not here.
+
 ### S1 — Standard (gap to diagnose)
 CAUSE / PRECEDENT / SCALE all established. Reference: Table 4.2, R&D expenditure.
 
@@ -266,6 +297,23 @@ Overview table as-of cell also goes `--stamp`. Staleness never alters band, rank
 Where low = ahead (public debt, export HHI, mobility β), append a mono qualifier to the
 gauge name in the overview — `(AXIS INVERTED: LOW = AHEAD)` / `(LOW = AHEAD)` — and put
 `LOW = AHEAD` in the unit declaration on the gauge page. Never flip the strip silently.
+
+### S7 — Unscored (added; not in the original handoff)
+A gauge with real data that is deliberately excluded from every composite — see
+`unscoredDimensions`/`unscoredReason` in lib/types.ts. No level score exists, so nothing
+about it may be plotted as a position:
+- Header, plate, as-of, apparatus (CAUSE/PRECEDENT/SCALE — still real content, this isn't
+  a data-absence state), and CITE AS all render normally, same chrome as every other state.
+- Where the band strip would sit: no strip. Instead, a declared statement in Martian Mono,
+  `--stamp`, the same typographic status as `n.a.` and `NOT ESTABLISHED`, naming why this
+  gauge isn't scored (from `unscoredReason`) — never an empty region, never a skeleton,
+  never a dimmed placeholder.
+- Rank, band, and delta are absent, not blanked — no "—" standing in for a number that was
+  never computed.
+- The dense layer still shows the real time series (every country's published values), just
+  never framed as a peer-relative comparison.
+Reference: cohesion-majority-acceptance (real gauge, see gauges.config.json) — no mockup
+reference exists for this state.
 
 ---
 
