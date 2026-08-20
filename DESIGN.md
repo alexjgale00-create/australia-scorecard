@@ -445,6 +445,72 @@ The mobile view must read as *the same site*, not a reduced one:
 - Nothing is removed that carries the argument: plate number, as-of, peer context,
   all three apparatus lines and the citation all survive.
 
+> **KNOWN DENSITY LIMIT (implementation finding, 2026).** Two-baseline staggering
+> assumes peers are placed by score-sorted order (implemented — see
+> `components/Gauge.tsx`), which resolves collisions between *adjacent* peers.
+> It does not fully resolve every collision when a gauge's peer field is
+> unusually dense — e.g. `personal-safety` at 380px, where 5 of its 6 peers sit
+> within a tight raw-value cluster: one label collision remains after staggering.
+> Confirmed via real rendering (Playwright, real bounding-box overlap
+> detection), not assumed. **Not fixed by adding a third baseline** — that would
+> depart from this section's explicit two-baseline spec for every gauge to fix
+> one dense edge case. Accepted as a known limit: triggers specifically when 3+
+> peers on a gauge fall within a score range narrow enough that two alternating
+> baselines can't separate all of them. Revisit only if this becomes common
+> across more gauges, not for one case.
+
+---
+
+## Responsive — 380px for `/section/[n]` (the dimension overview)
+
+The gauge-page mobile spec above does not cover this surface — building one
+without a real decision was the gap that stopped implementation (2026). Ruling:
+
+**The overview's job on mobile is not the desktop table shrunk.** It is: where
+does Australia sit, and which gauges are furthest behind. Everything else can
+wait for the gauge page, one tap away via the plate link.
+
+Below 640px:
+
+1. **Rank strip** — kept, restructured. Nine columns of rank/ISO/score cannot
+   work at 380px. Renders as a single horizontal band with **rank number and
+   ISO code only** — composite score dropped. AUS keeps its `--desk` cell
+   background and bold weight. If nine still crowds at real rendered width,
+   show **AUS plus the three ranked above it and the three ranked below it**,
+   with a declared note stating the omission and the full country count —
+   never silently truncate, the same rule S4 already applies to missing peer
+   data.
+2. **Weighting equation** — kept, stacked: the formula may wrap to two lines
+   on mobile only. Steppers stay full size and become **44px minimum tappable
+   target** (up from the desktop 24px) — a mobile touch-target minimum, not a
+   visual scale change.
+3. **Dagger footnote** — kept, unchanged, never dismissible. It's the
+   screenshot-safety device, and mobile is exactly where screenshots happen.
+4. **Gauge table** — this is what actually changes. Nine columns become a
+   stacked list, one gauge per row:
+   - Line 1: plate number (mono, links to `/table/[plate]`) + gauge name.
+   - Line 2: BAND word + ticks, and rank.
+   - Line 3: the mini position strip, full row width.
+   - Line 4: as-of, in `--stamp` if stale.
+   Dropped from mobile: UNIT, AUS raw value, Δ5YR — all three are one tap away
+   on the gauge page. Kept: the `‡` marker where `bandRobustness` is
+   `"overstates"`, and the cross-reference row (e.g. housing-pressure) exactly
+   as it reads on desktop, just restacked into the same row shape.
+5. **Footer** (legend + source list) — kept, collapsed behind a closed
+   disclosure bar matching the dense-layer toggle's own pattern (`⊞`/`⊟`,
+   instant, no animation).
+
+**Rules that do not bend:**
+- No horizontal scroll at any width — document-level overflow must measure
+  zero, verified by real rendering, not assumed from the classes.
+- Sort order and dagger flags recompute identically to desktop — the
+  reweighting must work on mobile, since a shareable `?w=` link is the entire
+  point of putting the weight in the URL.
+- R3 holds without exception: every gauge row still shows peer context via its
+  position strip, even in the stacked mobile layout.
+- Nothing that carries the argument is dropped: plate, band, rank, peer
+  position, as-of, and both dagger conventions (`†` and `‡`) all survive.
+
 ---
 
 ## State Management
