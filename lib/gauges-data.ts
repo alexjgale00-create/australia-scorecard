@@ -70,3 +70,8 @@ export function resolvePlate(plate: string): { config: GaugeConfig; dimensionId:
   }
   return null;
 }
+
+/** Every gauge with its data (null if not yet fetched) — the shape computeCompositeForAllCountries and friends expect. */
+export function getAllGaugesWithData(): { config: GaugeConfig; data: GaugeData | null }[] {
+  return gaugesConfig.gauges.map((config) => ({ config, data: getGaugeData(config.id) }));
+}
