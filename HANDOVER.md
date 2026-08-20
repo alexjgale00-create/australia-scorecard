@@ -259,8 +259,12 @@ build failure:**
 **Safe to merge as infrastructure:** the token/font system, `<Gauge>` and
 all seven state branches (structurally verified even where content is
 unexercised — see §4), `/table/[plate]`, `/section/[n]`, the 380px
-responsive treatment for both, the R3 guard, the `writtenAgainst` guard, and
-the peer-coverage floor. All of it is real, build-verified, and in several
+responsive treatment for both, the R3 guard, the `writtenAgainst` guard, the
+peer-coverage floor, and — added 2026-08-20 during the intern-data-collection
+pre-flight — `provenance.sourcePulledAt` (additive field, `lib/types.ts`/
+`lib/maturity.ts`, lets manual-gauge staleness count from the real
+source-pull date instead of ingestion time, falls back to `retrievedAt` for
+every existing gauge). All of it is real, build-verified, and in several
 cases proven via actual browser rendering rather than assumed from the
 classes. I'd stand behind this code today.
 
@@ -284,10 +288,25 @@ classes. I'd stand behind this code today.
    was deliberate (staged rollout, cheap revert) during the build — but
    "merge to main" implies production, and production needs one answer to
    "which page does a reader actually land on," not two live in parallel.
+4. **`productivity` is still `SAMPLE_DATA` (Phase A placeholder, not real)
+   and is silently baked into the live Power composite as though it were
+   real.** Found during the intern-data-collection pre-flight (2026-08-20):
+   `computeCompositeForAllCountries` and every caller of it include any
+   gauge with a data file regardless of `provenance.status` — there is no
+   status check anywhere in that path. So today's headline Power number
+   (40.1, Slipping) is partly synthetic right now, independent of anything
+   the intern's four manual datasets will change. This is a launch blocker
+   in its own right, arguably more urgent than the intern work, since it
+   means the site's actual published headline number is already not fully
+   real. Not fixed here — flagged for Phase D. The fix is presumably either
+   excluding `SAMPLE_DATA`-status gauges from the composite the same way a
+   missing file already is (an `AwaitingDataCard`, not a scored contribution),
+   or landing real productivity data before this composite is ever shown
+   publicly — a decision for the site owner, not made unilaterally here.
 
 Everything else — the Phase D items, the two `unresolved` claims, the
 not-established framing question — is real, disclosed, and in most cases
 already the honest state a launched site could stand behind (the whole
 point of `NOT ESTABLISHED`/`CONTESTED`/`unresolved` as first-class states is
-that they're shippable precisely because they don't overclaim). It's #1–3
+that they're shippable precisely because they don't overclaim). It's #1–4
 above that are the actual blockers.

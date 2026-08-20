@@ -151,8 +151,14 @@ export function manualStaleness(
   if (!data.provenance.retrievedAt) return null;
 
   const staleAfterMonths = config.staleAfterMonths ?? DEFAULT_MANUAL_STALE_AFTER_MONTHS;
-  const ageMonths = monthsSince(data.provenance.retrievedAt);
-  const ageDescription = `last entered ${data.provenance.retrievedAt.slice(0, 10)} (~${Math.round(ageMonths)} month${Math.round(ageMonths) === 1 ? "" : "s"} ago)`;
+  // Prefer the real source-pull date over ingestion time when it's known —
+  // see GaugeData.provenance.sourcePulledAt in lib/types.ts. Fallback-safe:
+  // every gauge file that predates this field has no sourcePulledAt, so this
+  // resolves to the old retrievedAt-only behaviour for all of them, nothing
+  // to migrate.
+  const pulledAt = data.provenance.sourcePulledAt ?? data.provenance.retrievedAt;
+  const ageMonths = monthsSince(pulledAt);
+  const ageDescription = `last entered ${pulledAt.slice(0, 10)} (~${Math.round(ageMonths)} month${Math.round(ageMonths) === 1 ? "" : "s"} ago)`;
 
   return { stale: ageMonths > staleAfterMonths, ageDescription };
 }

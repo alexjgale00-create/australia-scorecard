@@ -41,12 +41,21 @@ filters, the template's columns, and the target file differ:
    first. Only add a row for a country/year you have a real published
    number for — **never guess a value for a gap.** A missing year is
    disclosed honestly on the site; a fabricated one isn't allowed.
-3. **Hand the filled CSV to Claude Code** (paste its contents, or point to
-   the file). It converts it into `data/processed/<gauge-id>.json` in the
-   same shape every other gauge uses, with `provenance.status: "LIVE"` and
-   a note that the data was entered by hand, on that date — never
-   presented as pipeline-fetched.
-4. **Revisit on the gauge's own cadence** — these sources aren't fetched
+3. **Log the pull in `collection-log.csv`** (same folder) — one row per
+   gauge you touch: `gauge_id`, `pulled_date` (the date you actually
+   downloaded the data — not the date it gets converted, which may be
+   later), `collected_by` (your name), `extract_note` (one line on the
+   filters/dataflow used). This is what lets the site's staleness check
+   count from when the number was really pulled, not from whenever someone
+   got around to typing it in — see `GaugeData.provenance.sourcePulledAt`
+   in `lib/types.ts`.
+4. **Hand the filled CSV (and your collection-log row) to Claude Code**
+   (paste its contents, or point to the file). It converts it into
+   `data/processed/<gauge-id>.json` in the same shape every other gauge
+   uses, with `provenance.status: "LIVE"`, `provenance.sourcePulledAt` from
+   your logged `pulled_date`, and a note that the data was entered by
+   hand — never presented as pipeline-fetched.
+5. **Revisit on the gauge's own cadence** — these sources aren't fetched
    by the monthly Actions run, but it does check each manual gauge's age
    against its own cadence and flags it as "due for a refresh" (not a
    failure) once it's overdue. See each gauge's `staleAfterMonths` in
@@ -55,16 +64,23 @@ filters, the template's columns, and the target file differ:
 
 ## Country codes (all gauges use the same 9 peers)
 
-| OECD country name | code |
-|---|---|
-| Australia | AUS |
-| Canada | CAN |
-| United Kingdom | GBR |
-| New Zealand | NZL |
-| Korea | KOR |
-| Netherlands | NLD |
-| United States | USA |
-| Germany | DEU |
+**The canonical name for KOR is "South Korea"** — matching
+`gauges.config.json`'s `peerCountries` and every existing gauge file's own
+`countries.KOR.name`. OECD's own exports frequently say "Korea" or "Korea,
+Rep." instead — that's the source's label, not this site's. Always enter
+"South Korea," never "Korea," so a gauge file's country name never drifts
+out of sync with the rest of the site.
+
+| OECD country name | Use this name | code |
+|---|---|---|
+| Australia | Australia | AUS |
+| Canada | Canada | CAN |
+| United Kingdom | United Kingdom | GBR |
+| New Zealand | New Zealand | NZL |
+| Korea / Korea, Rep. | **South Korea** | KOR |
+| Netherlands | Netherlands | NLD |
+| United States | United States | USA |
+| Germany | Germany | DEU |
 | Japan | JPN |
 
 ---
