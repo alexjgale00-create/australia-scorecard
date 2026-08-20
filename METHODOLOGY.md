@@ -269,18 +269,139 @@ reproduction method for the re-run.
 
 ### §3.2 — Evidence standard for a causal attribution
 
-**Not yet written — flagged, not drafted.** The `NOT ESTABLISHED` state
-(and its counterpart, an established `CAUSE`/`PRECEDENT`) needs a real,
-site-owner-set standard for what "meets the evidence standard" means: how
-direct a citation has to be, whether a single source is enough, how a
-correlational finding is distinguished from an attributed one. This is
-causal, editorial, liability-bearing content in exactly the sense
-DESIGN.md's own "Content & liability" section warns about — deliberately
-not drafted here the way §3.3 below was, since drafting an evidence
-standard is a different kind of decision than drafting an arithmetic
-plain-language sentence. Needs the site owner's own text before the
-`NOT ESTABLISHED` state's citation resolves to something real rather than
-a pointer to an empty section.
+> **DRAFT — UNREVIEWED.** Gives `NOT ESTABLISHED`, `CONTESTED`, and the
+> established `CAUSE`/`PRECEDENT`/`CHALLENGER` apparatus the standard
+> they've cited since REGISTER shipped without one. Editorial,
+> liability-bearing content, checked against real gauge content but not
+> yet read by the site owner. Stays here until edited.
+
+**The ruling.** An established `CAUSE` may join separately sourced facts
+into a causal claim. It does not require one source stating the cause
+outright — most real causal questions aren't settled by a single sentence
+in a single document. What makes the join defensible isn't neutrality; a
+join is always a judgment. It's **exposure**: the judgment must be
+visible enough that a reader can see exactly where the sourced facts end
+and the attribution begins, and reject it if they don't buy it.
+
+**Six constraints.** Every established `CAUSE`, `PRECEDENT`, or
+`CHALLENGER` must meet all six:
+
+1. **Every component fact separately cited** — a citation per fact, not
+   one citation covering the conclusion.
+2. **The join stated, not smuggled.** The attributing sentence must be
+   visibly separate from the sourced facts, never folded into the same
+   clause as a citation as if the source said it.
+3. **One causal step only.** A causes B. Never A causes B causes C — a
+   chain is only as strong as its weakest, usually unstated, link.
+4. **Name the leading alternative explanation, where one exists.** If the
+   alternative is equally supported, the attribution isn't established —
+   it's `CONTESTED`.
+5. **No counterfactuals, no prescription.** A cause explains what is. It
+   never says what should be done, or what would have happened instead.
+6. **Attribution language must match confidence.** "Attributable to" for
+   a well-supported single mechanism; "consistent with" where the
+   evidence is suggestive, not conclusive. Never upgrade the language to
+   sound more settled than the sourcing supports.
+
+**Three states.**
+
+- **Established** — meets all six constraints above.
+- **Not-established** — no attribution currently meets the bar. The
+  default, not a failure: most causal questions this site could ask don't
+  yet have a source clearing constraints 1 through 6.
+- **Contested** — attribution is actively disputed by real sources on
+  both sides, or the leading alternatives are equally supported. A
+  permanent answer, not a placeholder for "not established yet" — see
+  `life-expectancy` and `external-position`.
+
+`SCALE` never uses this standard. It's arithmetic on the gap between
+Australia and its peers, not a causal claim, and stays present even when
+`CAUSE` and `PRECEDENT` are each independently not-established. A reader
+who sees `NOT ESTABLISHED` above a confident `SCALE` figure should read
+that as this section explaining why, not as an inconsistency.
+
+**`CAUSE` and `PRECEDENT` are not held to the same bar.** `PRECEDENT`
+cites a peer's own observable trajectory — a fact about what happened
+elsewhere, not a claim about why it happened to Australia. That's a
+weaker claim than `CAUSE`, which explains Australia's own gap, and it can
+clear a lower bar: naming a peer that closed a similar gap, and how, is
+defensible even where explaining why Australia itself sits where it does
+isn't.
+
+**`CHALLENGER` (S2, Australia leads)** is evaluated against the same six
+constraints, applied to explaining a lead instead of a gap — "why is
+Australia ahead" is the same kind of causal claim as "why is Australia
+behind," and gets no lighter treatment for being flattering.
+
+**Survey-based gauges.** A causal claim resting on self-reported data
+(`evidenceStrength: "survey"`) is weaker evidence than one resting on an
+official statistical series — the same pattern can mean "this happened"
+or "people believe this happened," and those aren't the same finding. Any
+`CAUSE`, `PRECEDENT`, or `CHALLENGER` drawing on a survey-based gauge must
+keep that tag visible alongside the attribution, not only on the gauge's
+own header.
+
+**Downgrading.** An established attribution can later be withdrawn — a
+cited source is corrected, a better alternative surfaces, a mechanism
+turns out more contested than it looked. This is disclosed the same way a
+data revision is: a `REV` mark in the dense layer, dated, so the record
+shows the attribution changed rather than silently reverting to
+`NOT ESTABLISHED`.
+
+**Provider self-commentary does not clear the bar.** A data provider's
+own gloss on its own index is the measurer explaining its own
+measurement, not independent evidence — it fails constraint 1, since
+there is no second, independent fact to cite, even when it reads like a
+clean causal claim. This is the specific, sole reason
+`economic-complexity`'s CAUSE draft is held rather than shipped — see the
+worked example below.
+
+**Portfolio check — required after every CAUSE-authoring round:**
+
+1. Read every established `CAUSE`, `PRECEDENT`, and `CHALLENGER` as one
+   set and ask what a hostile reader would conclude the site believes.
+   Each attribution can individually meet all six constraints while the
+   set still carries a position no single-page review would catch. If a
+   real pattern exists, state it openly. If it's selection bias — which
+   gauges got a CAUSE drafted, not what the sources say — re-examine
+   those specific gauges, not the standard.
+
+*Last run: 2026-08-20, on the five live drafts.* Two attribute a domestic
+structural problem without qualification (`housing-pressure`,
+`innovation`); one attributes a shortfall to comparative rather than
+absolute decline (`economic-output`); one attributes a lead to a policy
+choice (`demographic-momentum`); one is held out entirely
+(`economic-complexity`). No consistent exculpatory or self-critical lean
+across five — too small a set for a pattern to mean anything yet. Re-run
+as the set grows.
+
+**Worked example — passes: `innovation`.** Two component facts, cited
+separately: Australia's own R&D-to-GDP figure and rank (this gauge's own
+source series, not a second citation but the site's own underlying data)
+and the Strategic Examination of R&D's finding that persistently low
+investment is a structural weakness (Dept. of Industry, Science and
+Resources, "Ambitious Australia," March 2026). The join is stated, not
+smuggled: the sentence names the report as identifying the weakness,
+rather than asserting "Australia's R&D underinvestment is a structural
+weakness" as if it were simply true. One causal step — low investment
+causes the weakness; the draft doesn't chain onward to what the weakness
+itself then causes. No competing explanation for this specific gap
+surfaced during drafting, so constraint 4 is satisfied by there being
+nothing live to name, unlike `external-position`, where a real
+alternative exists and the gauge is `CONTESTED` for that reason.
+"Identifies... as a structural weakness" matches the confidence of a
+government review's own finding; it doesn't upgrade to "attributable to,"
+which this one review alone wouldn't support.
+
+**Worked example — fails: `economic-complexity`.** The held draft cites
+the Harvard Growth Lab's own Atlas of Economic Complexity explaining why
+its own index ranks Australia low. This fails constraint 1 specifically:
+there is no second, independent fact — the institution that computed the
+index is also the source for why the index says what it says. Every
+other index-based gauge on this site could manufacture a `CAUSE` the same
+way if this were admitted — a provider narrating its own number is
+evidence about the number, not about the world. Holding this gauge is the
+correct outcome of the standard above, not a gap it leaves open.
 
 ### §3.3 — Band robustness: the bounds-exclusion sensitivity test
 
