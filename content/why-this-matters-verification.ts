@@ -90,6 +90,18 @@ export interface WhyThisMattersClaim {
 export interface WhyThisMattersRecord {
   writtenAgainst: WrittenAgainst;
   claims: WhyThisMattersClaim[];
+  /**
+   * Set whenever a full read-the-file-against-config audit happened, even
+   * if it turned up zero checkable claims (e.g. military-capability — pure
+   * definitional/framing content, no named report/institution/statistic/
+   * year to check). Exists specifically so "audited, genuinely nothing to
+   * verify" and "never audited" don't look the same: a gauge with this set
+   * and an empty `claims` array was deliberately checked and found clean
+   * of checkable assertions; a gauge absent from this record entirely
+   * simply hasn't been looked at yet. Optional — most records don't need
+   * it, since a non-empty `claims` array already implies an audit happened.
+   */
+  auditedAt?: string;
 }
 
 export const WHY_THIS_MATTERS_RECORDS: Record<string, WhyThisMattersRecord> = {
@@ -474,9 +486,15 @@ export const WHY_THIS_MATTERS_RECORDS: Record<string, WhyThisMattersRecord> = {
       },
       {
         claim: "iron ore, coal, and petroleum gas alone account for roughly two-thirds of net exports",
+        status: "cut",
+        note: "Superseded 2026-08-20, not a bucket B/C/D triage outcome: the same site-owner ruling that governs CAUSE (two gauges citing one fact reads as boilerplate) applies to why-this-matters copy too. trade measures export composition directly, so it keeps this figure; economic-complexity is about the ECI construct (diversification/sophistication), a different question, and now cites its own real number instead (see the next claim).",
+      },
+      {
+        claim: "Australia ranks 74th of 145 economies on the Harvard Growth Lab's Economic Complexity Index, second-lowest in the OECD",
         status: "verified",
-        source: "Harvard Growth Lab / Atlas of Economic Complexity country profile for Australia: iron ore ~38%, coal ~15.5%, petroleum gas ~12.1% of net exports (summed, roughly two-thirds).",
+        source: "Harvard Growth Lab / Atlas of Economic Complexity: Australia ranks 74th of 145 economies tracked, second-lowest OECD nation, despite being the 9th-richest economy per capita of the 145.",
         checkedAt: "2026-08-20",
+        note: "Replaces the two-thirds-of-net-exports figure in this file specifically — that fact now belongs to trade only. This is a genuinely different fact from the same source (the ECI ranking itself, not the export composition it's partly explained by).",
       },
     ],
   },
@@ -513,8 +531,9 @@ export const WHY_THIS_MATTERS_RECORDS: Record<string, WhyThisMattersRecord> = {
       {
         claim: "roughly two-thirds of net exports, per Harvard's Atlas of Economic Complexity",
         status: "verified",
-        source: "Same Harvard Growth Lab source verified for economic-complexity's entry above.",
+        source: "Harvard Growth Lab / Atlas of Economic Complexity country profile for Australia: iron ore ~38%, coal ~15.5%, petroleum gas ~12.1% of net exports (summed, roughly two-thirds).",
         checkedAt: "2026-08-20",
+        note: "This gauge is now the sole owner of this figure — it was cut from economic-complexity.md (2026-08-20) to fix a two-gauges-citing-one-fact collision, since export composition is what trade measures directly while economic-complexity is a different construct (diversification/sophistication, not composition).",
       },
     ],
   },
@@ -550,5 +569,47 @@ export const WHY_THIS_MATTERS_RECORDS: Record<string, WhyThisMattersRecord> = {
         note: "Bucket D, partial — the site owner's explicit carve-out: the real structural point ('every other gauge measures something from the outside; this one asks directly') is kept, rewritten plainer. Only the flourish ('the closest this Scorecard comes to', 'whether their country is working for them') was cut, not the underlying distinction.",
       },
     ],
+  },
+
+  "demographic-momentum": {
+    writtenAgainst: {
+      seriesId: "SP.POP.1564.TO",
+      institution: "World Bank",
+      polarity: "higher_is_better",
+      unit: "Working-age population (15-64) growth, % per year",
+    },
+    claims: [
+      {
+        claim: "Several of Australia's peers in this comparison — Japan, South Korea, and Germany — are already grappling with a shrinking working-age population",
+        status: "verified",
+        source: "This gauge's own real data (data/processed/demographic-momentum.json), 2025: JPN -0.52%/yr, KOR -1.12%/yr, DEU -0.80%/yr — all three genuinely negative (shrinking), not just slow-growing.",
+        checkedAt: "2026-08-20",
+        note: "Verified during the S2 (AUS-leads) investigation earlier this build, used as the basis for this gauge's CAUSE-of-the-lead draft — recorded formally here now.",
+      },
+      {
+        claim: "Australia's comparatively higher migration intake has historically kept its working-age population growing faster than most peers",
+        status: "verified",
+        source: "ABS Overseas Migration, 2024-25 financial year: net overseas migration accounted for roughly 73% of Australia's population growth that year.",
+        checkedAt: "2026-08-20",
+        note: "Same search used for this gauge's CAUSE draft — recorded formally here now.",
+      },
+    ],
+  },
+
+  "military-capability": {
+    writtenAgainst: {
+      seriesId: "MILEX_GDP_SHARE",
+      institution: "SIPRI",
+      polarity: "higher_is_better",
+      unit: "Military expenditure (% of GDP)",
+    },
+    claims: [],
+    auditedAt: "2026-08-20",
+    // Read against config in full: the file is definitional/framing content
+    // only (what military spending is a proxy for, and its limits as a
+    // measure) — no named report, institution, statistic, or year to check.
+    // Genuinely nothing to verify, not an unaudited gap. The empty claims
+    // array plus auditedAt is what distinguishes this from a gauge nobody
+    // has looked at yet.
   },
 };
