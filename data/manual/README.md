@@ -54,7 +54,12 @@ filters, the template's columns, and the target file differ:
    `data/processed/<gauge-id>.json` in the same shape every other gauge
    uses, with `provenance.status: "LIVE"`, `provenance.sourcePulledAt` from
    your logged `pulled_date`, and a note that the data was entered by
-   hand — never presented as pipeline-fetched.
+   hand — never presented as pipeline-fetched. It also checks every one of
+   the 9 peer countries: a country with no real number for this gauge gets
+   an explicit `provenance.missingCountries` entry (code, name, reason) —
+   never just silently absent. `scripts/verify-gauge-invariants.mjs` fails
+   the build if any manual gauge has an undeclared gap, so this step isn't
+   optional.
 5. **Revisit on the gauge's own cadence** — these sources aren't fetched
    by the monthly Actions run, but it does check each manual gauge's age
    against its own cadence and flags it as "due for a refresh" (not a

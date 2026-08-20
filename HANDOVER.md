@@ -260,13 +260,37 @@ build failure:**
 all seven state branches (structurally verified even where content is
 unexercised — see §4), `/table/[plate]`, `/section/[n]`, the 380px
 responsive treatment for both, the R3 guard, the `writtenAgainst` guard, the
-peer-coverage floor, and — added 2026-08-20 during the intern-data-collection
-pre-flight — `provenance.sourcePulledAt` (additive field, `lib/types.ts`/
-`lib/maturity.ts`, lets manual-gauge staleness count from the real
-source-pull date instead of ingestion time, falls back to `retrievedAt` for
-every existing gauge). All of it is real, build-verified, and in several
-cases proven via actual browser rendering rather than assumed from the
-classes. I'd stand behind this code today.
+peer-coverage floor, `provenance.sourcePulledAt` (additive field,
+`lib/types.ts`/`lib/maturity.ts`, lets manual-gauge staleness count from the
+real source-pull date instead of ingestion time, falls back to `retrievedAt`
+for every existing gauge), and — added 2026-08-20 during the intern-data-
+collection pre-flight — the manual-lane silent-gap guard (`scripts/verify-
+gauge-invariants.mjs`: any `accessType: "manual"`, scored, same-year gauge
+with a peer absent at `latestSharedYear` and no matching
+`provenance.missingCountries` entry fails the build, naming the gauge and
+country). Verified live: tested by deliberately stripping a real
+country/year from `productivity.json`, confirming it named the exact gauge
+and country and failed the build, then restored via `git checkout`. All of
+it is real, build-verified, and in several cases proven via actual browser
+rendering rather than assumed from the classes. I'd stand behind this code
+today.
+
+**One immediate consequence of the new silent-gap guard**: run for real
+against the data already on disk, it currently fails — `work-life-balance`
+has 5 of 8 peers (CAN, GBR, KOR, NLD, DEU) with no data at its
+`latestSharedYear` (2019) and no `missingCountries` entry declaring it. That
+gap was real and silent before this guard existed; the guard just makes it
+loud. `npm run build` will not pass until either `work-life-balance`'s
+`missingCountries` is populated with the real reason each country lacks 2019
+data, or real data closes the gaps (which is exactly what the work-life-
+balance section of the intern brief now asks for). **Do not populate those
+five reasons yet, and do not assume all five have the same explanation** —
+some may be genuine "OECD doesn't publish this country-year" disclosures
+and some may be plain collection gaps where the figure exists and this
+project's own fetch attempts simply never captured it; those need opposite
+responses (a disclosure vs. going and getting the real number). See the
+per-country 2019 investigation for what's actually known as of this
+session.
 
 **What I would not ship to main today, directly:**
 
