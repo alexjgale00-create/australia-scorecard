@@ -139,9 +139,17 @@ function ScoredStrip({ view, height }: { view: Extract<GaugeView, { scored: true
             <div key={b.key} className="absolute top-0 bottom-0 border-l border-grid" style={{ left: `${b.min}%` }} />
           ))}
 
-          {view.peers.map((p, i) => (
-            <PeerMark key={p.code} peer={p} index={i} />
-          ))}
+          {/* Staggered by score-sorted order, not raw array order — two
+              peers close in value need to land on different baselines to
+              avoid colliding; alternating by arbitrary array/insertion
+              order doesn't guarantee that (found via real 380px rendering,
+              see CLAUDE.md). Matches the reference mockup's own approach:
+              peers in score order, alternating top/bottom. */}
+          {[...view.peers]
+            .sort((a, b) => a.score - b.score)
+            .map((p, i) => (
+              <PeerMark key={p.code} peer={p} index={i} />
+            ))}
 
           <div
             className="absolute text-center"
