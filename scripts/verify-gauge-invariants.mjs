@@ -82,3 +82,25 @@ if (warnings.length > 0) {
 }
 
 console.log(`✓ verify-gauge-invariants: all scored gauges have ≥${MIN_PEERS} peers with a usable score`);
+
+// ---------------------------------------------------------------------------
+// why-this-matters verification coverage — informational, never fails.
+// A number, not a gate: see the site owner's ruling that this is legibility,
+// not a completeness mandate. Regex-counted from the .ts source rather than
+// imported, so this stays a plain node script with no TS compilation step —
+// content/why-this-matters-verification.ts's own structure (one top-level
+// "gauge-id": { entry per record) is regular enough for this to be reliable
+// without a real parser.
+// ---------------------------------------------------------------------------
+const verificationSrc = readFileSync(
+  path.join("content", "why-this-matters-verification.ts"),
+  "utf-8"
+);
+const trackedGaugeIds = new Set(
+  [...verificationSrc.matchAll(/^ {2}"([a-z0-9-]+)":\s*\{/gm)].map((m) => m[1])
+);
+const totalGauges = config.gauges.length;
+console.log(
+  `ℹ why-this-matters coverage: ${trackedGaugeIds.size} of ${totalGauges} gauges have a recorded ` +
+    `writtenAgainst baseline (${[...trackedGaugeIds].sort().join(", ")})`
+);

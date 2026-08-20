@@ -108,6 +108,11 @@ export const WHY_THIS_MATTERS_RECORDS: Record<string, WhyThisMattersRecord> = {
         checkedAt: "2026-08-20",
         note: "Rewrite replacing the file's previous description of v2x_cspart (civil society participation), the variable this gauge used before the switch — the file was never updated when the switch happened. See CLAUDE.md for the full incident.",
       },
+      {
+        claim: "a participatory civil society is one of the more measurable, comparable signals available",
+        status: "cut",
+        note: "Bucket C (unfalsifiable 'one of the more X available' framing) — moot in practice, since this clause belonged to the pre-rewrite text describing v2x_cspart and was already fully replaced by the construct-mismatch fix above, not separately edited out. Recorded so the bucket-C ruling against this exact phrase isn't lost just because the surrounding sentence happened to be superseded for a different reason first.",
+      },
     ],
   },
 
@@ -124,6 +129,11 @@ export const WHY_THIS_MATTERS_RECORDS: Record<string, WhyThisMattersRecord> = {
         status: "verified",
         source: "World Bank DataBank metadata glossary (EN.ATM.PM25.MC.M3) and World Bank feature 'Understanding Air Pollution and the Way It Is Measured': population-weighted exposure is defined by weighting mean annual PM2.5 concentrations by population, produced annually with a consistent methodology specifically to allow cross-country comparison.",
         checkedAt: "2026-08-20",
+      },
+      {
+        claim: "one of the few environmental harms with a direct, well-established line to individual health outcomes",
+        status: "cut",
+        note: "Bucket C ('one of the few... there is'-style framing). The underlying health-outcome link (cardiovascular/respiratory disease, reduced life expectancy from PM2.5) is real and well-established science, not itself in question — only the unfalsifiable 'one of the few' comparison against every other environmental harm was cut. Rewritten to state the health link directly without the superlative wrapper.",
       },
     ],
   },
@@ -160,6 +170,21 @@ export const WHY_THIS_MATTERS_RECORDS: Record<string, WhyThisMattersRecord> = {
         checkedAt: "2026-08-20",
         note: "Cross-cycle comparability (as opposed to the cross-country comparability this claim actually makes) has a real caveat — PISA 2015's paper-to-computer mode change and rescaling — logged as a Phase D item in METHODOLOGY.md, not a content error since the claim as written doesn't cover cross-cycle comparability.",
       },
+      {
+        claim: "one of the few genuinely comparable measures of what school systems are producing",
+        status: "cut",
+        note: "Bucket C ('one of the few... available' framing).",
+      },
+      {
+        claim: "a preview of the skills entering the workforce over the next decade",
+        status: "cut",
+        note: "Bucket C (forecasting/interpretive framing, not independently checkable). Rephrased rather than deleted outright: the real, structural point underneath (15-year-olds tested today are literally tomorrow's workforce, which is why this gauge feeds productivity/innovation elsewhere on the site) survives as a plain factual statement, not a 'leading indicator' claim.",
+      },
+      {
+        claim: "Australia's scores have drifted down across multiple PISA cycles, a trend worth watching independent of any single year's result",
+        status: "cut",
+        note: "Bucket B — replaced with the real cycle-by-cycle values (512 in 2012 to 497 in 2022, data/processed/education.json), self-evidencing rather than asserted.",
+      },
     ],
   },
 
@@ -183,6 +208,11 @@ export const WHY_THIS_MATTERS_RECORDS: Record<string, WhyThisMattersRecord> = {
         source: "RBA RDP 2007-02 and RBA 'Trends in Australia's Balance of Payments' explainer.",
         checkedAt: "2026-08-20",
         note: "The word 'historically' overclaims a constancy the RBA's own account doesn't support. Foreign investment does finance the deficit (real), but its composition shifted from equity-heavy (1960s-80s) to debt-heavy (after 1980), and the specific mining/resources framing is really a recent-decades story (2000s+ resources boom, China/India demand), not uniform across the whole post-war era. Rewritten in content/why-this-matters/external-position.md to state the real shape instead of the overclaim.",
+      },
+      {
+        claim: "a pattern very different from surplus economies like Germany or South Korea",
+        status: "cut",
+        note: "Bucket B — replaced with real DEU/KOR current-account values already held (data/processed/external-position.json): DEU roughly +4.5% to +5.9% of GDP, KOR roughly +1.8% to +6.6% of GDP, 2023-2025, both consistently positive against Australia's negative balance.",
       },
     ],
   },
@@ -230,6 +260,11 @@ export const WHY_THIS_MATTERS_RECORDS: Record<string, WhyThisMattersRecord> = {
         source: "RBA named weak productivity a 'material risk' (2026) with a dedicated speech ('Why Productivity Matters', Feb 2025); Productivity Commission's own quarterly report shows labour productivity growth averaging 0.6%/yr (2017/18-2023/24) against 1.6%/yr the prior two decades.",
         checkedAt: "2026-08-20",
       },
+      {
+        claim: "the long-run engine behind rising living standards",
+        status: "cut",
+        note: "Bucket D — true but generic (standard growth-accounting truism, not specific to Australia or this gauge's own data), load-bearing for nothing in this file.",
+      },
     ],
   },
 
@@ -247,6 +282,11 @@ export const WHY_THIS_MATTERS_RECORDS: Record<string, WhyThisMattersRecord> = {
         source: "World Bank's own WGI methodology page: 35 cross-country data sources, 400+ underlying indicators, spanning household/firm surveys and expert assessments.",
         checkedAt: "2026-08-20",
         note: "The real number (35 sources) is larger than 'dozens' implies, if anything — the claim understates.",
+      },
+      {
+        claim: "the most widely used cross-country measure of institutional quality",
+        status: "cut",
+        note: "Bucket C ('most widely used... there is'-style framing, the site owner's own named example). Replaced in content/why-this-matters/rule-of-law-corruption.md with the real, already-verified figure (35 sources, 400+ indicators) rather than left as a gap.",
       },
     ],
   },
@@ -286,6 +326,228 @@ export const WHY_THIS_MATTERS_RECORDS: Record<string, WhyThisMattersRecord> = {
         source: "Australian Government Treasury Ministers media release (Jim Chalmers, 2022, page live/current as checked), fetched directly (not search-tool synthesis): 'Australia also has the fifth lowest gross debt to GDP ratio in the G20 in 2024.'",
         checkedAt: "2026-08-20",
         note: "First attempt failed the same bar as the household-debt claim — OECD's own indicator page and RBA's explainer both returned HTTP 403 to direct fetch, leaving only search-tool synthesis in hand, which wasn't accepted. Second attempt via Treasury/Budget Papers (a different domain, fetchable this session) succeeded: this is real, directly-read primary-source text, not a paraphrase. Scope caveat: this source states gross debt among the G20 (5th lowest), not specifically the OECD, and not the exact BIS 'general government debt' series this gauge's config uses — a real but narrow gap between what's cited and the gauge's precise measure, not a mismatch in substance.",
+      },
+      {
+        claim: "Australia entered recent global shocks (the pandemic, rate hikes) with more fiscal room than most peers, even as households carried more leverage than most peers",
+        status: "cut",
+        note: "Bucket C/D (the site owner flagged this same sentence under both buckets — one clause, cut once). Restates the already-made 'government debt is low' point in narrative form ('more fiscal room than most peers') without adding new information, and 'more fiscal room than most peers' is itself an unquantified comparative claim of exactly the kind bucket C targets.",
+      },
+    ],
+  },
+
+  "innovation": {
+    writtenAgainst: {
+      seriesId: "GB.XPD.RSDV.GD.ZS",
+      institution: "World Bank",
+      polarity: "higher_is_better",
+      unit: "R&D expenditure (% of GDP)",
+    },
+    claims: [
+      {
+        claim: "the 2024 Strategic Examination of R&D",
+        status: "verified",
+        source: "Dept. of Industry, Science and Resources: the Strategic Examination of R&D was commissioned December 2024, but its final report ('Ambitious Australia: Strategic Examination of Research and Development') was published March 2026 — the file's original '2024' framing dated the finding to when the review was commissioned, not when its actual finding was published.",
+        checkedAt: "2026-08-20",
+        note: "This is the contradicted claim corrected directly in an earlier round (not a triage bucket) — recorded here now that the verification record exists, so this correction isn't the one gauge without a record entry.",
+      },
+      {
+        claim: "Australia has historically spent less on R&D relative to GDP than many high-income peers",
+        status: "cut",
+        note: "Bucket B — replaced with the real figures already computed for this gauge: AUS 1.86% of GDP vs. peer median 2.99%, rank 8th of 9.",
+      },
+    ],
+  },
+
+  "housing-pressure": {
+    writtenAgainst: {
+      seriesId: "OECD.ECO.MPD,DSD_AN_HOUSE_PRICES@DF_HOUSE_PRICES,1.0",
+      institution: "OECD",
+      polarity: "lower_is_better",
+      unit: "House price-to-income ratio, index",
+    },
+    claims: [
+      {
+        claim: "Australia — alongside Canada and New Zealand in this comparison set — has become a byword internationally for housing unaffordability",
+        status: "cut",
+        note: "Bucket C (the site owner's own named example — unfalsifiable 'byword internationally' framing). The Canada/New Zealand comparison was cut along with it rather than kept: it existed only to support the byword claim, and no verified comparative data for CAN/NZL's own trend was in hand to justify keeping a version of it.",
+      },
+      {
+        claim: "capital city prices repeatedly outpacing income growth for over a decade",
+        status: "cut",
+        note: "Bucket B — replaced with the real AUS price-to-income series already held (data/processed/housing-pressure.json): 85 in 2012 to 120 in 2025.",
+      },
+    ],
+  },
+
+  "cohesion-majority-acceptance": {
+    writtenAgainst: {
+      seriesId: "MIGRANT_ACCEPTANCE_INDEX",
+      institution: "Gallup (news releases, not a data product)",
+      polarity: "higher_is_better",
+      unit: "Gallup Migrant Acceptance Index, 0–9 scale",
+      evidenceStrength: "survey",
+    },
+    claims: [
+      {
+        claim: "no live, currently-updating, peer-complete measure of this exists publicly for these nine countries",
+        status: "cut",
+        note: "Bucket B — replaced with the real, already-documented 5-source search record (Gallup's own broader item, WVS Wave 8, Pew, Ipsos, Edelman — see METHODOLOGY.md's 'Majority-attitude source search' section), self-evidencing rather than asserted.",
+      },
+      {
+        claim: "this gauge runs on Gallup's last freely published waves, several years old",
+        status: "cut",
+        note: "Bucket B — replaced with the real wave years already held in the data: 2016/17 and 2019.",
+      },
+    ],
+  },
+
+  "economic-output": {
+    writtenAgainst: {
+      seriesId: "PPPSH",
+      institution: "IMF",
+      polarity: "higher_is_better",
+      unit: "Share of world GDP, PPP (%)",
+    },
+    claims: [
+      {
+        claim: "shapes its bargaining power in trade negotiations, its voice in forums like the G20, and how much its domestic policy choices ripple internationally",
+        status: "cut",
+        note: "Bucket C — unfalsifiable claims about diplomatic/negotiating consequences, not independently checkable and not needed to explain what the gauge measures.",
+      },
+    ],
+  },
+
+  "life-expectancy": {
+    writtenAgainst: {
+      seriesId: "SP.DYN.LE00.IN",
+      institution: "World Bank",
+      polarity: "higher_is_better",
+      unit: "Life expectancy at birth, total (years)",
+    },
+    claims: [
+      {
+        claim: "the single most integrative health statistic there is",
+        status: "cut",
+        note: "Bucket C (the site owner's own named example — 'the single most X there is' superlative framing).",
+      },
+      {
+        claim: "a country can't talk its way to a longer average life",
+        status: "cut",
+        note: "Bucket C (rhetorical flourish). Replaced with a plainer statement of the same real point (the measure is slow-moving, so it reflects sustained conditions rather than a single year's result) without the colourful framing.",
+      },
+    ],
+  },
+
+  "living-standards": {
+    writtenAgainst: {
+      seriesId: "NY.GDP.PCAP.PP.KD",
+      institution: "World Bank",
+      polarity: "higher_is_better",
+      unit: "GDP per capita, PPP (constant 2021 international $)",
+    },
+    claims: [
+      {
+        claim: "the closest single number to \"how much material comfort does an average person here have\"",
+        status: "cut",
+        note: "Bucket C ('the closest single number to...' superlative framing). Rephrased as a plain, unhedged description ('a rough measure of') instead.",
+      },
+      {
+        claim: "it sets the ceiling on what a country can spend on everything else: healthcare, education, defence, leisure",
+        status: "cut",
+        note: "Bucket D — true but generic (a restatement of what GDP per capita means, not information specific to Australia or this gauge), load-bearing for nothing.",
+      },
+    ],
+  },
+
+  "economic-complexity": {
+    writtenAgainst: {
+      seriesId: "ECI",
+      institution: "Harvard Growth Lab",
+      polarity: "higher_is_better",
+      unit: "Economic Complexity Index (ECI)",
+    },
+    claims: [
+      {
+        claim: "commodity-heavy export baskets (Australia's iron ore and coal, historically) are vulnerable to price swings and don't build the same depth of institutional knowhow as complex manufacturing or services",
+        status: "cut",
+        note: "Bucket D — the general economic-truism half ('vulnerable to price swings... institutional knowhow') is cut; the real, verified figure it was gesturing at (Harvard Growth Lab: iron ore, coal, and petroleum gas account for roughly two-thirds of net exports) replaces it directly in the file.",
+      },
+      {
+        claim: "iron ore, coal, and petroleum gas alone account for roughly two-thirds of net exports",
+        status: "verified",
+        source: "Harvard Growth Lab / Atlas of Economic Complexity country profile for Australia: iron ore ~38%, coal ~15.5%, petroleum gas ~12.1% of net exports (summed, roughly two-thirds).",
+        checkedAt: "2026-08-20",
+      },
+    ],
+  },
+
+  "inequality": {
+    writtenAgainst: {
+      seriesId: "DSD_WISE_IDD@DF_IDD",
+      institution: "OECD",
+      polarity: "lower_is_better",
+      unit: "Gini coefficient (disposable income, 0-1 scale)",
+    },
+    claims: [
+      {
+        claim: "a persistently high or rising figure means growth isn't reaching most households even when headline GDP looks healthy",
+        status: "cut",
+        note: "Bucket D — general economic point about what Gini coefficients mean in the abstract, not Australia-specific information.",
+      },
+    ],
+  },
+
+  "trade": {
+    writtenAgainst: {
+      seriesId: "NE.EXP.GNFS.CD",
+      institution: "World Bank",
+      polarity: "higher_is_better",
+      unit: "Share of world exports of goods & services (%)",
+    },
+    claims: [
+      {
+        claim: "a country can grow strongly at home while its share of global trade shrinks simply because other economies are growing and trading faster",
+        status: "cut",
+        note: "Bucket D — general trade-arithmetic point, not specific new information about Australia.",
+      },
+      {
+        claim: "roughly two-thirds of net exports, per Harvard's Atlas of Economic Complexity",
+        status: "verified",
+        source: "Same Harvard Growth Lab source verified for economic-complexity's entry above.",
+        checkedAt: "2026-08-20",
+      },
+    ],
+  },
+
+  "human-capital-depth": {
+    writtenAgainst: {
+      seriesId: "OECD.EDU.IMEP,DSD_EAG_LSO_EA@DF_LSO_NEAC_DISTR_EA,1.0",
+      institution: "OECD",
+      polarity: "higher_is_better",
+      unit: "Tertiary attainment, 25-34 year-olds (%)",
+    },
+    claims: [
+      {
+        claim: "A country can have strong school results but a lower tertiary completion rate (or vice versa) depending on its post-school education system and labour market",
+        status: "cut",
+        note: "Bucket D — a generic possibility statement, not specific to Australia (this gauge has no data yet, so there's no Australian figure it could have been substituted with either).",
+      },
+    ],
+  },
+
+  "life-satisfaction": {
+    writtenAgainst: {
+      seriesId: "LI (Life evaluation, Average 3-year, mean)",
+      institution: "Gallup World Poll, via World Happiness Report",
+      polarity: "higher_is_better",
+      unit: "Cantril ladder life evaluation, 0–10 scale (Gallup World Poll, 3-year rolling average)",
+      evidenceStrength: "survey",
+    },
+    claims: [
+      {
+        claim: "It's the closest this Scorecard comes to asking Australians directly whether their country is working for them, rather than inferring it from proxies",
+        status: "cut",
+        note: "Bucket D, partial — the site owner's explicit carve-out: the real structural point ('every other gauge measures something from the outside; this one asks directly') is kept, rewritten plainer. Only the flourish ('the closest this Scorecard comes to', 'whether their country is working for them') was cut, not the underlying distinction.",
       },
     ],
   },
