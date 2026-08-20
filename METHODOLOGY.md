@@ -225,6 +225,27 @@ all 9 peers at Australia's `latestSharedYear` per gauge (this is what
 today's 9-country spread against both the current and proposed bands, and
 median/max absolute decade-over-decade change.
 
+### Phase D, Item 2 — PISA 2015 mode-change comparability caveat (logged, 2026-08-20)
+
+Surfaced during the REGISTER why-this-matters audit (see CLAUDE.md), not
+acted on — a comparability question, not a content error. `education`'s
+why-this-matters copy claims PISA uses "the same instrument in every
+participating country," which is true and verified (OECD/NCES both
+confirm this — every country in a given cycle sits the same instrument).
+What that claim does *not* address, and what a reader looking at this
+site's AUS-across-cycles trend chart might reasonably assume it covers:
+PISA 2015 changed test delivery mode from paper-based to computer-based,
+and changed its scaling methodology at the same time. This affects
+*cross-cycle* trend comparability specifically — a different question
+from the *cross-country* comparability the why-this-matters claim
+actually makes, so the existing copy isn't wrong, just silent on a
+caveat adjacent to what it says. Logged here rather than fixed in the
+gauge's copy, since the right treatment (a trend-chart footnote? a
+dense-layer note? excluding pre-2015 from the headline trend?) is a
+presentation/methodology decision, not a copy fix — bring it into the
+Phase D checkpoint alongside band thresholds and the min-max
+normalisation question (§3.3).
+
 ## 3. Presentation apparatus disclosures (REGISTER)
 
 Added during the REGISTER design implementation (2026). The REGISTER gauge
