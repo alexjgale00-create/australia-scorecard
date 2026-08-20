@@ -626,6 +626,30 @@ match (template's 4-column CSV shape is unchanged). See
 one gauge on this site where the raw value isn't a share/index in that
 familiar shape).
 
+**A gap this switch left open, found and closed 2026-08-20** (REGISTER
+build): nothing updated `content/why-this-matters/internal-cohesion.md`
+when the switch above happened — it kept describing `v2x_cspart` (civil
+society participation) for a month, on the live site, while the gauge
+itself measured `v2cacamps` (political polarization). A methodology fix
+introduced a different, quieter inaccuracy, and nothing caught it because
+nothing connected the two. Fixed (the file now describes the real current
+variable) and guarded against recurring — see
+`content/why-this-matters-verification.ts` and `lib/content.ts`'s
+`assertWrittenAgainst`, which fails the build if a gauge's recorded
+seriesId/institution/polarity/unit/scoringBasis/evidenceStrength drifts
+from what its why-this-matters prose was last reviewed against.
+
+**Standing rule, for whoever makes the next methodology change like this
+one**: any change to what a gauge measures — its series, institution,
+polarity, unit, or scoring basis — must update three things in the same
+commit: `gauges.config.json`, the gauge's `content/why-this-matters/*.md`
+prose, and its recorded baseline in
+`content/why-this-matters-verification.ts` (only if that gauge already
+has a tracked entry there — untracked gauges have nothing to update yet).
+The guard above enforces this for tracked gauges; this rule exists for
+gauges it doesn't cover yet, and for the human making the change to know
+*why* the build just failed if it does.
+
 ### Internal cohesion: automated via OWID (2026-07-16)
 
 Same day as the v2cacamps switch above, the site owner noticed that
