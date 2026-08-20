@@ -101,6 +101,21 @@ score at all — a real failure, not a cosmetic gap.
   countries, not just Australia. Don't stop once you have Australia's
   numbers; go back and fill in every other country for the same years, even
   though 1995–2019 is already in the system for them.
+- **Also add 2019 specifically for these five: Canada, United Kingdom,
+  South Korea, Netherlands, Germany.** The site already has 2019 for
+  Australia, New Zealand, Japan, and the United States, but not for these
+  five — and we need to know why before we can say anything about it on the
+  site. A same-source check outside the Data Explorer UI suggests real 2019
+  figures exist for all five (roughly: Canada ~1693, UK ~1537, South Korea
+  ~1966, Netherlands ~1457, Germany ~1372) — **but treat those as
+  unconfirmed, not answers.** Look each one up yourself in the Data
+  Explorer and tell us what you actually find:
+  - If you find a 2019 figure — enter it in the template, and note in your
+    handoff whether it's close to the numbers above or different.
+  - If the Data Explorer genuinely shows nothing for that country in 2019
+    (no row, not a zero) — that's a real, useful finding, not a failure to
+    dig harder. Say so explicitly: "checked, not published" is exactly the
+    kind of answer we need.
 - **Save to:** `data/manual/work-life-balance-template.csv`
 - **A year present for Australia but missing for most of the other eight is
   worse than useless** — it can make this gauge's comparison year jump to a
@@ -197,6 +212,9 @@ rows, plus a short note covering:
   countries you found data for, 2020 through 2025** — even a rough table is
   fine, this is the one dataset where exactly which years line up across
   countries matters as much as the numbers themselves
+- **Also for Work-life balance: what you found for 2019 for Canada, UK,
+  South Korea, Netherlands, and Germany** — a figure entered, or "checked,
+  not published" for each one you couldn't find
 - Anything you flagged or found unclear
 
 Full technical detail for each dataset — including why each is collected

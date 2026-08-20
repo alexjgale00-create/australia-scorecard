@@ -292,6 +292,82 @@ responses (a disclosure vs. going and getting the real number). See the
 per-country 2019 investigation for what's actually known as of this
 session.
 
+**2019 investigation, same session: all 5 are collection gaps, none is
+genuine non-publication.** Queried `sdmx.oecd.org` directly for
+`OECD.ELS.SAE,DSD_HW@DF_AVG_ANN_HRS_WKD,1.0` at the exact key this project's
+own retired fetcher already trusted as unambiguous for the 1995-2019 range
+(`WORKER_STATUS=_T` — the pin that produced round 2's "clean 1995-2019"
+data; the WORKER_STATUS ambiguity that sent this gauge to the manual lane
+was specific to 2020+, never to 2019 itself), `startPeriod=2015&
+endPeriod=2021`. Real, live 2019 observations came back for all five:
+CAN 1693, GBR 1537.043, KOR 1966, NLD 1456.549, DEU 1372 (HTTP 200 from
+this sandbox — the historical Cloudflare block on this host is
+intermittent, not reproducing today). Cross-checked against 4 values
+already on file at other years, at the same key, with **zero discrepancies**:
+GBR 2016 (1541.275), KOR 2016 (2068), KOR 2017 (2018), KOR 2021 (1910) all
+matched exactly — high confidence this is the same series the site already
+trusts, not a different or mismatched dataflow. So: **none of the five is
+case (a)** — OECD does publish 2019 for all of them. All five are case (b) —
+this project's own round-2 automated fetch (before the gauge moved to the
+manual lane) simply didn't capture 2019 for these five countries, for a
+reason not further investigated here (a response-size/pagination limit on
+that historical query is one plausible candidate, not confirmed). **Not
+written into `missingCountries`, and not written into the data file** —
+per the site owner's explicit instruction, a live API check via curl is a
+strong signal but not this project's established manual-lane verification
+path (the human-driven data-explorer.oecd.org download); the intern brief
+now asks for these five country/2019 figures to be confirmed through that
+normal channel and entered for real, with these numbers given as a
+cross-check, not a substitute.
+
+**Log for Phase D — cohesion-majority-acceptance's `scoringBasis` is
+documented but not configured.** Found while building the silent-gap guard
+above, when it initially false-positived on this gauge. CLAUDE.md ("A new
+alternate scoring basis exists: `scoringBasis: 'latest-wave-per-country'`
+on `cohesion-majority-acceptance`") and METHODOLOGY.md both describe this
+gauge as using the latest-wave-per-country basis — but `grep scoringBasis
+gauges.config.json` returns zero matches, for any gauge, anywhere in the
+file. Today this has no live behavioural consequence: the gauge is
+unscored (`weights: {}`), so `computeGaugeScore`'s `scoringBasis` branch
+(`lib/scoring.ts`) is never actually exercised for it. But the moment
+anyone flips this gauge toward scored (the two named upgrade candidates in
+its `unscoredReason` — Ipsos Global Views on Immigration, WVS Wave 8 — are
+exactly the kind of trigger that would prompt that), it would silently fall
+through to the default "same-year" comparison basis instead of the
+documented latest-wave-per-country one, contradicting the explicit
+methodology decision on record. This is the same class of bug the
+`writtenAgainst` guard exists to catch for why-this-matters prose —
+documentation asserting something config doesn't actually say — just not
+a case that guard's own scope covers (it tracks seriesId/institution/
+polarity/unit/scoringBasis/evidenceStrength drift against *prose*, not
+config-vs-config-vs-docs agreement between `gauges.config.json` and
+CLAUDE.md/METHODOLOGY.md directly). **Not fixed here** — whether to add
+`scoringBasis: "latest-wave-per-country"` to this gauge's config now (while
+it's unscored and inert) or leave it absent until the gauge is actually
+promoted is a deliberate methodology call, not a mechanical sync.
+
+**Proposed, not built: a guard against `SAMPLE_DATA` feeding a composite**
+(see blocker #4 below). Shape: a new check in
+`scripts/verify-gauge-invariants.mjs`, same file and same pattern as the
+two checks already there. For every gauge with a `weights` entry in any
+dimension (i.e. every scored gauge, mirroring the `isScored` skip already
+used twice in this file) and an existing `data/processed/<id>.json`, read
+`provenance.status` — if it's `"SAMPLE_DATA"`, fail the build, naming the
+gauge and which dimension(s) its weight would otherwise feed. This is a
+static, cheap check (`provenance.status` is one field, no year-matching or
+peer-coverage math needed, unlike the two checks it sits beside) and it
+would fail loudly and immediately today against `productivity` — which is
+the point: a composite built partly from placeholder data should be
+structurally impossible to ship, not something that requires a person to
+notice `SAMPLE_DATA` in a JSON file. Interacts with `app/page.tsx` and
+`DimensionVerdict.tsx` only insofar as this check would need to run
+*before* either ever renders — it doesn't change what those components do,
+it changes whether the build reaches them at all with unresolved
+placeholder data in `data/processed/`. Not built: the right resolution once
+this fires (exclude `SAMPLE_DATA` gauges from the composite the way a
+missing file already is, vs. blocking the whole build until real data
+lands) is the site owner's call, same reasoning as blocker #4 below.
+
 **What I would not ship to main today, directly:**
 
 1. **Every drafted piece of content on this branch is explicitly
