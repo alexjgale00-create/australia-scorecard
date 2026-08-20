@@ -5,9 +5,8 @@
  * arithmetic, no causal or evaluative language, per the site owner's
  * explicit condition for what's safe to auto-draft.
  *
- * UNREVIEWED. Every line here is a starting point, not finished copy —
- * mark cleared once the site owner has read and, if needed, edited it.
- * Nothing here merges to main until that's done.
+ * Reviewed and approved by the site owner, 2026-08-20 — see HANDOVER.md's
+ * merge-readiness section for the review record.
  */
 export const REGISTER_DRAFT_LINES: Record<string, string> = {
   "living-standards": "Australia's living standards is 60194 (GDP per capita); the peer median is 56843. Australia ranks 4th of 9.",
@@ -44,8 +43,8 @@ export const REGISTER_DRAFT_LINES: Record<string, string> = {
  * why-this-matters audit in CLAUDE.md for how unverified that content
  * turned out to be).
  *
- * UNREVIEWED. Nothing here merges to main until the site owner has read
- * and, if needed, edited it — same rule as the plain-language lines.
+ * Reviewed and approved by the site owner, 2026-08-20 — same as the
+ * plain-language lines.
  *
  * A sixth candidate, economic-complexity, was drafted and then HELD OUT
  * by explicit site owner ruling — see the commented-out entry below for
@@ -85,7 +84,8 @@ export const REGISTER_DRAFT_CAUSES: Record<string, string> = {
  * Draft CONTESTED copy (Attribution.kind: "contested") — applied only
  * where the site's own existing `why-this-matters` content already argues
  * the case, per the site owner's ruling. Drawn from that existing content,
- * not new research. UNREVIEWED, same rule as everything else here.
+ * not new research. Reviewed and approved by the site owner, 2026-08-20 —
+ * same as everything else here.
  */
 export const REGISTER_CONTESTED_CAUSES: Record<string, string> = {
   "life-expectancy":

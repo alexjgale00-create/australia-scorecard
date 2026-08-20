@@ -89,6 +89,20 @@ export interface WhyThisMattersClaim {
 
 export interface WhyThisMattersRecord {
   writtenAgainst: WrittenAgainst;
+  /**
+   * When the site owner read this file's current wording and approved it
+   * as copy — a distinct question from claim-level source verification
+   * (see `claims`/`ClaimStatus` above). A file can be copy-approved while
+   * still carrying "unverified"/"unresolved" claims: approval means the
+   * prose as written is fit to publish, not that every factual assertion
+   * in it has been checked against a primary source. Set 2026-08-20 for
+   * all 23 gauges below, in one pass — the site owner read every
+   * why-this-matters file (assembled for that reading in
+   * docs/review-queue.md, since deleted — see HANDOVER.md's
+   * merge-readiness section for the review record) and approved the
+   * wording without requesting changes.
+   */
+  copyApprovedAt?: string;
   claims: WhyThisMattersClaim[];
   /**
    * Set whenever a full read-the-file-against-config audit happened, even
@@ -112,6 +126,7 @@ export const WHY_THIS_MATTERS_RECORDS: Record<string, WhyThisMattersRecord> = {
       polarity: "lower_is_better",
       unit: "V-Dem political polarization score (interval scale, mean-centered at 0 across all country-years — not a 0-1 share)",
     },
+    copyApprovedAt: "2026-08-20",
     claims: [
       {
         claim: "This gauge tracks political polarization: V-Dem's own definition is the extent to which a society is divided into hostile political camps that discourage interaction and cooperation across ideological lines.",
@@ -135,6 +150,7 @@ export const WHY_THIS_MATTERS_RECORDS: Record<string, WhyThisMattersRecord> = {
       polarity: "lower_is_better",
       unit: "PM2.5 air pollution, mean annual exposure (micrograms per cubic meter)",
     },
+    copyApprovedAt: "2026-08-20",
     claims: [
       {
         claim: "PM2.5 exposure is genuinely comparable across countries because it's population-weighted, not just a monitoring-station reading",
@@ -157,6 +173,7 @@ export const WHY_THIS_MATTERS_RECORDS: Record<string, WhyThisMattersRecord> = {
       polarity: "higher_is_better",
       unit: "V-Dem social group equality in civil liberties score (interval scale, mean-centered at 0 across all country-years — not a 0-1 share)",
     },
+    copyApprovedAt: "2026-08-20",
     claims: [
       {
         claim: "measures whether a country's minority groups... actually get the same civil liberties as everyone else in practice: freedom of movement, property rights, access to justice, freedom from forced labour",
@@ -174,6 +191,7 @@ export const WHY_THIS_MATTERS_RECORDS: Record<string, WhyThisMattersRecord> = {
       polarity: "higher_is_better",
       unit: "PISA mean score (maths, reading, science average)",
     },
+    copyApprovedAt: "2026-08-20",
     claims: [
       {
         claim: "PISA tests a representative sample of 15-year-olds across maths, reading, and science every three years, using the same instrument in every participating country",
@@ -207,6 +225,7 @@ export const WHY_THIS_MATTERS_RECORDS: Record<string, WhyThisMattersRecord> = {
       polarity: "higher_is_better",
       unit: "Current account balance (% of GDP)",
     },
+    copyApprovedAt: "2026-08-20",
     claims: [
       {
         claim: "Australia has run current account deficits for most of the post-war era",
@@ -236,6 +255,7 @@ export const WHY_THIS_MATTERS_RECORDS: Record<string, WhyThisMattersRecord> = {
       polarity: "lower_is_better",
       unit: "Intentional homicide rate (per 100,000 population)",
     },
+    copyApprovedAt: "2026-08-20",
     claims: [
       {
         claim: "a body count is hard to under-report",
@@ -265,6 +285,7 @@ export const WHY_THIS_MATTERS_RECORDS: Record<string, WhyThisMattersRecord> = {
       polarity: "higher_is_better",
       unit: "GDP per hour worked (USD, constant prices, 2015 PPPs)",
     },
+    copyApprovedAt: "2026-08-20",
     claims: [
       {
         claim: "Australia's productivity growth has been a persistent policy worry for over a decade, cited by the Productivity Commission and RBA alike",
@@ -287,6 +308,7 @@ export const WHY_THIS_MATTERS_RECORDS: Record<string, WhyThisMattersRecord> = {
       polarity: "higher_is_better",
       unit: "WGI Rule of Law + Control of Corruption, averaged (estimate, -2.5 to +2.5)",
     },
+    copyApprovedAt: "2026-08-20",
     claims: [
       {
         claim: "built from dozens of underlying surveys and expert assessments rather than a single source",
@@ -310,6 +332,7 @@ export const WHY_THIS_MATTERS_RECORDS: Record<string, WhyThisMattersRecord> = {
       polarity: "lower_is_better",
       unit: "Average annual hours actually worked per worker",
     },
+    copyApprovedAt: "2026-08-20",
     claims: [
       {
         claim: "OECD's own commentary on this indicator uses the same reading [fewer hours is better]",
@@ -326,6 +349,7 @@ export const WHY_THIS_MATTERS_RECORDS: Record<string, WhyThisMattersRecord> = {
       polarity: "lower_is_better",
       unit: "Household + government debt, % of GDP (BIS Total Credit)",
     },
+    copyApprovedAt: "2026-08-20",
     claims: [
       {
         claim: "household debt relative to income and GDP is among the highest of any developed economy",
@@ -354,6 +378,7 @@ export const WHY_THIS_MATTERS_RECORDS: Record<string, WhyThisMattersRecord> = {
       polarity: "higher_is_better",
       unit: "R&D expenditure (% of GDP)",
     },
+    copyApprovedAt: "2026-08-20",
     claims: [
       {
         claim: "the 2024 Strategic Examination of R&D",
@@ -377,6 +402,7 @@ export const WHY_THIS_MATTERS_RECORDS: Record<string, WhyThisMattersRecord> = {
       polarity: "lower_is_better",
       unit: "House price-to-income ratio, index",
     },
+    copyApprovedAt: "2026-08-20",
     claims: [
       {
         claim: "Australia — alongside Canada and New Zealand in this comparison set — has become a byword internationally for housing unaffordability",
@@ -399,6 +425,7 @@ export const WHY_THIS_MATTERS_RECORDS: Record<string, WhyThisMattersRecord> = {
       unit: "Gallup Migrant Acceptance Index, 0–9 scale",
       evidenceStrength: "survey",
     },
+    copyApprovedAt: "2026-08-20",
     claims: [
       {
         claim: "no live, currently-updating, peer-complete measure of this exists publicly for these nine countries",
@@ -420,6 +447,7 @@ export const WHY_THIS_MATTERS_RECORDS: Record<string, WhyThisMattersRecord> = {
       polarity: "higher_is_better",
       unit: "Share of world GDP, PPP (%)",
     },
+    copyApprovedAt: "2026-08-20",
     claims: [
       {
         claim: "shapes its bargaining power in trade negotiations, its voice in forums like the G20, and how much its domestic policy choices ripple internationally",
@@ -436,6 +464,7 @@ export const WHY_THIS_MATTERS_RECORDS: Record<string, WhyThisMattersRecord> = {
       polarity: "higher_is_better",
       unit: "Life expectancy at birth, total (years)",
     },
+    copyApprovedAt: "2026-08-20",
     claims: [
       {
         claim: "the single most integrative health statistic there is",
@@ -457,6 +486,7 @@ export const WHY_THIS_MATTERS_RECORDS: Record<string, WhyThisMattersRecord> = {
       polarity: "higher_is_better",
       unit: "GDP per capita, PPP (constant 2021 international $)",
     },
+    copyApprovedAt: "2026-08-20",
     claims: [
       {
         claim: "the closest single number to \"how much material comfort does an average person here have\"",
@@ -478,6 +508,7 @@ export const WHY_THIS_MATTERS_RECORDS: Record<string, WhyThisMattersRecord> = {
       polarity: "higher_is_better",
       unit: "Economic Complexity Index (ECI)",
     },
+    copyApprovedAt: "2026-08-20",
     claims: [
       {
         claim: "commodity-heavy export baskets (Australia's iron ore and coal, historically) are vulnerable to price swings and don't build the same depth of institutional knowhow as complex manufacturing or services",
@@ -506,6 +537,7 @@ export const WHY_THIS_MATTERS_RECORDS: Record<string, WhyThisMattersRecord> = {
       polarity: "lower_is_better",
       unit: "Gini coefficient (disposable income, 0-1 scale)",
     },
+    copyApprovedAt: "2026-08-20",
     claims: [
       {
         claim: "a persistently high or rising figure means growth isn't reaching most households even when headline GDP looks healthy",
@@ -522,6 +554,7 @@ export const WHY_THIS_MATTERS_RECORDS: Record<string, WhyThisMattersRecord> = {
       polarity: "higher_is_better",
       unit: "Share of world exports of goods & services (%)",
     },
+    copyApprovedAt: "2026-08-20",
     claims: [
       {
         claim: "a country can grow strongly at home while its share of global trade shrinks simply because other economies are growing and trading faster",
@@ -545,6 +578,7 @@ export const WHY_THIS_MATTERS_RECORDS: Record<string, WhyThisMattersRecord> = {
       polarity: "higher_is_better",
       unit: "Tertiary attainment, 25-34 year-olds (%)",
     },
+    copyApprovedAt: "2026-08-20",
     claims: [
       {
         claim: "A country can have strong school results but a lower tertiary completion rate (or vice versa) depending on its post-school education system and labour market",
@@ -562,6 +596,7 @@ export const WHY_THIS_MATTERS_RECORDS: Record<string, WhyThisMattersRecord> = {
       unit: "Cantril ladder life evaluation, 0–10 scale (Gallup World Poll, 3-year rolling average)",
       evidenceStrength: "survey",
     },
+    copyApprovedAt: "2026-08-20",
     claims: [
       {
         claim: "It's the closest this Scorecard comes to asking Australians directly whether their country is working for them, rather than inferring it from proxies",
@@ -578,6 +613,7 @@ export const WHY_THIS_MATTERS_RECORDS: Record<string, WhyThisMattersRecord> = {
       polarity: "higher_is_better",
       unit: "Working-age population (15-64) growth, % per year",
     },
+    copyApprovedAt: "2026-08-20",
     claims: [
       {
         claim: "Several of Australia's peers in this comparison — Japan, South Korea, and Germany — are already grappling with a shrinking working-age population",
@@ -603,6 +639,7 @@ export const WHY_THIS_MATTERS_RECORDS: Record<string, WhyThisMattersRecord> = {
       polarity: "higher_is_better",
       unit: "Military expenditure (% of GDP)",
     },
+    copyApprovedAt: "2026-08-20",
     claims: [],
     auditedAt: "2026-08-20",
     // Read against config in full: the file is definitional/framing content

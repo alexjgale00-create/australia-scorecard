@@ -1,3 +1,1 @@
-[DRAFT — edit freely]
-
 This gauge measures whether a country's minority groups — by language, ethnicity, religion, race, region, or caste — actually get the same civil liberties as everyone else in practice: freedom of movement, property rights, access to justice, freedom from forced labour. It's one half of this Scorecard's social cohesion cluster, deliberately paired with Cohesion — majority acceptance rather than blended into one score, because "how minorities are actually treated" and "how welcoming the majority feels toward newcomers" are different questions that can move in different directions — the gap between them is often more informative than either number alone.

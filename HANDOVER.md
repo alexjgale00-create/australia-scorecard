@@ -347,7 +347,7 @@ it's unscored and inert) or leave it absent until the gauge is actually
 promoted is a deliberate methodology call, not a mechanical sync.
 
 **Proposed, not built: a guard against `SAMPLE_DATA` feeding a composite**
-(see blocker #4 below). Shape: a new check in
+(see blocker 3 below). Shape: a new check in
 `scripts/verify-gauge-invariants.mjs`, same file and same pattern as the
 two checks already there. For every gauge with a `weights` entry in any
 dimension (i.e. every scored gauge, mirroring the `isScored` skip already
@@ -366,29 +366,43 @@ it changes whether the build reaches them at all with unresolved
 placeholder data in `data/processed/`. Not built: the right resolution once
 this fires (exclude `SAMPLE_DATA` gauges from the composite the way a
 missing file already is, vs. blocking the whole build until real data
-lands) is the site owner's call, same reasoning as blocker #4 below.
+lands) is the site owner's call, same reasoning as blocker 3 below.
 
-**What I would not ship to main today, directly:**
+**Blocker 1 — CLEARED, 2026-08-20.** *Every drafted piece of content on
+this branch was explicitly UNREVIEWED* — the plain-language lines (20
+gauges), the six CAUSE drafts, the two CONTESTED drafts, and every
+rewrite from the bucket B/C/D pass. Assembled into `docs/review-queue.md`
+(23 gauge sections, verified byte-identical against every source file
+before the site owner read it) so it could be read in one sitting instead
+of 25 separate files. **The site owner read and approved all of it, no
+changes requested.** Recorded in three places: the `UNREVIEWED` markers
+in `content/register-draft-lines.ts` replaced with "Reviewed and approved
+by the site owner, 2026-08-20"; the `[DRAFT — edit freely]` marker
+removed from all 23 `content/why-this-matters/*.md` files;
+`content/why-this-matters-verification.ts` gained a new
+`copyApprovedAt: "2026-08-20"` field on all 23 records (additive only —
+zero `ClaimStatus` values touched, since approving the wording is a
+different question from whether individual claims are source-verified,
+and this pass answered only the first one). `docs/review-queue.md` itself
+was scaffolding for the one reading session and has been deleted — the
+review record lives in the three places above, not in a second copy that
+would drift.
 
-1. **Every drafted piece of content on this branch is explicitly
-   UNREVIEWED** — the plain-language lines (20 gauges), the six CAUSE
-   drafts, the two CONTESTED drafts, and every rewrite from the bucket
-   B/C/D pass. The standing rule from the start of this work was that
-   nothing merges to main unreviewed. None of it has been read and cleared
-   by the site owner yet.
-2. **Methods §3.2 doesn't exist, and it's cited live on every gauge page
+**What I would not ship to main today, directly — three remain:**
+
+1. **Methods §3.2 doesn't exist, and it's cited live on every gauge page
    right now.** A public reader clicking through from `NOT ESTABLISHED` or
    `CONTESTED` today would land on a section that isn't written. §3.1 and
    §3.3 are real; §3.2 is the one dangling citation left on the site, and
    it's the one doing the most editorial work.
-3. **Old and new UI currently coexist with no cutover decision made.**
+2. **Old and new UI currently coexist with no cutover decision made.**
    `/gauges/[slug]` (pre-REGISTER) and `/table/[plate]` (REGISTER) both
    generate and both work; nothing has decided which one the site's actual
    navigation should point to, or when the old components get retired. That
    was deliberate (staged rollout, cheap revert) during the build — but
    "merge to main" implies production, and production needs one answer to
    "which page does a reader actually land on," not two live in parallel.
-4. **`productivity` is still `SAMPLE_DATA` (Phase A placeholder, not real)
+3. **`productivity` is still `SAMPLE_DATA` (Phase A placeholder, not real)
    and is silently baked into the live Power composite as though it were
    real.** Found during the intern-data-collection pre-flight (2026-08-20):
    `computeCompositeForAllCountries` and every caller of it include any
@@ -408,5 +422,5 @@ Everything else — the Phase D items, the two `unresolved` claims, the
 not-established framing question — is real, disclosed, and in most cases
 already the honest state a launched site could stand behind (the whole
 point of `NOT ESTABLISHED`/`CONTESTED`/`unresolved` as first-class states is
-that they're shippable precisely because they don't overclaim). It's #1–4
-above that are the actual blockers.
+that they're shippable precisely because they don't overclaim). It's the
+three above that are the actual remaining blockers.

@@ -1,3 +1,1 @@
-[DRAFT — edit freely]
-
 How many hours a year the average worker actually puts in says something GDP per capita can't: whether a country's prosperity is being bought with time. Two countries can post similar living-standards scores while one gets there with meaningfully longer working hours than the other — this gauge is what makes that difference visible. It's read here as "fewer hours is better," a genuine values choice rather than a settled fact — a reader could reasonably see longer hours as more opportunity or income instead. See the polarity justification on this gauge's own entry in Methodology.

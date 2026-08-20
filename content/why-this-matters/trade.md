@@ -1,3 +1,1 @@
-[DRAFT — edit freely]
-
 Australia's share of world exports is a measure of economic weight, not just economic health. Australia's exports are heavily concentrated in a handful of commodities (iron ore, coal, natural gas) — roughly two-thirds of net exports, per Harvard's Atlas of Economic Complexity — which makes this gauge unusually sensitive to global commodity price cycles rather than just underlying competitiveness. Watch this one alongside the "why this matters" note on External position — the two are closely linked.

@@ -1,3 +1,1 @@
-[DRAFT — edit freely]
-
 The price-to-income ratio is a more honest measure of housing affordability than the raw house price alone, since it accounts for whether wages have kept pace. Australia's price-to-income ratio rose from 85 in 2012 to 120 in 2025 — prices consistently outpacing income growth for over a decade, not a one-off spike. This gauge connects directly to Debt burden elsewhere on this Scorecard: expensive housing, financed by large mortgages, is the main driver of Australia's unusually high household debt.

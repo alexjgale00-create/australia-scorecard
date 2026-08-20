@@ -1,3 +1,1 @@
-[DRAFT — edit freely]
-
 Life expectancy folds together the quality of a country's healthcare system, its rates of chronic disease, road and workplace safety, environmental exposure, and social conditions into one number. It's slow-moving: a change here reflects sustained conditions, not a single year's headline. When Australia's life expectancy score slips against peers, it's a lagging signal that something in the system — healthcare access, chronic disease management, injury prevention — is falling behind, even before any single cause is identifiable.
