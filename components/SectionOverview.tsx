@@ -211,7 +211,8 @@ export default function SectionOverview({
           <div>◆ AUS · | peers</div>
           <div>
             <span className="text-stamp">STALE</span> = source pull &gt; 6 months old · <span className="text-stamp">n.a.</span> = not published,
-            declared not hidden · <span>‡</span> = band depends on an outlier at the worst end of the peer set (Methods §3.3) ·
+            declared not hidden · <span>†</span> = rank differs from the default weighting (see the footnote above the table) ·{" "}
+            <span>‡</span> = band depends on an outlier at the worst end of the peer set (Methods §3.3) ·
             band thresholds under methodology review (§3.1)
           </div>
         </div>
