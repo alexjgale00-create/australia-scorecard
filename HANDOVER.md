@@ -72,45 +72,87 @@ if you're ever tempted to think either of those is bureaucratic overhead.
 
 ---
 
-## 2. Unresolved and waiting on the site owner
+## 2. Outstanding — tracked, not launch blockers
 
-- **Methods §3.2 (the evidence standard for a causal attribution) is not
-  written.** It's cited live, right now, by every `NOT ESTABLISHED` and
-  `CONTESTED` render on the site. The list of what it needs to cover
-  (assembled across two rounds, not drafted):
-  1. The actual bar separating an established CAUSE/PRECEDENT from a
-     not-established one.
-  2. Whether CAUSE and PRECEDENT are held to the same bar.
-  3. Whether hedged/contributing-factor language ("contributed to") counts
-     as established, or only unhedged causal language qualifies.
-  4. How S2's CHALLENGER "cause-of-the-lead" is evaluated — same bar as
-     ordinary CAUSE, or different.
-  5. Why SCALE never needs this bar (it's arithmetic, not causal) — worth
-     its own explicit sentence.
-  6. Whether the bar differs for survey/attitude-evidence gauges vs.
-     hard-statistic gauges.
-  7. Whether an established attribution can later be downgraded, and if so
-     whether that's disclosed the same way a data revision (`REV` tag) is.
-  8. **(Added by the site owner)** Whether an established CAUSE must be
-     falsifiable from a public source a reader can independently check, or
-     whether reasoning *from* a source counts. This is the one that decides
-     whether economic-complexity's held-out draft (below) can ever ship.
+Real, disclosed, open items — none of them a reason this site couldn't be
+live. `NOT ESTABLISHED`/`CONTESTED`/`unresolved` are first-class states
+precisely so a page can ship honestly without overclaiming; everything
+below is that kind of honest-and-incomplete, not half-finished. Consolidated
+here on 2026-08-21 (previously spread across this file) specifically so
+none of it reads as a launch blocker — see "Merge readiness" below for what
+*was* blocking and is now cleared.
+
+**The intern's four manual datasets.** `productivity`, `human-capital-depth`,
+and `inequality` have no real data yet (the first two: no data file at all;
+`inequality` likewise Awaiting Data); `work-life-balance` has real 1995-2019
+data but is missing 2019 for 5 of 8 peers (see below). Full instructions,
+per-dataset download steps, and templates are in
+`docs/intern-data-collection-brief.md` — not re-summarized here so it can't
+drift out of sync with that file.
+
+- **work-life-balance's 5-country 2019 gap — declared, not yet closed.**
+  `provenance.missingCountries` for CAN, GBR, KOR, NLD, DEU was populated
+  2026-08-21 (closing the build-blocking silent-gap guard — see "Merge
+  readiness"), each reason stating plainly that OECD does publish 2019 for
+  that country but this project's own round-2 automated fetch never
+  captured it — a collection gap, not a non-publication. That's a
+  disclosure, not a fix: the intern brief still asks for these five real
+  2019 figures via the normal manual-lane channel
+  (data-explorer.oecd.org). The **2019 investigation** that established
+  these are collection gaps (queried `sdmx.oecd.org` directly, cross-checked
+  against 4 already-on-file values with zero discrepancies: CAN 1693, GBR
+  1537.043, KOR 1966, NLD 1456.549, DEU 1372) is preserved below for
+  whoever does that entry, as a cross-check — not a substitute for the
+  human-driven download.
+
+  > Queried `sdmx.oecd.org` directly for
+  > `OECD.ELS.SAE,DSD_HW@DF_AVG_ANN_HRS_WKD,1.0` at the exact key this
+  > project's own retired fetcher already trusted as unambiguous for the
+  > 1995-2019 range (`WORKER_STATUS=_T` — the pin that produced round 2's
+  > "clean 1995-2019" data; the WORKER_STATUS ambiguity that sent this gauge
+  > to the manual lane was specific to 2020+, never to 2019 itself),
+  > `startPeriod=2015&endPeriod=2021`. Real, live 2019 observations came
+  > back for all five (HTTP 200 from this sandbox — the historical
+  > Cloudflare block on this host is intermittent, not reproducing today).
+  > Cross-checked against 4 values already on file at other years, at the
+  > same key, with zero discrepancies — high confidence this is the same
+  > series the site already trusts, not a different or mismatched dataflow.
+  > So: none of the five is genuine non-publication; all five are this
+  > project's own round-2 fetch simply not capturing them, for a reason not
+  > further investigated (a response-size/pagination limit on that
+  > historical query is one plausible candidate, not confirmed).
+
+- **cohesion-majority-acceptance's `scoringBasis` is documented but not
+  configured.** CLAUDE.md and METHODOLOGY.md both describe this gauge as
+  using `scoringBasis: "latest-wave-per-country"` — but
+  `grep scoringBasis gauges.config.json` returns zero matches, for any
+  gauge, anywhere in the file. No live consequence today: the gauge is
+  unscored (`weights: {}`), so `computeGaugeScore`'s `scoringBasis` branch
+  is never exercised for it. But the moment it's flipped toward scored (its
+  two named upgrade candidates — Ipsos Global Views on Immigration, WVS
+  Wave 8 — are exactly the kind of trigger for that), it would silently
+  fall through to the default same-year basis instead of the documented
+  one. Whether to add the field now (while inert) or leave it until
+  promotion is a deliberate methodology call, not a mechanical sync — not
+  made here.
 
 - **The not-established framing decision.** 14 of the 20 scored gauges
   currently render `NOT ESTABLISHED` for CAUSE (13 at the plain default,
-  plus economic-complexity, whose real draft exists but is held out). That
-  is 70% of the site's gauges declining to name a cause. Nothing on the site
-  currently explains *why* that's the honest majority outcome rather than a
-  half-finished feature — whether that needs its own framing (a line near
-  the apparatus, a Methods page section, something else) is an open
-  question, not a build task.
+  plus economic-complexity, whose real draft exists but is permanently held
+  — see below). That's 70% of the site's gauges declining to name a cause.
+  Nothing on the site currently explains *why* that's the honest majority
+  outcome rather than a half-finished feature — whether that needs its own
+  framing (a line near the apparatus, a Methods page section, something
+  else) is an open question, not a build task.
 
-- **economic-complexity's CAUSE draft** is written, verified (Harvard Growth
-  Lab's own commentary on why Australia's ECI ranks where it does), and
-  commented out in `content/register-draft-lines.ts` — held because it's
-  the data provider's own gloss on its own index, not independent
-  corroboration. Restoring it is a direct function of how §3.2 item 8
-  above gets ruled.
+- **economic-complexity's CAUSE draft stays held — this is now a ruling,
+  not a pending question.** §3.2 (approved 2026-08-21) resolves what this
+  file previously listed as its open "item 8": *"Provider self-commentary
+  does not clear the bar... This is the specific, sole reason
+  economic-complexity's CAUSE draft is held rather than shipped."* The
+  draft remains written, verified, and commented out in
+  `content/register-draft-lines.ts` — correctly held, per the now-approved
+  standard, not awaiting a further decision.
 
 - **Two claims recorded `unresolved`**, not `unverified` — real, thorough
   attempts were made and came up short of a primary source, not simply
@@ -125,56 +167,57 @@ if you're ever tempted to think either of those is bureaucratic overhead.
     `content/why-this-matters-verification.ts` for exactly where each
     attempt failed, so a future attempt doesn't repeat the same dead ends.
 
+- **Phase D items — evidence gathered, nothing acted on.** All of this is
+  already in METHODOLOGY.md at the cited sections; listed here as a pointer
+  so the analysis isn't re-run from scratch.
+  - **Min-max normalisation is outlier-sensitive — quantified, not just
+    suspected.** Read-only test (exclude USA from the min-max bounds only,
+    nothing else changes): 6 of 20 scored gauges move a band. Power
+    composite: 40.1 → 44.1 (+4.0). Quality of Life composite: 75.9 → 70.6.
+    Australia's blended rank is unchanged (4th/9) either way. §3.3 in
+    METHODOLOGY.md has the full method and numbers.
+  - **Two gauges specifically overstate**, not just move: `life-expectancy`
+    and `personal-safety` both show `Leading` only because USA sits at the
+    worst end of their scale; both drop to `Strengthening` with USA excluded
+    from the bounds. This is why they carry `bandRobustness: "overstates"` —
+    a disclosure, not a fix. The other four gauges that move understate and
+    were judged survivable, left undisclosed.
+  - **The Power composite sits within a point or two of the Holding
+    boundary (45)** — 39.6 as of 2026-08-21, having moved further from the
+    boundary rather than closer when `productivity` was excluded from the
+    composite (see "Merge readiness"). A routine data refresh unrelated to
+    Australia's own performance could still flip the headline band. Logged,
+    not mitigated.
+  - **Band threshold recalibration** — the original Phase D, Item 1 finding
+    (11-gauge pass, thresholds never fit the composite's real achievable
+    range) is still deferred pending all 16 Power gauges going LIVE.
+  - **PISA's 2015 mode change** (paper → computer, rescaled) is a real
+    comparability caveat for the AUS-across-cycles trend chart specifically
+    — distinct from the cross-country claim education.md actually makes
+    (which is verified and unaffected). Logged as Phase D, Item 2.
+  - **work-life-balance sits exactly on the 3-peer floor** (NZL, USA, JPN —
+    no more, no fewer). Passes the R3 build-level check today; one more
+    peer lost and it fails outright. `scripts/verify-gauge-invariants.mjs`
+    warns on this every build so it's visible before it becomes a failure.
+  - **The peer-set composition question.** DESIGN.md's original mockup
+    peer set (IRL/SWE/DNK, no USA) was fictional — the real pipeline peer
+    set (USA/DEU/JPN, no IRL/SWE/DNK) governs everything built. Marked
+    superseded in DESIGN.md rather than silently corrected, so the
+    discrepancy stays on the record. Changing the real peer set is a
+    methodology decision with data-pull consequences, explicitly out of
+    scope here.
+  - **The personal-safety peer-mark density limit.** Two-baseline
+    staggering (now score-sorted, see the git log around the Gauge.tsx
+    stagger fix) resolves collisions between adjacent peers but not in an
+    unusually dense cluster — confirmed via real rendering, one collision
+    remains on this specific gauge at 380px. Logged in DESIGN.md as a
+    known, accepted limit, not chased further since fixing it would mean
+    adding a third baseline and breaking the spec everywhere else to solve
+    one edge case.
+
 ---
 
-## 3. Phase D items — evidence gathered, nothing acted on
-
-All of this is already in METHODOLOGY.md at the cited sections; this is a
-pointer so the analysis isn't re-run from scratch.
-
-- **Min-max normalisation is outlier-sensitive — quantified, not just
-  suspected.** Read-only test (exclude USA from the min-max bounds only,
-  nothing else changes): 6 of 20 scored gauges move a band. Power composite:
-  40.1 → 44.1 (+4.0). Quality of Life composite: 75.9 → 70.6. Australia's
-  blended rank is unchanged (4th/9) either way. §3.3 in METHODOLOGY.md has
-  the full method and numbers.
-- **Two gauges specifically overstate**, not just move: `life-expectancy`
-  and `personal-safety` both show `Leading` only because USA sits at the
-  worst end of their scale; both drop to `Strengthening` with USA excluded
-  from the bounds. This is why they carry `bandRobustness: "overstates"` —
-  a disclosure, not a fix. The other four gauges that move understate and
-  were judged survivable, left undisclosed.
-- **The Power composite sits 0.9 points from the Holding boundary (45).**
-  A routine data refresh unrelated to Australia's own performance could
-  flip the headline band. Logged, not mitigated.
-- **Band threshold recalibration** — the original Phase D, Item 1 finding
-  (11-gauge pass, thresholds never fit the composite's real achievable
-  range) is still deferred pending all 16 Power gauges going LIVE.
-- **PISA's 2015 mode change** (paper → computer, rescaled) is a real
-  comparability caveat for the AUS-across-cycles trend chart specifically —
-  distinct from the cross-country claim education.md actually makes (which
-  is verified and unaffected). Logged as Phase D, Item 2.
-- **work-life-balance sits exactly on the 3-peer floor** (NZL, USA, JPN —
-  no more, no fewer). Passes the R3 build-level check today; one more peer
-  lost and it fails outright. `scripts/verify-gauge-invariants.mjs` warns on
-  this every build so it's visible before it becomes a failure.
-- **The peer-set composition question.** DESIGN.md's original mockup peer
-  set (IRL/SWE/DNK, no USA) was fictional — the real pipeline peer set
-  (USA/DEU/JPN, no IRL/SWE/DNK) governs everything built. Marked superseded
-  in DESIGN.md rather than silently corrected, so the discrepancy stays on
-  the record. Changing the real peer set is a methodology decision with
-  data-pull consequences, explicitly out of this pass's scope.
-- **The personal-safety peer-mark density limit.** Two-baseline staggering
-  (now score-sorted, see §4 in the git log around the Gauge.tsx stagger fix)
-  resolves collisions between adjacent peers but not in an unusually dense
-  cluster — confirmed via real rendering, one collision remains on this
-  specific gauge at 380px. Logged in DESIGN.md as a known, accepted limit,
-  not chased further since fixing it would mean adding a third baseline and
-  breaking the spec everywhere else to solve one edge case.
-
----
-
-## 4. Unexercised in the code — real branches, no real gauge triggers them yet
+## 3. Unexercised in the code — real branches, no real gauge triggers them yet
 
 Distinguish these from untested-full-stop. Each below was verified against
 real data during the build (via a temporary, deleted preview harness) for
@@ -207,7 +250,7 @@ currently exercised by a real gauge's *content* in production.
 
 ---
 
-## 5. Standing rules — and which ones are actually code-enforced
+## 4. Standing rules — and which ones are actually code-enforced
 
 Marked explicitly, because "documented" and "enforced" are different
 guarantees and conflating them is exactly the kind of gap this session
@@ -256,171 +299,98 @@ build failure:**
 
 ## Merge readiness
 
-**Safe to merge as infrastructure:** the token/font system, `<Gauge>` and
-all seven state branches (structurally verified even where content is
-unexercised — see §4), `/table/[plate]`, `/section/[n]`, the 380px
-responsive treatment for both, the R3 guard, the `writtenAgainst` guard, the
-peer-coverage floor, `provenance.sourcePulledAt` (additive field,
-`lib/types.ts`/`lib/maturity.ts`, lets manual-gauge staleness count from the
-real source-pull date instead of ingestion time, falls back to `retrievedAt`
-for every existing gauge), and — added 2026-08-20 during the intern-data-
-collection pre-flight — the manual-lane silent-gap guard (`scripts/verify-
-gauge-invariants.mjs`: any `accessType: "manual"`, scored, same-year gauge
-with a peer absent at `latestSharedYear` and no matching
-`provenance.missingCountries` entry fails the build, naming the gauge and
-country). Verified live: tested by deliberately stripping a real
-country/year from `productivity.json`, confirming it named the exact gauge
-and country and failed the build, then restored via `git checkout`. All of
-it is real, build-verified, and in several cases proven via actual browser
-rendering rather than assumed from the classes. I'd stand behind this code
-today.
+**All four launch blockers — CLEARED. Merged to `main` 2026-08-21.**
 
-**One immediate consequence of the new silent-gap guard**: run for real
-against the data already on disk, it currently fails — `work-life-balance`
-has 5 of 8 peers (CAN, GBR, KOR, NLD, DEU) with no data at its
-`latestSharedYear` (2019) and no `missingCountries` entry declaring it. That
-gap was real and silent before this guard existed; the guard just makes it
-loud. `npm run build` will not pass until either `work-life-balance`'s
-`missingCountries` is populated with the real reason each country lacks 2019
-data, or real data closes the gaps (which is exactly what the work-life-
-balance section of the intern brief now asks for). **Do not populate those
-five reasons yet, and do not assume all five have the same explanation** —
-some may be genuine "OECD doesn't publish this country-year" disclosures
-and some may be plain collection gaps where the figure exists and this
-project's own fetch attempts simply never captured it; those need opposite
-responses (a disclosure vs. going and getting the real number). See the
-per-country 2019 investigation for what's actually known as of this
-session.
+1. **Content review — CLEARED, 2026-08-20.** *Every drafted piece of
+   content on this branch was explicitly UNREVIEWED* — the plain-language
+   lines (20 gauges), the six CAUSE drafts, the two CONTESTED drafts, and
+   every rewrite from the bucket B/C/D pass. Assembled into
+   `docs/review-queue.md` (23 gauge sections, verified byte-identical
+   against every source file before the site owner read it) so it could be
+   read in one sitting instead of 25 separate files. **The site owner read
+   and approved all of it, no changes requested.** Recorded in three
+   places: the `UNREVIEWED` markers in `content/register-draft-lines.ts`
+   replaced with "Reviewed and approved by the site owner, 2026-08-20";
+   the `[DRAFT — edit freely]` marker removed from all 23
+   `content/why-this-matters/*.md` files; `content/why-this-matters-
+   verification.ts` gained a new `copyApprovedAt: "2026-08-20"` field on
+   all 23 records (additive only — zero `ClaimStatus` values touched,
+   since approving the wording is a different question from whether
+   individual claims are source-verified, and this pass answered only the
+   first one). `docs/review-queue.md` itself was scaffolding for the one
+   reading session and has been deleted.
 
-**2019 investigation, same session: all 5 are collection gaps, none is
-genuine non-publication.** Queried `sdmx.oecd.org` directly for
-`OECD.ELS.SAE,DSD_HW@DF_AVG_ANN_HRS_WKD,1.0` at the exact key this project's
-own retired fetcher already trusted as unambiguous for the 1995-2019 range
-(`WORKER_STATUS=_T` — the pin that produced round 2's "clean 1995-2019"
-data; the WORKER_STATUS ambiguity that sent this gauge to the manual lane
-was specific to 2020+, never to 2019 itself), `startPeriod=2015&
-endPeriod=2021`. Real, live 2019 observations came back for all five:
-CAN 1693, GBR 1537.043, KOR 1966, NLD 1456.549, DEU 1372 (HTTP 200 from
-this sandbox — the historical Cloudflare block on this host is
-intermittent, not reproducing today). Cross-checked against 4 values
-already on file at other years, at the same key, with **zero discrepancies**:
-GBR 2016 (1541.275), KOR 2016 (2068), KOR 2017 (2018), KOR 2021 (1910) all
-matched exactly — high confidence this is the same series the site already
-trusts, not a different or mismatched dataflow. So: **none of the five is
-case (a)** — OECD does publish 2019 for all of them. All five are case (b) —
-this project's own round-2 automated fetch (before the gauge moved to the
-manual lane) simply didn't capture 2019 for these five countries, for a
-reason not further investigated here (a response-size/pagination limit on
-that historical query is one plausible candidate, not confirmed). **Not
-written into `missingCountries`, and not written into the data file** —
-per the site owner's explicit instruction, a live API check via curl is a
-strong signal but not this project's established manual-lane verification
-path (the human-driven data-explorer.oecd.org download); the intern brief
-now asks for these five country/2019 figures to be confirmed through that
-normal channel and entered for real, with these numbers given as a
-cross-check, not a substitute.
+2. **Methods §3.2 — CLEARED, 2026-08-21.** Didn't exist; was cited live on
+   every gauge page regardless. Drafted, then read and approved by the
+   site owner with no changes requested. The `DRAFT — UNREVIEWED` marker
+   is replaced with "Reviewed and approved by the site owner, 2026-08-21"
+   directly in METHODOLOGY.md. The ruling itself (exposure over neutrality;
+   six constraints; three states; CAUSE/PRECEDENT held to different bars;
+   provider self-commentary never clears constraint 1) is real and now
+   live — see §3.2 for the full text, and §2 above for its concrete
+   consequence on economic-complexity's held-out draft. (§3.3 is a
+   separate, still-unreviewed draft — not touched by this approval.)
 
-**Log for Phase D — cohesion-majority-acceptance's `scoringBasis` is
-documented but not configured.** Found while building the silent-gap guard
-above, when it initially false-positived on this gauge. CLAUDE.md ("A new
-alternate scoring basis exists: `scoringBasis: 'latest-wave-per-country'`
-on `cohesion-majority-acceptance`") and METHODOLOGY.md both describe this
-gauge as using the latest-wave-per-country basis — but `grep scoringBasis
-gauges.config.json` returns zero matches, for any gauge, anywhere in the
-file. Today this has no live behavioural consequence: the gauge is
-unscored (`weights: {}`), so `computeGaugeScore`'s `scoringBasis` branch
-(`lib/scoring.ts`) is never actually exercised for it. But the moment
-anyone flips this gauge toward scored (the two named upgrade candidates in
-its `unscoredReason` — Ipsos Global Views on Immigration, WVS Wave 8 — are
-exactly the kind of trigger that would prompt that), it would silently fall
-through to the default "same-year" comparison basis instead of the
-documented latest-wave-per-country one, contradicting the explicit
-methodology decision on record. This is the same class of bug the
-`writtenAgainst` guard exists to catch for why-this-matters prose —
-documentation asserting something config doesn't actually say — just not
-a case that guard's own scope covers (it tracks seriesId/institution/
-polarity/unit/scoringBasis/evidenceStrength drift against *prose*, not
-config-vs-config-vs-docs agreement between `gauges.config.json` and
-CLAUDE.md/METHODOLOGY.md directly). **Not fixed here** — whether to add
-`scoringBasis: "latest-wave-per-country"` to this gauge's config now (while
-it's unscored and inert) or leave it absent until the gauge is actually
-promoted is a deliberate methodology call, not a mechanical sync.
+3. **UI cutover — CLEARED, 2026-08-21.** `/gauges/[slug]` and
+   `/table/[plate]` previously coexisted with no decision on which one the
+   site's real navigation should point to. Per R8 ("one gauge, one plate,
+   one citable address"), `/table/[plate]` is now the only route that
+   generates real content; `/gauges/[slug]` redirects to it
+   (`next/navigation`'s `redirect()` — this Next.js version's own
+   documented mechanism for a route redirect under `output: export`,
+   confirmed working in the actual static build output). One live address
+   per gauge, not two.
 
-**Proposed, not built: a guard against `SAMPLE_DATA` feeding a composite**
-(see blocker 3 below). Shape: a new check in
-`scripts/verify-gauge-invariants.mjs`, same file and same pattern as the
-two checks already there. For every gauge with a `weights` entry in any
-dimension (i.e. every scored gauge, mirroring the `isScored` skip already
-used twice in this file) and an existing `data/processed/<id>.json`, read
-`provenance.status` — if it's `"SAMPLE_DATA"`, fail the build, naming the
-gauge and which dimension(s) its weight would otherwise feed. This is a
-static, cheap check (`provenance.status` is one field, no year-matching or
-peer-coverage math needed, unlike the two checks it sits beside) and it
-would fail loudly and immediately today against `productivity` — which is
-the point: a composite built partly from placeholder data should be
-structurally impossible to ship, not something that requires a person to
-notice `SAMPLE_DATA` in a JSON file. Interacts with `app/page.tsx` and
-`DimensionVerdict.tsx` only insofar as this check would need to run
-*before* either ever renders — it doesn't change what those components do,
-it changes whether the build reaches them at all with unresolved
-placeholder data in `data/processed/`. Not built: the right resolution once
-this fires (exclude `SAMPLE_DATA` gauges from the composite the way a
-missing file already is, vs. blocking the whole build until real data
-lands) is the site owner's call, same reasoning as blocker 3 below.
+4. **`productivity`'s SAMPLE_DATA in the composite — CLEARED, 2026-08-21.**
+   Was silently baked into the live Power composite as though real,
+   independent of anything the intern's manual data would change.
+   `computeCompositeForAllCountries` (`lib/scoring.ts`) now excludes any
+   gauge whose `provenance.status` is `SAMPLE_DATA`, the same treatment a
+   missing data file already got there. The gauge's own page is
+   unaffected — still renders, still shows its sample-data badge — it only
+   stopped contributing a synthetic number to the headline. **Australia's
+   Power composite: 40.1 (Slipping) → 39.6 (Slipping)** — band unchanged,
+   number now fully real. (The earlier proposal to instead fail the build
+   on `SAMPLE_DATA` — see prior draft of this file — was superseded by
+   this exclude-from-composite approach, the same day, once decided.)
 
-**Blocker 1 — CLEARED, 2026-08-20.** *Every drafted piece of content on
-this branch was explicitly UNREVIEWED* — the plain-language lines (20
-gauges), the six CAUSE drafts, the two CONTESTED drafts, and every
-rewrite from the bucket B/C/D pass. Assembled into `docs/review-queue.md`
-(23 gauge sections, verified byte-identical against every source file
-before the site owner read it) so it could be read in one sitting instead
-of 25 separate files. **The site owner read and approved all of it, no
-changes requested.** Recorded in three places: the `UNREVIEWED` markers
-in `content/register-draft-lines.ts` replaced with "Reviewed and approved
-by the site owner, 2026-08-20"; the `[DRAFT — edit freely]` marker
-removed from all 23 `content/why-this-matters/*.md` files;
-`content/why-this-matters-verification.ts` gained a new
-`copyApprovedAt: "2026-08-20"` field on all 23 records (additive only —
-zero `ClaimStatus` values touched, since approving the wording is a
-different question from whether individual claims are source-verified,
-and this pass answered only the first one). `docs/review-queue.md` itself
-was scaffolding for the one reading session and has been deleted — the
-review record lives in the three places above, not in a second copy that
-would drift.
+**A fifth, build-blocking item cleared the same day, alongside #4** (not
+one of the four numbered blockers above, but merge to `main` couldn't
+happen without it either): the manual-lane silent-gap guard added
+2026-08-20 (`scripts/verify-gauge-invariants.mjs` — any `accessType:
+"manual"`, scored, same-year gauge with a peer absent at
+`latestSharedYear` and no matching `provenance.missingCountries` entry
+fails the build) was, when run for real, immediately failing on
+`work-life-balance`'s 5-country 2019 gap (CAN, GBR, KOR, NLD, DEU). That
+gap was real and silent before the guard existed; the guard just made it
+loud. **Closed 2026-08-21**: `missingCountries` populated for all five,
+worded as a collection gap per the 2019 investigation (see §2 above) —
+not "not published," since OECD does publish 2019 for all five and this
+project's own fetch simply never captured it. Rank and median now compute
+over the four reporting peers (NZL, USA, JPN + AUS), disclosed via the
+existing S4 mechanism. The intern brief still asks for these five real
+figures via the normal manual-lane channel — this closed the build
+blocker, not the data gap itself (tracked in §2).
 
-**What I would not ship to main today, directly — three remain:**
+**Safe to merge as infrastructure** (independent of the above): the
+token/font system, `<Gauge>` and all seven state branches (structurally
+verified even where content is unexercised — see §3), `/table/[plate]`,
+`/section/[n]`, the 380px responsive treatment for both, the R3 guard, the
+`writtenAgainst` guard, the peer-coverage floor, `provenance.sourcePulledAt`
+(additive field, `lib/types.ts`/`lib/maturity.ts`, lets manual-gauge
+staleness count from the real source-pull date instead of ingestion time,
+falls back to `retrievedAt` for every existing gauge), and the manual-lane
+silent-gap guard itself (verified live: tested by deliberately stripping a
+real country/year from `productivity.json`, confirming it named the exact
+gauge and country and failed the build, then restored via `git checkout`).
+All of it is real, build-verified, and in several cases proven via actual
+browser rendering rather than assumed from the classes.
 
-1. **Methods §3.2 doesn't exist, and it's cited live on every gauge page
-   right now.** A public reader clicking through from `NOT ESTABLISHED` or
-   `CONTESTED` today would land on a section that isn't written. §3.1 and
-   §3.3 are real; §3.2 is the one dangling citation left on the site, and
-   it's the one doing the most editorial work.
-2. **Old and new UI currently coexist with no cutover decision made.**
-   `/gauges/[slug]` (pre-REGISTER) and `/table/[plate]` (REGISTER) both
-   generate and both work; nothing has decided which one the site's actual
-   navigation should point to, or when the old components get retired. That
-   was deliberate (staged rollout, cheap revert) during the build — but
-   "merge to main" implies production, and production needs one answer to
-   "which page does a reader actually land on," not two live in parallel.
-3. **`productivity` is still `SAMPLE_DATA` (Phase A placeholder, not real)
-   and is silently baked into the live Power composite as though it were
-   real.** Found during the intern-data-collection pre-flight (2026-08-20):
-   `computeCompositeForAllCountries` and every caller of it include any
-   gauge with a data file regardless of `provenance.status` — there is no
-   status check anywhere in that path. So today's headline Power number
-   (40.1, Slipping) is partly synthetic right now, independent of anything
-   the intern's four manual datasets will change. This is a launch blocker
-   in its own right, arguably more urgent than the intern work, since it
-   means the site's actual published headline number is already not fully
-   real. Not fixed here — flagged for Phase D. The fix is presumably either
-   excluding `SAMPLE_DATA`-status gauges from the composite the same way a
-   missing file already is (an `AwaitingDataCard`, not a scored contribution),
-   or landing real productivity data before this composite is ever shown
-   publicly — a decision for the site owner, not made unilaterally here.
-
-Everything else — the Phase D items, the two `unresolved` claims, the
-not-established framing question — is real, disclosed, and in most cases
-already the honest state a launched site could stand behind (the whole
-point of `NOT ESTABLISHED`/`CONTESTED`/`unresolved` as first-class states is
-that they're shippable precisely because they don't overclaim). It's the
-three above that are the actual remaining blockers.
+**Everything not listed above as a blocker** — the intern's four manual
+datasets, the two `unresolved` claims, the not-established framing
+question, the Phase D list, and the cohesion-majority-acceptance
+`scoringBasis` gap — is real, disclosed, and the honest state a launched
+site can stand behind (the whole point of `NOT ESTABLISHED`/`CONTESTED`/
+`unresolved` as first-class states is that they're shippable precisely
+because they don't overclaim). See §2, "Outstanding — tracked, not launch
+blockers," for the complete list. None of it blocked this merge.

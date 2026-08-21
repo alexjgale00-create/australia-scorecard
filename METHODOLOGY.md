@@ -269,11 +269,10 @@ reproduction method for the re-run.
 
 ### §3.2 — Evidence standard for a causal attribution
 
-> **DRAFT — UNREVIEWED.** Gives `NOT ESTABLISHED`, `CONTESTED`, and the
-> established `CAUSE`/`PRECEDENT`/`CHALLENGER` apparatus the standard
-> they've cited since REGISTER shipped without one. Editorial,
-> liability-bearing content, checked against real gauge content but not
-> yet read by the site owner. Stays here until edited.
+> Reviewed and approved by the site owner, 2026-08-21 — no changes
+> requested. Gives `NOT ESTABLISHED`, `CONTESTED`, and the established
+> `CAUSE`/`PRECEDENT`/`CHALLENGER` apparatus the standard they've cited
+> since REGISTER shipped without one.
 
 **The ruling.** An established `CAUSE` may join separately sourced facts
 into a causal claim. It does not require one source stating the cause
