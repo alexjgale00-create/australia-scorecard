@@ -117,8 +117,8 @@ none of it reads as a launch blocker — see "Merge readiness" below for what
   trajectory); the section reappears automatically the moment that
   field is real.
 
-**From the trajectory-chart pass (`design/register-trajectory`) — one tracked
-follow-up:**
+**From the trajectory-chart pass (`design/register-trajectory`) — two tracked
+follow-ups:**
 
 - **`components/RankChart.tsx` is orphaned** — confirmed by the same
   repo-wide grep that found `TimeSeriesChart.tsx` orphaned (which *was*
@@ -127,6 +127,45 @@ follow-up:**
   discipline is "delete what's confirmed dead and asked for, flag what's
   merely found." A future pass touching `Gauge.tsx`'s dense layer again
   should delete it the same way `TimeSeriesChart.tsx` went.
+
+- **The Playwright HTTP-cache trap — logged, not fixed retroactively.**
+  Full mechanism and evidence in DESIGN.md's "Trajectory chart" section
+  ("A trap in the verification method itself"): Chromium reuses its
+  on-disk HTTP cache across separate `chromium.launch()` calls when a
+  local verification server is reused on a fixed port between runs —
+  found in this pass when an identical check gave a different, correct
+  answer on a never-before-used port. Fixed here via `Cache-Control:
+  no-store` on the verification server's own responses. **Which numbers
+  this affects, so a future session knows what to trust at face value and
+  what to redo:**
+  - **This pass's (`design/register-trajectory`) own final reported
+    numbers are trustworthy** — every claim was re-verified after the fix
+    landed, on both the (now `no-store`) reused port and at least one
+    fresh port, cross-checked to match. This pass's own *early*
+    intermediate readings (before the trap was found — e.g. the first
+    "desktop is clean" check right after the `min-w-0` fix) used the
+    vulnerable method too, but every one was superseded by a corrected
+    re-check before being reported — nothing in the final report rests on
+    an unconfirmed early reading.
+  - **`design/register-homepage`'s entire 380px/desktop verification
+    predates the fix and is less certain than it reads.**
+    `scripts/_verify-homepage-380.mjs` used a fixed port with no
+    `Cache-Control` header throughout that pass. Every claim from that
+    report — zero document overflow, zero clipped ruler marks, zero
+    truncated band labels, zero computed-style colour hits — including
+    the specific re-checks that confirmed the band-label-truncation fix
+    and the "STRENGTHENING" desktop-tracking fix, was obtained this way.
+    The site has already merged and deployed on these claims — not urgent
+    to redo, but a future session touching the homepage's 380px behaviour
+    should re-verify with the corrected method rather than trust the
+    existing record at face value.
+  - **Unknown, not confirmed either way**: any Playwright-based
+    verification from before this multi-session engagement — the
+    original REGISTER build's own "confirmed via real rendering" claims
+    (e.g. DESIGN.md's `personal-safety` peer-mark density-limit finding,
+    the `/section/[n]` 380px spec). No visibility into whether that
+    session's harness had the same vulnerability. Not claimed fine, not
+    claimed broken — genuinely unknown, flagged rather than guessed at.
 
 **The intern's four manual datasets.** `productivity`, `human-capital-depth`,
 and `inequality` have no real data yet (the first two: no data file at all;
