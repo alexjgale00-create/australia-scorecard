@@ -254,6 +254,8 @@ glyph `⊞` closed / `⊟` open, `opacity .7` on hover. Contents, in the same
   Sorted best→worst. **AUS row: weight 800 with a `1px --ink` rule above and below** —
   emphasis by weight and rule, never colour. Superscript letter footnotes for series
   breaks and definitional variants (e.g. IRL GDP vs GNI\* basis).
+- **AUS AND PEERS OVER TIME** — the multi-country trajectory chart, added 2026-08.
+  Sits here, above the two items below it. See "Trajectory chart" for the full spec.
 - **AUS time series** as a two-row mono table (years / values), tabular-nums; missing
   years render `n.a.` in `--stamp`.
 - **Right column:** DEFINITION (full statistical definition, cite the manual),
@@ -262,6 +264,238 @@ glyph `⊞` closed / `⊟` open, `opacity .7` on hover. Contents, in the same
   distinction so the as-of date is not mistaken for the observation year).
 
 The dense layer is the same page and same component — never a separate "advanced" view.
+
+---
+
+## Trajectory chart
+
+Added 2026-08 (`design/register-trajectory`). Closes a real information gap, not a
+styling one: the band strip shows where the field sits *now*; nothing on a gauge page
+showed how it got there — how a peer pulled ahead, or when Australia flattened. The
+site's own framing is "gaps that could be closed, and who closed them" — PRECEDENT
+names a peer's trajectory in prose, and until this pass nothing on the page ever showed
+it. Deliberately not an addition to the band strip itself: the strip is a snapshot with
+no time dimension, and adding one to it would be incoherent.
+
+### The design problem: nine countries, no colour
+
+R1 forbids colour encoding performance, and colour is the conventional way to
+distinguish series on a line chart. Two options were argued before anything was built:
+
+**Option A — all nine, always, terminal-labelled.** Every peer plotted, AUS heaviest,
+peers thinner with a small set of stroke textures, each line's true endpoint labelled
+with its ISO code (never a colour-keyed legend). Real diagnostic value — shows the
+field's actual shape — but every scored gauge on this site carries up to 8 peers, so
+this is the *maximum* density case every time, on every gauge page, and DESIGN.md's own
+"known density limit" (see "Responsive — 380px," above) already documents a label
+collision on `personal-safety` at *lower* density than this.
+
+**Option B — chosen. AUS + peer frontier + a named comparator, the rest as a band.**
+Three lines: AUS; a **peer frontier** (the best-placed peer *at each year* — not one
+fixed country, so it's labelled `FRONTIER`, never an ISO code, since attributing it to
+one country would be false the moment a different peer takes the lead); and a
+**comparator**, resolved mechanically as the qualifying peer with the smallest
+value-gap to AUS at the gauge's own `latestSharedYear` — the same reference point the
+band strip's own rank already uses. The remaining qualifying peers collapse into a
+light ink-tint min–max band.
+
+**Chosen for the tie to PRECEDENT, not just legibility.** A chart that can point at one
+specific line and say "here — this peer, this trajectory" is a content win: it's the
+first surface on the site that can show what PRECEDENT's prose asserts, not just state
+it. The density argument (Option A's crowding is a documented, lower-density-already-
+found problem; Option B comfortably fits every real gauge's peer count) was the
+secondary, confirming reason, not the primary one this time — see the Homepage section
+above for a case where the density argument *was* the deciding one.
+
+**Amendment, from the site owner's own critique of the chosen option:** a band
+summarising two or fewer remaining peers is "one more line with extra steps," not a
+real summarisation. The envelope is conditional, not unconditional:
+
+- **5 or more qualifying peers** → frontier + comparator + min–max band (the shape
+  above).
+- **4 or fewer qualifying peers** → name every one individually, terminal-labelled,
+  same as Option A — but Option A's crowding problem doesn't exist at this count: at
+  most 5 labels (AUS + 4 peers) ever need placing, well inside what the collision-
+  avoidance pass (below) was verified against.
+
+Same component, one branch on qualifying-peer count. **The switch is stated on the
+surface**, never left for the reader to infer: a caption above the chart reads
+`SHOWING: AUS AND ALL 4 PEERS` in the name-all branch, or `SHOWING: AUS · PEER FRONTIER
+· NEAREST PEER (KOR) · REMAINING 6 PEERS AS A RANGE` in the envelope branch — updated
+to `NAMED PEER (PRECEDENT)` in place of `NEAREST PEER` whenever the comparator comes
+from a PRECEDENT override rather than the mechanical pick (see "The comparator," below).
+
+A "qualifying" peer needs **3+ distinct years of data** — a peer with one or two points
+can support a snapshot rank but not a line. This is a materially different bar from R3's
+snapshot peer-coverage floor (3 peers minimum for a rank to be coherent at all): a gauge
+can clear R3 comfortably while having peers too thin for *this* chart specifically.
+
+### "Too thin" — declared, never a thin chart pretending to be a trend
+
+Same discipline as `n.a.` and `NOT ESTABLISHED`: a gauge needs **AUS itself at 3+ years,
+and at least 2 peers each at 3+ years**, or the chart's slot renders a declared statement
+instead — `NOT ENOUGH HISTORY FOR A TRAJECTORY`, `--stamp`, naming which of the two
+conditions failed. Never an empty region, never a two-point line dressed up as a
+trajectory.
+
+### The comparator: mechanical by default, PRECEDENT-aware where it exists
+
+Kept mechanical on purpose — "an editorial pick would be a judgment the site would then
+have to defend." But where a gauge's PRECEDENT prose already names a specific peer (an
+editorial judgment already made and defended, in a different part of the same page), the
+chart must not name a *different* one — `REGISTER_PRECEDENT_COMPARATOR` in
+`content/register-draft-lines.ts` (currently empty; no gauge has drafted PRECEDENT
+content yet — see "Unexercised in the code," HANDOVER.md) is the override point, checked
+before the mechanical nearest-peer pick, resolved by the caller
+(`app/table/[plate]/page.tsx`) and passed into `buildGaugeView` — `lib/gauge-view.ts`
+and `lib/trajectory.ts` never import content files directly, same separation the
+existing `cause`/`precedent` args already keep. If the named peer doesn't itself qualify
+(3+ years), `buildTrajectoryView` falls back to the mechanical pick and records that in
+`comparatorSource` rather than failing silently. **Standing rule, same shape as the one
+already in CLAUDE.md for methodology changes**: whoever drafts a gauge's first PRECEDENT
+naming one specific peer adds that peer's code to `REGISTER_PRECEDENT_COMPARATOR` in the
+same commit.
+
+### Recharts feasibility call: hand-rolled SVG, not Recharts
+
+Same conclusion this project already reached once, for a related, simpler problem, in
+the same file: `RankHistoryChart` (`components/Gauge.tsx`) is a plain inline SVG
+`<path>`/`<circle>` line, not Recharts — proof this codebase already chose hand-rolled
+SVG for an ink-only trajectory, not a new precedent invented for this pass. Reused, not
+just cited: `TrajectoryChart` follows the identical shape (compute a scale, draw a
+`<path>`/`<polyline>`, no charting library).
+
+Three reasons this held for the harder, multi-line version too:
+1. **Terminal-label collision avoidance needs exact endpoint pixel coordinates** and the
+   freedom to nudge one label against its neighbours — Recharts computes its own scales
+   internally and doesn't cleanly expose them for this. Getting a label positioned
+   precisely at a `<Line>`'s last point, then repositioned based on a *different* line's
+   label, is exactly the custom-annotation friction Recharts has fought before.
+2. **Terminal labels are plain HTML, not SVG `<text>`** — SVG text scales (and can go
+   illegible) with a responsive `viewBox`; HTML text at a real CSS font-size doesn't.
+   Same reasoning `DimensionRuler` and `/section/[n]`'s `PositionStrip` already use for
+   their own marks. Lines use `vector-effect="non-scaling-stroke"` so stroke width stays
+   constant in screen pixels regardless of the responsive `viewBox` scale.
+3. **Print/screenshot losslessness is closer to free** with a plain `<svg>` — no
+   `ResponsiveContainer` sizing pass, no library version to keep printing consistently.
+
+### Component geometry
+
+- **Lines**: AUS full weight, solid, `--register-ink`. In envelope mode: frontier
+  dashed, `opacity .75`; comparator dotted, `opacity .6`. In name-all mode: up to 4
+  peers cycle through solid/dashed/dotted/dash-dot at `opacity .55` — texture is a
+  secondary aid for tracing a line back to its label, never the primary disambiguator
+  (the terminal label is).
+- **Band** (envelope mode only): a filled polygon tracing the *non-comparator*
+  qualifying peers' min/max per year, `--register-ink` at `8%` fill opacity, no stroke.
+  Deliberately excludes the comparator's own value — it already has its own line;
+  folding it into "the rest" too would both double-count it and make the `REMAINING N
+  PEERS` caption wrong. Frontier, by contrast, *is* computed across every qualifying
+  peer including the comparator — excluding it would arbitrarily understate the real
+  frontier on a year the comparator happens to hold it.
+- **Terminal labels**: ISO code + value, two lines, mono, positioned at each line's true
+  endpoint — not every country necessarily reports through the same latest year, so this
+  is computed per line, not assumed to be the chart's right edge. **Edge-flip, not a
+  reserved margin**: a label anchored at `left: 100%` starts at the container's outer
+  edge and only extends *further* right from there — CSS resolves percentage `left` for
+  an absolutely-positioned element against the containing block's padding box, so
+  reserving right-padding on the container does nothing to give a right-edge label room
+  (found by real rendering — a label clipping 12px past a 380px viewport — not assumed
+  from the box model). Fixed the same way `YearAxis`'s own edge ticks already are: past
+  90% x-position, the label's anchor flips to sit left of its point instead of right.
+- **Collision avoidance**: greedy top-down pass enforcing a minimum vertical gap between
+  labels sorted by their natural y-position, then a compensating pass if the bottom
+  label would overflow past 100%. Bounded by the branch split itself — at most 5 labels
+  ever reach this (name-all's 4-peer cap + AUS; envelope mode is always exactly 3) — a
+  materially smaller problem than Option A's rejected always-nine case.
+- **X-axis**: year, labelled, in mono, 3–4 evenly-spaced ticks (not just start/end) —
+  this is the thing the brief named as "currently missing everywhere." No formal y-axis:
+  every terminal label already carries its own value, the same "let the endpoints carry
+  the number, skip the tick marks" choice `AnchoredSparkline` already makes.
+
+### Placement: tier 2, above the AUS series table, before AUS RANK OVER TIME
+
+The site owner's own instinct, confirmed rather than overridden: the band strip's whole
+design point (R2) is scannable-at-a-glance; a multi-line trajectory chart demands active
+reading — tracing lines, reading labels — which is investigative, not scanning. It's
+thematically a peer of the two dense-layer elements already doing the same "how did we
+get here" job (the AUS series table, `RankHistoryChart`), not a peer of the strip. Even
+`RankHistoryChart` — one line, already solved — lives in tier 2; a harder new chart
+replicating similar complexity has no principled claim to a shallower tier. The
+composite's *own* trailing-decade trend already got a real tier-1 promotion, on the
+homepage (`AnchoredSparkline`) — what this chart adds is the per-gauge, multi-country
+*comparative* trajectory, a more detailed question that belongs at the same depth as the
+exact-value table sitting right below it.
+
+### Data: reused, not refetched
+
+Reads `GaugeData.countries[*].series` directly — the same raw source the AUS series
+table and the deleted `TimeSeriesChart` (below) already read. No new fetching, no
+`pipeline/` changes, no `lib/scoring.ts` changes: `lib/trajectory.ts` is its own file
+specifically so this stays presentation-layer derivation (which peers qualify to be
+*drawn*) rather than anything about how a gauge is *scored*.
+
+### A pre-existing bug, found and fixed while verifying this
+
+`min-w-0` was missing on the dense layer's left grid column (`components/Gauge.tsx`).
+CSS grid items default to `min-width: auto`, so the column refused to shrink below its
+widest descendant's intrinsic content width — the AUS series table, one column per year,
+36+ for some gauges — dragging the *whole* grid item (including the full peer table
+above it) wider than the page and defeating that table's own `overflow-x-auto`.
+Confirmed pre-existing, not caused by this pass: reproduced identically with the
+trajectory chart's own code fully reverted, on this same branch. Real desktop impact
+before the fix: **1280px viewport, 2533px `scrollWidth`** — not a rounding error. Fixed
+with one class; verified clean (`scrollWidth === clientWidth`) at both 380px and desktop
+afterward.
+
+### A trap in the verification method itself, not just the component
+
+Early runs of the verification script reported a clean 380px `scrollWidth` even before
+the `min-w-0` fix landed — a false negative, not a passing test. Cause: Playwright's
+Chromium reuses its on-disk HTTP cache across separate `chromium.launch()` calls when
+the verification server is reused on the same fixed port between runs, silently serving
+a *previous* build's JS/CSS bundle while the file server itself served fresh files from
+disk. Caught by re-running the identical check on a never-before-used port and getting a
+different (correct) answer, not by trusting a single green result. Fixed by sending
+`Cache-Control: no-store` from the verification server and re-confirming on a fresh port
+before trusting any number this pass reports. Recorded here because it's a real,
+reusable lesson for whoever next builds a local Playwright harness against a static
+export on a fixed port — a clean result from a reused port is not evidence.
+
+### Verified, not assumed
+
+Real Chromium (Playwright), no-cache headers, a real gauge (`living-standards`, plate
+1.1, envelope mode — 8 qualifying peers) plus a temporary synthetic fixture harness for
+the two branches no real gauge exercises yet (below). At both 380px and 1280px: zero
+`document.documentElement` overflow; zero terminal-label collisions; zero clipped
+labels (after the edge-flip fix); zero `computed-style` hits against any of the five
+band hexes or `--accent-australia`'s blue anywhere inside the page's own content region.
+
+**Which gauges hit which branch, checked against real data, not assumed:**
+- **Envelope mode: all 20 of 20 scored gauges with a data file** — every real gauge
+  currently carries 7 or 8 qualifying peers (`debt-burden`, `housing-pressure`, and
+  `work-life-balance` at 7; every other scored gauge at 8). `human-capital-depth` and
+  `inequality` have no data file at all yet (Awaiting Data — the trajectory chart simply
+  doesn't render, same gate every other dense-layer element already uses).
+- **Name-all (4-or-fewer) branch: unexercised by any real gauge today.** Verified
+  structurally via a temporary preview harness (three synthetic peers, one deliberately
+  omitted for insufficient history) — same "real branches, no real gauge triggers them
+  yet" category as PRECEDENT and S1 (see HANDOVER.md, "Unexercised in the code"), not
+  untested-full-stop.
+- **Too-thin floor: unexercised by any real gauge today**, for the same reason — every
+  scored gauge with data clears both conditions comfortably. Verified via the same
+  synthetic harness (one single-year peer).
+
+### Deleted: `components/TimeSeriesChart.tsx`
+
+The pre-REGISTER attempt at this exact problem — Recharts, 8 peer lines all drawn
+identically in flat grey, one AUS line in `--accent-australia` blue. It solved "AUS vs.
+everyone" but never "peer vs. peer": no peer was individually identifiable, no terminal
+labels, only a hover tooltip. Confirmed orphaned (repo-wide grep, zero imports) before
+deletion — dead code left in place invites someone to revive exactly the pattern this
+pass exists to replace. `components/RankChart.tsx` is equally orphaned (same grep) but
+was not part of this pass's brief and was left in place, flagged rather than deleted —
+see HANDOVER.md.
 
 ---
 

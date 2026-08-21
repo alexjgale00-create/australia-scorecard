@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { Attribution, GaugeView, Peer } from "@/lib/gauge-view";
+import TrajectoryChart from "@/components/TrajectoryChart";
 
 /**
  * REGISTER's core component — see DESIGN.md for the full spec and the
@@ -346,7 +347,16 @@ function ApparatusLine({
 function DenseLayerContent({ view }: { view: GaugeView }) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-[1fr_340px] gap-8 sm:gap-[48px] pb-2">
-      <div>
+      {/* min-w-0: a real, pre-existing bug found while verifying the new
+          trajectory chart (not caused by it — confirmed against this
+          branch with the chart reverted, same overflow). CSS grid items
+          default to min-width:auto, so this column refused to shrink
+          below the widest descendant's intrinsic content width (the
+          AUS SERIES table, one column per year — 36+ for some gauges),
+          dragging the whole grid item wider than the page and defeating
+          that table's own overflow-x-auto. See DESIGN.md "Trajectory
+          chart" for how this was isolated and confirmed pre-existing. */}
+      <div className="min-w-0">
         {view.scored ? (
           <>
             <table className="w-full border-collapse font-martian-mono text-[11px] sm:text-[12.5px] tabular-nums">
@@ -374,11 +384,20 @@ function DenseLayerContent({ view }: { view: GaugeView }) {
               </tbody>
             </table>
 
+            {view.dense.trajectory && (
+              <div className="mt-6">
+                <div className="font-martian-mono text-[10px] font-bold tracking-[.14em] mb-2">
+                  AUS AND PEERS OVER TIME
+                </div>
+                <TrajectoryChart view={view.dense.trajectory} />
+              </div>
+            )}
+
             <div className="mt-6">
               <div className="font-martian-mono text-[10px] font-bold tracking-[.14em] mb-2">
                 AUS SERIES — {view.unitLine.split("·")[0].trim()}
               </div>
-              <div className="overflow-x-auto">
+              <div className="overflow-x-auto max-w-full">
                 <table className="border-collapse font-martian-mono text-[11px] tabular-nums">
                   <tbody>
                     <tr className="text-ink-3">

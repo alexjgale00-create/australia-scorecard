@@ -94,3 +94,24 @@ export const REGISTER_CONTESTED_CAUSES: Record<string, string> = {
   "external-position":
     "Whether Australia's persistent current account deficit reflects financial fragility or a benign pattern of foreign investment financing resource development is a live, unresolved disagreement among economists — this Scorecard's own polarity choice for this gauge is flagged as contestable for the same reason (see Methodology). Any single causal attribution here would be taking a side in that dispute, not reporting a settled one. (See this gauge's own ‘why this matters’ note and the Methodology page.)",
 };
+
+/**
+ * When PRECEDENT's drafted prose names a specific peer's trajectory, that
+ * same peer must be the trajectory chart's comparator line — the chart and
+ * the apparatus should never name different countries on the same page
+ * (see DESIGN.md "Trajectory chart", and lib/trajectory.ts's
+ * `buildTrajectoryView`). Empty today: no gauge has drafted PRECEDENT
+ * content yet (deferred — see HANDOVER.md, "PRECEDENT is unexercised
+ * across every state"), so there is nothing for a comparator to agree or
+ * disagree with. **Standing rule for whoever drafts PRECEDENT next**: add
+ * the named peer's ISO code here in the same commit as the PRECEDENT
+ * prose, for every gauge whose PRECEDENT names one specific peer (not
+ * every PRECEDENT will — some may compare AUS's trajectory to a trend
+ * rather than to one named country, in which case this stays unset for
+ * that gauge). If the named peer doesn't have enough years of data to
+ * qualify as a trajectory-chart comparator, `buildTrajectoryView` falls
+ * back to the mechanical nearest-peer pick and records that in
+ * `comparatorSource` rather than failing — but that's a real mismatch
+ * worth noticing when it happens, not a case to leave silently unequal.
+ */
+export const REGISTER_PRECEDENT_COMPARATOR: Partial<Record<string, import("@/lib/types").CountryCode>> = {};

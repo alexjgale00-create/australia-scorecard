@@ -117,6 +117,17 @@ none of it reads as a launch blocker — see "Merge readiness" below for what
   trajectory); the section reappears automatically the moment that
   field is real.
 
+**From the trajectory-chart pass (`design/register-trajectory`) — one tracked
+follow-up:**
+
+- **`components/RankChart.tsx` is orphaned** — confirmed by the same
+  repo-wide grep that found `TimeSeriesChart.tsx` orphaned (which *was*
+  deleted this pass, see DESIGN.md's "Trajectory chart" section). Not
+  deleted here: it wasn't part of this pass's brief, and this pass's own
+  discipline is "delete what's confirmed dead and asked for, flag what's
+  merely found." A future pass touching `Gauge.tsx`'s dense layer again
+  should delete it the same way `TimeSeriesChart.tsx` went.
+
 **The intern's four manual datasets.** `productivity`, `human-capital-depth`,
 and `inequality` have no real data yet (the first two: no data file at all;
 `inequality` likewise Awaiting Data); `work-life-balance` has real 1995-2019

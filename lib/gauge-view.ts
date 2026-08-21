@@ -19,6 +19,7 @@ import {
   latestSharedYear,
 } from "@/lib/scoring";
 import { computeMaturity, manualStaleness, type MaturityInfo } from "@/lib/maturity";
+import { buildTrajectoryView, type TrajectoryView } from "@/lib/trajectory";
 
 /**
  * The view model REGISTER's <Gauge> component renders — adapted from the
@@ -123,6 +124,14 @@ export interface DenseLayer {
   scoringBasisNote?: string | null;
   reuseNote?: string;
   contextSeries?: GaugeData["contextSeries"];
+  /**
+   * Multi-country trajectory data for the dense-layer chart — see
+   * DESIGN.md "Trajectory chart". Only ever computed on the *scored*
+   * branch (see buildGaugeView below): an unscored gauge has no
+   * peer-relative comparison to begin with, and this feature is scoped to
+   * "every scored gauge" per the site owner's explicit instruction.
+   */
+  trajectory?: TrajectoryView;
 }
 
 interface GaugeViewBase {
@@ -386,6 +395,8 @@ export interface BuildGaugeViewArgs {
   cause?: Attribution;
   /** Defaults to NOT_ESTABLISHED. No gauge has drafted PRECEDENT content yet, deliberately — see the site owner's ruling on drafting the Korea story once, not five times. */
   precedent?: Attribution;
+  /** The peer PRECEDENT's own prose names, if any — see content/register-draft-lines.ts's REGISTER_PRECEDENT_COMPARATOR and lib/trajectory.ts. */
+  precedentComparator?: CountryCode;
 }
 
 export function buildGaugeView(args: BuildGaugeViewArgs): GaugeView {
@@ -402,6 +413,7 @@ export function buildGaugeView(args: BuildGaugeViewArgs): GaugeView {
     revisions,
     cause = NOT_ESTABLISHED,
     precedent = NOT_ESTABLISHED,
+    precedentComparator,
   } = args;
 
   const isUnscored = (config.unscoredDimensions ?? []).includes(dimensionId);
@@ -627,6 +639,7 @@ export function buildGaugeView(args: BuildGaugeViewArgs): GaugeView {
       scoringBasisNote: describeScoringBasis(config),
       reuseNote: config.reuseNote,
       contextSeries: data.contextSeries,
+      trajectory: buildTrajectoryView(data, config, precedentComparator),
     },
   };
   return view;

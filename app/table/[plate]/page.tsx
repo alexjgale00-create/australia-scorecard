@@ -2,7 +2,12 @@ import { notFound } from "next/navigation";
 import Gauge from "@/components/Gauge";
 import { buildGaugeView, NOT_ESTABLISHED, type Attribution } from "@/lib/gauge-view";
 import { gaugesConfig, getAllPlates, getGaugeData, resolvePlate } from "@/lib/gauges-data";
-import { REGISTER_DRAFT_LINES, REGISTER_DRAFT_CAUSES, REGISTER_CONTESTED_CAUSES } from "@/content/register-draft-lines";
+import {
+  REGISTER_DRAFT_LINES,
+  REGISTER_DRAFT_CAUSES,
+  REGISTER_CONTESTED_CAUSES,
+  REGISTER_PRECEDENT_COMPARATOR,
+} from "@/content/register-draft-lines";
 import type { GaugeConfig } from "@/lib/types";
 
 /**
@@ -80,6 +85,7 @@ export default async function TablePage({ params }: { params: Promise<{ plate: s
     cause: resolveCause(config.id),
     // precedent: left at the NOT_ESTABLISHED default — no gauge has drafted
     // PRECEDENT content yet, deliberately (site owner's explicit hold).
+    precedentComparator: REGISTER_PRECEDENT_COMPARATOR[config.id],
   });
 
   return (
