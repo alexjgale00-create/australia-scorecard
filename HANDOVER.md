@@ -82,6 +82,41 @@ here on 2026-08-21 (previously spread across this file) specifically so
 none of it reads as a launch blocker — see "Merge readiness" below for what
 *was* blocking and is now cleared.
 
+**From the homepage rebuild (`design/register-homepage`, merged
+2026-08-21) — three tracked follow-ups, none of them blockers:**
+
+- **`app/methodology/page.tsx` is the last reader of `ScoreBand.color`.**
+  Found during the homepage pass: `DimensionVerdict` no longer reads it
+  (replaced by `<DimensionRuler>`), but Methodology still renders a
+  coloured dot per band in its threshold legend — a real R1 violation,
+  on a pre-REGISTER page the homepage pass never touched. Per the
+  standing rule on that field (`lib/types.ts`), it can't be removed
+  until every reader is gone. **Needs its own REGISTER pass** — once
+  Methodology is rebuilt (or at minimum de-coloured), grep the repo
+  again and remove the field for good, plus its now-obsolete
+  `@deprecated` comment.
+- **Header and Footer remain on the old, dark-capable token set,
+  sitewide.** Deliberate — the same precedent `/table/[plate]` and
+  `/section/[n]` already set, and the homepage rebuild followed it
+  rather than expanding scope (`.register` scopes to each page's own
+  content `<div>`, never to the shared layout chrome in
+  `app/layout.tsx`). The real consequence: on every REGISTER page,
+  including the homepage now, the header and footer can go dark under
+  `prefers-color-scheme: dark` while the content between them stays
+  fixed paper/ink — a visible seam a reader in dark mode would actually
+  see. Worth resolving eventually; a separate, deliberate pass (give
+  `Header`/`Footer` the same paper/ink/zero-radius treatment, or make
+  `.register`'s no-dark-mode rule genuinely sitewide), not a drive-by
+  fix.
+- **"Fact of the release" is hidden, not written.** `content/site.json`'s
+  `factOfRelease.headline` is still the literal `[PLACEHOLDER]` string
+  from scaffolding — the homepage now hides that section entirely rather
+  than ship placeholder copy, per the site owner's explicit instruction
+  not to invent it. **Waiting on the site owner** to write the real
+  headline + body (a single striking, sourced fact about Australia's
+  trajectory); the section reappears automatically the moment that
+  field is real.
+
 **The intern's four manual datasets.** `productivity`, `human-capital-depth`,
 and `inequality` have no real data yet (the first two: no data file at all;
 `inequality` likewise Awaiting Data); `work-life-balance` has real 1995-2019
