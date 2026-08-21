@@ -382,12 +382,21 @@ export function computeLevelScoreForAllCountries(
  * gauge id in computeComposite below. A reused gauge (weighted in more than
  * one dimension) naturally participates in each dimension's composite
  * independently, using that dimension's own weight.
+ *
+ * A gauge whose `provenance.status` is `SAMPLE_DATA` is excluded the same
+ * way a gauge with no data file at all is excluded elsewhere (it's never
+ * even in `gaugesData` in that case) — placeholder data doesn't get to
+ * contribute a synthetic number to a real composite. The gauge's own page
+ * still renders the sample data with its badge; this only stops it feeding
+ * the headline. See CLAUDE.md / HANDOVER.md, "productivity" blocker.
  */
 export function computeCompositeForAllCountries(
   gaugesData: { data: GaugeData; config: GaugeConfig }[],
   dimensionId: DimensionId
 ): CountryScorePoint[] {
-  const inDimension = gaugesData.filter(({ config }) => config.weights[dimensionId] !== undefined);
+  const inDimension = gaugesData.filter(
+    ({ config, data }) => config.weights[dimensionId] !== undefined && data.provenance.status !== "SAMPLE_DATA"
+  );
 
   const allCodes = new Set<CountryCode>();
   for (const { data } of inDimension) {
