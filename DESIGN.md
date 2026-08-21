@@ -513,6 +513,222 @@ Below 640px:
 
 ---
 
+## Homepage — `/`
+
+Built 2026-08 (`design/register-homepage`), the last of the three surfaces this
+handoff's design language now covers. Out of scope for the original REGISTER
+pass — the homepage kept its pre-REGISTER dashboard styling through both
+`/table/[plate]` and `/section/[n]` shipping, until it started actively
+contradicting the methodology the rest of the site states: coloured dots
+beside band words, green/red arrows in WHAT'S MOVING, a dark-plus-accent
+palette, KPI cards, and a peer strip that carried AUS/peer identity by hue —
+R1, and the excluded-defaults list, violated in five different ways on the
+one page most visitors land on first. Audited against every component
+`app/page.tsx` actually renders (not assumed) before anything was rebuilt;
+the audit found more than the five violations above — every `DirectionArrow`
+on the gauge grid (not just WHAT'S MOVING), `MaturityTag`'s amber instead of
+`--stamp`, `AnchoredSparkline` reused at "mini" size inside `GaugeCard` (the
+excluded sparkline-in-a-card pattern), and every gauge card linking to the
+retired `/gauges/[slug]` redirect with no plate number shown at all — R8,
+silently unmet.
+
+### The design problem: two verdicts, no colour
+
+Both dimension composites (Power, Quality of Life) are computed on the exact
+same 0–100 scale with the exact same five band thresholds as every
+individual gauge (`gaugesConfig.scoreBands` — one global set, not
+per-dimension). Structurally, a dimension verdict *is* a gauge: one AUS
+score, eight peer composites, one band. That's the real argument for reusing
+`<Gauge>`'s band-strip treatment outright — but it also opens a second,
+genuinely different option, so both were argued before anything was built.
+
+**Option 1 — reuse the full band strip as-is.** Labelled band columns, AUS
+`◆` plus all eight peers individually plotted by ISO code, same channel
+order as every gauge page (R2). Maximum consistency, and shows the real
+*shape* of the field (clustered vs. isolated), which is genuine diagnostic
+value.
+
+**Option 2 — compact position marker, chosen.** Same channel order, but AUS
+is the only mark plotted; the other eight peers are summarised in a text
+line beneath (rank, peer median, movement tally) rather than individually
+placed.
+
+**Why Option 1 was rejected — evidence, not preference.** A dimension
+composite always carries the full 8-peer set (composites don't drop peers
+the way an individual gauge occasionally does with a real data gap) — the
+*densest* possible case for the band strip. DESIGN.md's own "known density
+limit" finding (see "Responsive — 380px," above) already documents one label
+collision on `personal-safety` at 380px with only 5 of 6 peers clustered
+tight — a *lower* density than every dimension verdict carries unconditionally,
+every time, on both rulers, stacked, on the first page a visitor sees. That's
+a documented breaking point being walked into deliberately, not a stylistic
+call. Confirmed, not just reasoned: Option 2 was built and verified by real
+Playwright rendering at 380px and desktop — zero document-level overflow,
+zero clipped marks, zero truncated labels — the failure mode Option 1 would
+have risked never had a chance to occur.
+
+**The stronger positive, not just the safer choice.** Because both
+composites share identical band thresholds, drawing both rulers at identical
+width makes them directly, visually comparable — a reader can see at a
+glance that Power's mark sits in a different band-fraction than Quality of
+Life's, on one shared scale. That reads the two verdicts against each other,
+which is closer to what "two verdicts, the tension is the point" is actually
+asking the page to do than two independent, denser strips would be.
+
+### Component: `<DimensionRuler>`
+
+One component, no density prop — it's homepage-only, built once for exactly
+two call sites (Power, Quality of Life), never reused at gauge-page density.
+
+**Geometry, top to bottom:**
+1. Dimension name (Public Sans, bold) left; band word + tick glyph
+   (`SLIPPING ∙∙∙∙`) right, same tick-glyph set as every gauge
+   (`gaugesConfig.scoreBands[].ticks`).
+2. Tagline, one line, `--ink-2`.
+3. The ruler: five band segments, widths from `(max − min + 1) / 101`
+   (the same proportion `lib/gauge-view.ts`'s private `buildBands` computes
+   for the full strip — recomputed locally here, not imported, since this
+   component intentionally never touches `lib/scoring.ts` or
+   `lib/gauge-view.ts`), `1px --ink` top / `1px --chrome` bottom / `1px
+   --grid` verticals between segments — identical frame convention to
+   `<Gauge>`'s `ScoredStrip`. AUS is a single `◆`, positioned at
+   `left: score%`, `aria-label="Australia: {score} of 100, band {band}"`
+   (the accessible name carries the value; the glyph is `aria-hidden`, same
+   rule as every other band rendering on this site).
+4. Band column labels beneath the ruler, `--ink-3`, uppercase. **Two label
+   sets, not one**: the full word at `sm:` and above; a fixed abbreviation
+   below `sm:` (`FALL.BEH.` / `SLIPPING` / `HOLD.` / `STRNGTH.` / `LEADING`)
+   — found necessary by real rendering, not designed in from a guess: the
+   narrowest column (Holding, ~15% width) can't hold its full word at a
+   legible size at 380px, and even the full-word desktop row needed its
+   tracking tightened by real measurement (a 3px scrollWidth/clientWidth
+   overflow on "Strengthening," caught by a direct truncation check, not
+   just eyeballing a screenshot). This is this site's first real 5-band
+   abbreviation set — the gauge page's own 380px spec only ever documented
+   the mockup's fictional 4-band set, so there was no existing shorthand to
+   inherit.
+5. The AUS score, positioned at the same `left: score%` as the mark
+   (`38.6`-style, Martian Mono, extrabold), directly beneath the labels row.
+6. **The R3 line** — rank, peer median, movement tally, `flex-wrap`, in the
+   same component, immediately below the score, never behind a toggle or a
+   fold. This is what makes Option 2 satisfy R3 without individually
+   plotting peers: `RANK 7th OF 9 · PEER MEDIAN 48.2 · 2 IMPROVING · 6 FLAT
+   · 6 DETERIORATING (TRAILING DECADE)`. Peer median is computed locally in
+   `DimensionVerdict` (a small private `median()`, mirroring but not
+   importing `lib/scoring.ts`'s own private helper of the same shape) —
+   the one piece of derived arithmetic this pass added, kept in the
+   component layer specifically so `lib/scoring.ts` itself stays untouched.
+
+**What sits below the ruler, unchanged in kind:** the trailing-decade
+composite trajectory (`<AnchoredSparkline>`, kept — see below) and WHAT'S
+MOVING (kept, recoloured).
+
+### Trend chart and WHAT'S MOVING — kept, recoloured, not rebuilt
+
+The trailing-decade composite trajectory is a genuinely different concern
+from peer position (it's Australia's own number over time, not a
+peer-relative comparison), so Option 2's argument doesn't apply to it — nothing
+here needed to lose real information to satisfy R3. `<AnchoredSparkline>`
+stays, at hero size only: stroke and fill are now `--register-ink`
+(a bare line, `opacity .12` fill, no gradient-as-decoration), reference
+lines `--register-grid`, tooltip restyled to paper/ink/chrome/mono. Its
+"mini" size — the actual excluded sparkline-in-a-card pattern, previously
+dropped into `GaugeCard` — is gone from both the call site and the
+component's own type, not left as an unused option inviting the pattern
+back. Its `bands` prop was narrowed to `bandBoundaries: number[]`
+(plain numbers, computed server-side) specifically so the deprecated
+`ScoreBand.color` field never has to be serialised into this "use client"
+component's hydration payload at all — confirmed by grepping the built
+static output for every band hex and finding zero, not assumed from the
+props not being read.
+
+WHAT'S MOVING keeps its glyphs (`▲`/`▼`/`→`) and structure; the riser/faller
+distinction is now font-weight only (R2's tertiary channel) — bold for the
+one that actually rose/fell, regular for "held up best"/"least improved" —
+never `--status-good`/`--status-critical`.
+
+### The gauge grid
+
+Every `GaugeCard`, `AwaitingDataCard`, and `UnscoredGaugeCard` on this page
+is homepage-exclusive (confirmed by repo-wide grep before rewriting any of
+them — nothing else imports these three), so all three were rebuilt fully
+onto REGISTER tokens/typography/zero-radius, not just recoloured on the old
+palette:
+- **R8 met for real**: every card shows its plate number and links straight
+  to `/table/[plate]`, not the retired `/gauges/[slug]` redirect.
+- **Peer position** on each card reuses `/section/[n]`'s own `PositionStrip`
+  convention exactly (ink ticks at `opacity .35` for peers, `◆` for AUS,
+  `border-chrome` ends) — not the old `DotStrip`'s blue/grey identity-by-hue,
+  and not a new pattern invented for this pass.
+- **Band word + tick glyph** replaces the old accent-blue score number as
+  the headline value on each card.
+- Every card is built directly off `buildGaugeView`'s `ScoredGauge` (the
+  same view model `/table/[plate]` and `/section/[n]` already trust) rather
+  than recomputing band/rank/delta independently — so the grid can never
+  quietly disagree with a gauge's own page on what its band or rank is.
+- **The R8 reuse amendment, implemented for the first time here**: a gauge
+  scored in two dimensions (`housing-pressure` is the only current case)
+  gets a `<CrossReferenceCard>` on its non-primary dimension's grid instead
+  of a second full card — same wording, same rule as `/section/[n]`'s own
+  cross-reference row (`"{name} — scored in {primary dimension}, not a
+  separate table here. See Table {plate}."`). The homepage grid rendered
+  this gauge as two independent full cards before this pass; not a
+  duplicate-*route* problem (both already funnelled through
+  `/gauges/[slug]`'s redirect to the one real plate), but a
+  duplicate-*prominence* one — R8's "never a second `Table X.Y`" is about
+  the reader's impression as much as the URL.
+
+`DirectionArrow.tsx` and `DotStrip.tsx` are deleted, not deprecated —
+confirmed orphaned by repo-wide grep after the rewrite (nothing imports
+either), same "don't leave it as dead code" discipline as every retired
+pipeline fetcher in CLAUDE.md.
+
+### `ScoreBand.color` — one reader down, one left
+
+`DimensionVerdict` no longer reads `ScoreBand.color` — the colour dot next
+to the band word is gone, replaced by `<DimensionRuler>`. Per the standing
+rule on that field (`lib/types.ts`), removing it outright requires
+confirming *nothing* still reads it. Grepped the full repo after this pass:
+one reader remains, `app/methodology/page.tsx` (a band-threshold legend with
+a colour swatch per band — itself a real R1 violation, on a page this pass
+never touched). **The field stays** — the condition for removing it isn't
+met yet. Flagged here rather than fixed silently: Methodology is a
+pre-REGISTER page, out of scope for a homepage pass, and deserves its own
+deliberate pass rather than a drive-by fix bundled into this one.
+
+### Header and Footer — deliberately unchanged
+
+`Header`/`Footer` (`app/layout.tsx`) still render on the old token set
+(`--surface-1`, `--text-primary`, etc.), which still flips under
+`prefers-color-scheme: dark` — meaning even this REGISTER-styled homepage
+has a header and footer that can go dark while its own content stays fixed
+paper/ink. **This is not new to this pass.** `/table/[plate]` and
+`/section/[n]` already made exactly this choice: `.register` scoping is
+applied to each page's own content `<div>`, never to Header/Footer, which
+render outside it in the shared root layout. This pass follows that same
+precedent rather than expanding scope to fix something no REGISTER surface
+has touched yet. Recorded here as a decision, not an oversight: Header/Footer
+getting the same paper/ink/zero-radius treatment as every REGISTER surface
+is real, future, in-scope work — a separate pass, deliberately not this one.
+
+### Verified, not assumed
+
+Real Chromium (Playwright), not reasoned from the classes: 380px and
+1280px viewports, both dimension rulers, the full gauge grid. Checked
+directly, each with its own signal (not inferred from the others): zero
+`document.documentElement.scrollWidth` overflow at 380px; zero clipped
+`◆` marks at either width; zero `.truncate` elements whose visible child's
+`scrollWidth` exceeds its container (caught the "Strengthening" 3px overflow
+this way, not by eye); zero computed-style `color`/`background`/
+`border-*`/`fill`/`stroke` matching any of the five band hexes or
+`--accent-australia`'s blue anywhere inside the page's own `.register`
+content region. The one coincidental hit before scoping to `.register`
+— `#898781`, shared by `--text-muted` and the unused "Holding" band colour
+— was traced to `Footer`'s unrelated, untouched styling before being ruled
+out, not assumed benign.
+
+---
+
 ## State Management
 - `dense: boolean` — per-gauge disclosure. Consider persisting the reader's preference.
 - `weightPower: number` (0–1, step .05, default .6) — dimension weight. Should live in the

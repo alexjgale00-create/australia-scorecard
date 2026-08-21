@@ -1,75 +1,70 @@
 import Link from "next/link";
-import type { GaugeConfig, GaugeData, GaugeScore, ScoreBand } from "@/lib/types";
-import DirectionArrow from "@/components/DirectionArrow";
-import DotStrip from "@/components/DotStrip";
-import AnchoredSparkline from "@/components/AnchoredSparkline";
-import MaturityTag from "@/components/MaturityTag";
-import EvidenceTag from "@/components/EvidenceTag";
-import {
-  computeGaugeHistoricalLevelScores,
-  computeLevelScoreForAllCountries,
-  computeLevelScoreForAllCountriesLatestWave,
-} from "@/lib/scoring";
-import { computeMaturity } from "@/lib/maturity";
+import type { ScoredGauge } from "@/lib/gauge-view";
 
-export default function GaugeCard({
-  config,
-  data,
-  score,
-  bands,
-}: {
-  config: GaugeConfig;
-  data: GaugeData;
-  score: GaugeScore;
-  bands: ScoreBand[];
-}) {
-  const dotStripPoints =
-    config.scoringBasis === "latest-wave-per-country"
-      ? computeLevelScoreForAllCountriesLatestWave(data, config)
-      : score.latestYear
-        ? computeLevelScoreForAllCountries(data, config, score.latestYear)
-        : [];
-  const historicalScores = computeGaugeHistoricalLevelScores(data, config, "AUS");
-  const maturity = computeMaturity(config, data);
-
+/**
+ * The homepage grid card for a scored gauge — REGISTER, built directly off
+ * `buildGaugeView`'s `ScoredGauge` (the same view model `/table/[plate]`
+ * and `/section/[n]` already trust), so the band word, tick glyph, rank,
+ * and delta here can never drift from what the gauge's own page says.
+ *
+ * R1: no colour encodes anything — no `--accent-australia` score, no
+ * `DirectionArrow`, no coloured `DotStrip`. R2: peer position (ink ticks +
+ * `◆`, the same convention `/section/[n]`'s PositionStrip already uses) is
+ * primary, band word + tick glyph secondary, weight tertiary only. R7:
+ * ISO alpha-3 in mono, no flags — inherited from `view.peers`. R8: plate
+ * number shown, links straight to `/table/[plate]` — not the retired
+ * `/gauges/[slug]` redirect. Zero border radius throughout.
+ */
+export default function GaugeCard({ view, plate }: { view: ScoredGauge; plate: string }) {
   return (
     <Link
-      href={`/gauges/${config.id}`}
-      className="block rounded-lg border border-[var(--gridline)] bg-[var(--surface-1)] p-5 transition hover:border-[var(--accent-australia)]"
+      href={`/table/${plate}`}
+      className="block border border-chrome bg-paper p-4 font-public-sans text-ink transition hover:border-ink"
     >
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-2">
-          <h3 className="font-semibold text-[var(--text-primary)]">{config.name}</h3>
-          <MaturityTag tier={maturity.tier} reason={maturity.reason} />
-          <EvidenceTag strength={config.evidenceStrength} />
+      <div className="flex items-start justify-between gap-2">
+        <div className="flex items-center gap-2 font-martian-mono text-[11px] font-bold tracking-[.08em]">
+          <span>{plate}</span>
         </div>
-        <div className="text-2xl font-bold tabular-nums text-[var(--accent-australia)]">
-          {score.levelScore !== null ? Math.round(score.levelScore) : "—"}
-        </div>
+        {view.isSampleData && (
+          <span className="font-martian-mono text-[8.5px] font-bold tracking-[.1em] border border-stamp text-stamp px-[5px] py-[1px] whitespace-nowrap">
+            SAMPLE
+          </span>
+        )}
       </div>
 
-      <div className="mt-2">
-        <DirectionArrow direction={score.direction} />
+      <h3 className="font-semibold text-[15px] leading-[1.25] mt-1.5">{view.title}</h3>
+
+      <div className="font-martian-mono text-[10.5px] font-bold tracking-[.04em] tabular-nums mt-2.5">
+        {view.bands.find((b) => b.key === view.ausBand)?.label.toUpperCase()}{" "}
+        {view.bands.find((b) => b.key === view.ausBand)?.ticks}
       </div>
 
-      {dotStripPoints.length > 0 && (
-        <div className="mt-3">
-          <DotStrip
-            points={dotStripPoints}
-            bands={bands}
-            size="card"
-            missingCountries={data.provenance.missingCountries}
+      <div className="relative h-3.5 border-l border-r border-chrome mt-2.5">
+        {view.peers.map((p) => (
+          <span
+            key={p.code}
+            className="absolute w-[2px] h-2 bg-ink opacity-35"
+            style={{ left: `${p.score}%`, top: 3 }}
+            title={`${p.name}: ${Math.round(p.score)}`}
           />
-        </div>
-      )}
+        ))}
+        <span
+          className="absolute text-[9px] leading-none"
+          style={{ left: `${view.aus.score}%`, top: 0, transform: "translateX(-50%)" }}
+          aria-hidden="true"
+        >
+          ◆
+        </span>
+      </div>
 
-      {historicalScores.length > 1 && (
-        <div className="mt-3">
-          <AnchoredSparkline points={historicalScores} bands={bands} size="mini" />
-        </div>
-      )}
+      <div className="font-martian-mono text-[10px] text-ink-2 tracking-[.03em] tabular-nums mt-2">
+        RANK {view.rank} · {view.delta}
+      </div>
 
-      <p className="mt-3 text-sm text-[var(--text-secondary)]">{config.oneLiner}</p>
+      <div className={`font-martian-mono text-[9.5px] mt-1 ${view.stale ? "text-stamp" : "text-ink-3"}`}>
+        AS OF {view.asOf}
+        {view.stale ? " · STALE" : ""}
+      </div>
     </Link>
   );
 }

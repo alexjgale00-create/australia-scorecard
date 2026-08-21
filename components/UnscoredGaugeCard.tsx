@@ -1,46 +1,33 @@
 import Link from "next/link";
-import type { GaugeConfig, GaugeData } from "@/lib/types";
-import MaturityTag from "@/components/MaturityTag";
-import EvidenceTag from "@/components/EvidenceTag";
-import UnscoredTag from "@/components/UnscoredTag";
-import { computeMaturity } from "@/lib/maturity";
+import type { GaugeConfig } from "@/lib/types";
 
 /**
  * The homepage/dimension-grid card for a gauge that's deliberately not
- * scored (see GaugeConfig.unscoredDimensions) — no level score, no
- * DirectionArrow, no dot strip, no sparkline, since none of those are
- * meaningful for data that was never fed into a composite. Distinct from
- * both GaugeCard (has a real score) and AwaitingDataCard (nothing has
- * landed yet) — this gauge has real data, on purpose, with no number.
+ * scored (see GaugeConfig.unscoredDimensions) — no band, no rank, no
+ * position strip, since none of those are meaningful for data that was
+ * never fed into a composite. Distinct from both GaugeCard (has a real
+ * band) and AwaitingDataCard (nothing has landed yet) — this gauge has
+ * real data, on purpose, with no score. Same S7 declared-statement rule
+ * as `/table/[plate]`'s own UnscoredDeclaration: never an empty region.
  */
-export default function UnscoredGaugeCard({
-  config,
-  data,
-}: {
-  config: GaugeConfig;
-  data: GaugeData | null;
-}) {
-  const maturity = computeMaturity(config, data);
-
+export default function UnscoredGaugeCard({ config, plate }: { config: GaugeConfig; plate: string }) {
   return (
     <Link
-      href={`/gauges/${config.id}`}
-      className="block rounded-lg border border-[var(--gridline)] bg-[var(--surface-1)] p-5 transition hover:border-[var(--accent-australia)]"
+      href={`/table/${plate}`}
+      className="block border border-chrome bg-paper p-4 font-public-sans text-ink transition hover:border-ink"
     >
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-2">
-          <h3 className="font-semibold text-[var(--text-primary)]">{config.name}</h3>
-          <MaturityTag tier={maturity.tier} reason={maturity.reason} />
-          <EvidenceTag strength={config.evidenceStrength} />
-          <UnscoredTag />
-        </div>
-        <div className="text-2xl font-bold tabular-nums text-[var(--text-muted)]">—</div>
+      <div className="flex items-center justify-between gap-2">
+        <div className="font-martian-mono text-[11px] font-bold tracking-[.08em]">{plate}</div>
+        <span className="font-martian-mono text-[8.5px] font-medium tracking-[.1em] border border-ink-3 text-ink-3 px-[5px] py-[1px]">
+          NOT SCORED
+        </span>
       </div>
-
-      <p className="mt-3 text-sm text-[var(--text-secondary)]">{config.oneLiner}</p>
-
+      <h3 className="font-semibold text-[15px] leading-[1.25] mt-1.5">{config.name}</h3>
+      <p className="font-public-sans text-[12.5px] text-ink-2 mt-2">{config.oneLiner}</p>
       {config.unscoredReason && (
-        <p className="mt-3 text-xs text-[var(--text-muted)] line-clamp-2">{config.unscoredReason}</p>
+        <p className="font-martian-mono text-[10px] text-ink-3 mt-2 leading-[1.5] line-clamp-2">
+          {config.unscoredReason}
+        </p>
       )}
     </Link>
   );

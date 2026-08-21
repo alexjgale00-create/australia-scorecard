@@ -8,7 +8,7 @@ import {
   computeLevelScoreDelta,
 } from "@/lib/scoring";
 import AnchoredSparkline from "@/components/AnchoredSparkline";
-import DotStrip from "@/components/DotStrip";
+import DimensionRuler from "@/components/DimensionRuler";
 import type {
   DimensionConfig,
   GaugeConfig,
@@ -18,22 +18,29 @@ import type {
   ScoreBand,
 } from "@/lib/types";
 
-function ordinal(n: number): string {
-  const suffixes = ["th", "st", "nd", "rd"];
-  const v = n % 100;
-  return `${n}${suffixes[(v - 20) % 10] ?? suffixes[v] ?? suffixes[0]}`;
+function median(values: number[]): number | null {
+  if (values.length === 0) return null;
+  const sorted = [...values].sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
+  return sorted.length % 2 === 0 ? (sorted[mid - 1] + sorted[mid]) / 2 : sorted[mid];
 }
 
 /**
- * One dimension's full headline treatment — band, score, context line,
- * sparkline, peer dot strip, What's Moving. Extracted from app/page.tsx so
- * Power and Quality of Life render with identical prominence side by side,
- * never one as a "main" verdict and the other as an afterthought (Phase E
- * requirement). Degrades gracefully on its own: a dimension that's mostly
- * Awaiting data (Quality of Life at launch, initially just housing-pressure)
- * still renders a real composite from whatever does have data, discloses
- * exactly what's missing, and quietly omits What's Moving when there
- * aren't enough gauges to compare.
+ * One dimension's full headline treatment — REGISTER, Option 2 ("compact
+ * position marker" — see DimensionRuler and DESIGN.md "Homepage" for the
+ * full argument against the full band-strip alternative). Extracted from
+ * app/page.tsx so Power and Quality of Life render with identical
+ * prominence side by side, never one as a "main" verdict and the other as
+ * an afterthought (Phase E requirement). Degrades gracefully on its own: a
+ * dimension that's mostly Awaiting data still renders a real composite
+ * from whatever does have data, discloses exactly what's missing, and
+ * quietly omits What's Moving when there aren't enough gauges to compare.
+ *
+ * Zero colour encodes performance anywhere in this component (R1) — no
+ * `ScoreBand.color` read here (the standing rule this component used to be
+ * the one exception to), no `--accent-australia`, no `--status-good`/
+ * `--status-warning`/`--status-critical`. Direction in WHAT'S MOVING is
+ * carried by glyph + weight only (R2's tertiary channel), never colour.
  */
 export default function DimensionVerdict({
   dimension,
@@ -68,6 +75,7 @@ export default function DimensionVerdict({
   const ausRank =
     ausComposite !== null ? sortedByComposite.findIndex((c) => c.code === "AUS") + 1 : null;
   const band = ausComposite !== null ? bandForScore(ausComposite, scoreBands) : null;
+  const peerMedian = median(allComposites.filter((c) => c.code !== "AUS").map((c) => c.score));
 
   const historicalComposite = computeHistoricalComposite(gaugesWithData, dimension.id).map((p) => ({
     year: p.year,
@@ -91,52 +99,55 @@ export default function DimensionVerdict({
   const showWhatsMoving = deltas.length >= 2 && riser.config.id !== faller.config.id;
 
   return (
-    <section className="rounded-xl border border-[var(--gridline)] bg-[var(--surface-1)] p-6 sm:p-8">
-      <p className="text-sm font-medium uppercase tracking-wide text-[var(--text-muted)]">
-        {dimension.tagline}
-      </p>
-      <h2 className="mt-2 text-2xl font-bold sm:text-3xl">
-        {dimension.name} is{" "}
-        <span className="inline-flex items-center gap-2 align-middle">
-          <span
-            className="inline-block h-3.5 w-3.5 rounded-full sm:h-4 sm:w-4"
-            style={{ background: band?.color ?? "var(--text-muted)" }}
-            aria-hidden="true"
-          />
-          {band?.label ?? "—"}
-        </span>
-      </h2>
-      <p className="mt-1 text-xl font-semibold tabular-nums text-[var(--text-secondary)]">
-        {ausComposite !== null ? ausComposite.toFixed(1) : "—"}{" "}
-        <span className="text-sm font-normal text-[var(--text-muted)]">/ 100</span>
-      </p>
-      <p className="mt-2 text-sm text-[var(--text-secondary)]">
-        {ausRank !== null ? `${ordinal(ausRank)} of ${allComposites.length} peer countries` : "Rank unavailable"}{" "}
-        · {improving} improving, {flat} flat, {deteriorating} deteriorating over the trailing decade
-        {compositeDisclosure && (
-          <>
-            {" "}· Composite based on {includedGaugeIds.length} of {dimensionScores.length} gauges with
-            data — {compositeDisclosure}.
-          </>
-        )}
+    <section className="border border-chrome bg-paper p-6 sm:p-8">
+      {ausComposite !== null && band !== null && ausRank !== null ? (
+        <DimensionRuler
+          name={dimension.name}
+          tagline={dimension.tagline}
+          score={ausComposite}
+          bands={scoreBands}
+          bandLabel={band.label}
+          bandTicks={band.ticks}
+          rank={ausRank}
+          totalReporting={allComposites.length}
+          peerMedian={peerMedian}
+          improving={improving}
+          flat={flat}
+          deteriorating={deteriorating}
+        />
+      ) : (
+        <div className="font-public-sans text-ink">
+          <h2 className="font-bold text-[21px] sm:text-[25px] leading-[1.15] tracking-[-.01em]">
+            {dimension.name}
+          </h2>
+          <p className="font-martian-mono text-[12px] font-medium text-stamp mt-2">
+            NO COMPOSITE YET — no gauge in this dimension has data.
+          </p>
+        </div>
+      )}
+
+      <p className="font-martian-mono text-[10.5px] sm:text-[11px] text-ink-2 tracking-[.02em] mt-3">
+        {compositeDisclosure && <>{includedGaugeIds.length} OF {dimensionScores.length} GAUGES WITH DATA — {compositeDisclosure.toUpperCase()}. </>}
         {noFileCount > 0 && (
           <>
-            {" "}A further {noFileCount} of {totalGaugeCount} {dimension.shortName} gauge
-            {totalGaugeCount === 1 ? "" : "s"} {noFileCount === 1 ? "has" : "have"} no data file yet — see{" "}
-            <a href="/status" className="underline hover:text-[var(--text-primary)]">
-              Data status
+            A FURTHER {noFileCount} OF {totalGaugeCount} {dimension.shortName.toUpperCase()} GAUGE
+            {totalGaugeCount === 1 ? "" : "S"} {noFileCount === 1 ? "HAS" : "HAVE"} NO DATA FILE YET — SEE{" "}
+            <a href="/status" className="underline decoration-chrome hover:decoration-ink">
+              DATA STATUS
             </a>
             .
           </>
         )}
       </p>
 
-      <div className="mt-5">
-        <AnchoredSparkline points={historicalComposite} bands={scoreBands} size="hero" />
-      </div>
-
-      <div className="mt-5">
-        <DotStrip points={allComposites} bands={scoreBands} size="hero" />
+      <div className="mt-6 border-t border-grid pt-5">
+        <p className="font-martian-mono text-[9.5px] font-bold tracking-[.14em] text-ink-3 mb-2">
+          TRAILING DECADE — COMPOSITE TRAJECTORY
+        </p>
+        <AnchoredSparkline
+          points={historicalComposite}
+          bandBoundaries={scoreBands.slice(0, -1).map((b) => b.max + 0.5)}
+        />
       </div>
 
       {showWhatsMoving &&
@@ -144,25 +155,32 @@ export default function DimensionVerdict({
           const riserRose = riser.delta.delta > 0;
           const fallerFell = faller.delta.delta < 0;
           return (
-            <div className="mt-6 border-t border-[var(--gridline)] pt-5">
-              <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-[var(--text-muted)]">
-                What&rsquo;s moving
+            <div className="mt-6 border-t border-grid pt-5">
+              <p className="font-martian-mono text-[9.5px] font-bold tracking-[.14em] text-ink-3 mb-3">
+                WHAT&rsquo;S MOVING
               </p>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <p className="text-sm">
-                  <span style={{ color: riserRose ? "var(--status-good)" : "var(--text-muted)" }}>
-                    {riserRose ? "▲ Biggest riser:" : "→ Held up best:"}
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 font-public-sans text-[13.5px]">
+                <p>
+                  <span className={`font-martian-mono text-[11px] ${riserRose ? "font-bold" : ""} text-ink`}>
+                    {riserRose ? "▲ BIGGEST RISER:" : "→ HELD UP BEST:"}
                   </span>{" "}
-                  <strong>{riser.config.name}</strong>,{" "}
-                  {riser.delta.delta > 0 ? "+" : ""}
-                  {riser.delta.delta.toFixed(1)} over {riser.delta.endYear - riser.delta.startYear} yrs
+                  <strong className="font-semibold">{riser.config.name}</strong>,{" "}
+                  <span className="tabular-nums">
+                    {riser.delta.delta > 0 ? "+" : ""}
+                    {riser.delta.delta.toFixed(1)}
+                  </span>{" "}
+                  over {riser.delta.endYear - riser.delta.startYear} yrs
                 </p>
-                <p className="text-sm">
-                  <span style={{ color: fallerFell ? "var(--status-critical)" : "var(--text-muted)" }}>
-                    {fallerFell ? "▼ Biggest faller:" : "→ Least improved:"}
+                <p>
+                  <span className={`font-martian-mono text-[11px] ${fallerFell ? "font-bold" : ""} text-ink`}>
+                    {fallerFell ? "▼ BIGGEST FALLER:" : "→ LEAST IMPROVED:"}
                   </span>{" "}
-                  <strong>{faller.config.name}</strong>, {faller.delta.delta > 0 ? "+" : ""}
-                  {faller.delta.delta.toFixed(1)} over {faller.delta.endYear - faller.delta.startYear} yrs
+                  <strong className="font-semibold">{faller.config.name}</strong>,{" "}
+                  <span className="tabular-nums">
+                    {faller.delta.delta > 0 ? "+" : ""}
+                    {faller.delta.delta.toFixed(1)}
+                  </span>{" "}
+                  over {faller.delta.endYear - faller.delta.startYear} yrs
                 </p>
               </div>
             </div>
