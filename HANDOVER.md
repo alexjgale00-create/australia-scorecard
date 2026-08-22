@@ -117,6 +117,36 @@ none of it reads as a launch blocker — see "Merge readiness" below for what
   trajectory); the section reappears automatically the moment that
   field is real.
 
+**From the card-trend pass (`design/register-card-trend`) — one cleared bug,
+one confirmed-clean audit, one unexercised branch:**
+
+- **A real rendering bug, found and fixed: WHAT'S MOVING went illegible in
+  dark mode.** Full mechanism in DESIGN.md's "Homepage" section ("A real
+  bug, found later: inherited colour falling through to `<body>`") — not
+  a mask/clamp/overflow, an inherited colour from the *old* dark-switching
+  `--text-primary` token reaching text inside the homepage's deliberately
+  fixed-light `.register` region. Fixed with one class
+  (`components/DimensionVerdict.tsx`). Verified clean at 380px/desktop,
+  light/forced-dark, real Chromium, `Cache-Control: no-store`.
+- **Same bug class checked on `/table/[plate]` and `/section/[n]` —
+  confirmed clean, not assumed.** Both are `.register`-scoped surfaces
+  built before this bug class was known, and every earlier verification
+  pass on them ran light-mode only, so this was real cause for suspicion.
+  Audited directly in forced dark mode across 7 pages spanning every
+  render branch (scored, `SAMPLE_DATA`, unscored/S7, reused-gauge,
+  awaiting-data, both section overviews), both widths — 28 combinations,
+  zero flags. The detector was itself validated against the known-bad
+  pre-fix homepage build in the same pass (correctly flagged all 8 bad
+  elements) before this clean result was trusted. Full record in
+  DESIGN.md.
+- **The gauge card's "no ghost mark" branch (`deltaStartScore: null`) is
+  unexercised.** All 20 of 20 currently-scored homepage gauge cards have
+  a value at their delta window's start year. Real, type-checked code
+  (never renders an interpolated position, per the site owner's explicit
+  instruction) with no live trigger today — same "unexercised, not
+  untested" category as the trajectory chart's name-all/too-thin branches
+  and PRECEDENT/S1. See DESIGN.md's "Homepage gauge card — ghost mark".
+
 **From the trajectory-chart pass (`design/register-trajectory`) — two tracked
 follow-ups:**
 

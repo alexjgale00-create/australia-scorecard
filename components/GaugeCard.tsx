@@ -48,13 +48,51 @@ export default function GaugeCard({ view, plate }: { view: ScoredGauge; plate: s
             title={`${p.name}: ${Math.round(p.score)}`}
           />
         ))}
-        <span
-          className="absolute text-[9px] leading-none"
-          style={{ left: `${view.aus.score}%`, top: 0, transform: "translateX(-50%)" }}
-          aria-hidden="true"
+        {/* Ghost mark (Option A — see DESIGN.md "Homepage gauge card — ghost
+            mark"): Australia's own peer-relative position at the delta
+            window's start year, so the delta text's magnitude reads as
+            displacement on the same scale the current mark already uses.
+            Wrapped with its own role="img" + combined aria-label — the
+            displacement is the information, so the accessible name states
+            both positions and both years, not just the current one. Peer
+            ticks above keep their own individual titles, untouched. */}
+        <div
+          className="absolute inset-0"
+          role="img"
+          aria-label={
+            view.deltaStartScore !== null && view.deltaStartYear !== null && view.deltaEndYear !== null
+              ? `Australia: ${Math.round(view.deltaStartScore)} of 100 in ${view.deltaStartYear}, ${Math.round(view.aus.score)} of 100 in ${view.deltaEndYear}`
+              : `Australia: ${Math.round(view.aus.score)} of 100`
+          }
         >
-          ◆
-        </span>
+          {view.deltaStartScore !== null && (
+            <span
+              className="absolute h-px bg-chrome"
+              style={{
+                left: `${Math.min(view.deltaStartScore, view.aus.score)}%`,
+                width: `${Math.abs(view.aus.score - view.deltaStartScore)}%`,
+                top: 6,
+              }}
+              aria-hidden="true"
+            />
+          )}
+          {view.deltaStartScore !== null && (
+            <span
+              className="absolute text-[9px] leading-none opacity-50"
+              style={{ left: `${view.deltaStartScore}%`, top: 0, transform: "translateX(-50%)" }}
+              aria-hidden="true"
+            >
+              ◇
+            </span>
+          )}
+          <span
+            className="absolute text-[9px] leading-none"
+            style={{ left: `${view.aus.score}%`, top: 0, transform: "translateX(-50%)" }}
+            aria-hidden="true"
+          >
+            ◆
+          </span>
+        </div>
       </div>
 
       <div className="font-martian-mono text-[10px] text-ink-2 tracking-[.03em] tabular-nums mt-2">

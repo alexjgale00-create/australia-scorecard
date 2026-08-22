@@ -10,6 +10,7 @@ import type {
 } from "@/lib/types";
 import {
   bandForScore,
+  computeLevelScore,
   computeLevelScoreForAllCountries,
   computeLevelScoreForAllCountriesLatestWave,
   computeRank,
@@ -164,6 +165,21 @@ export interface ScoredGauge extends GaugeViewBase {
   ausBand: string;
   rank: string;
   delta: string;
+  /**
+   * The delta window's start year and Australia's peer-relative score
+   * *at that year* — for the homepage gauge card's ghost mark (Option A,
+   * see DESIGN.md "Homepage gauge card — ghost mark"). `deltaStartYear`
+   * is always a real year Australia has raw data for (guaranteed by
+   * `computeRawValueTrend`'s own construction) — but `deltaStartScore`
+   * can still be null: a peer-relative score needs 2+ countries reporting
+   * that exact year, which the raw trend doesn't require. Null means "no
+   * ghost, current mark alone" — never an interpolated position, same
+   * discipline as the zero-crossing trend guard.
+   */
+  deltaStartYear: number | null;
+  deltaStartScore: number | null;
+  /** The same snapshot year every other current-position field on this view already reflects — exposed here too so the ghost-mark's accessible label can name real years instead of assuming "now". */
+  deltaEndYear: number | null;
   peerMedian: number | null;
   /** FIX 1 — non-empty by construction. R3 is a type-level invariant, not a rendering convention; see assertMinimumPeerCoverage for the build-level half of that. */
   peers: [Peer, ...Peer[]];
@@ -524,6 +540,12 @@ export function buildGaugeView(args: BuildGaugeViewArgs): GaugeView {
   const rawTrend = !usesLatestWaveBasis && year
     ? computeRawValueTrend(data, "AUS", year, gaugesConfig.directionThresholdPctPerYear)
     : null;
+  // Peer-relative score at the delta window's start year, for the
+  // homepage card's ghost mark — computeLevelScore returns null itself
+  // if fewer than 2 countries reported that exact year, which is exactly
+  // the "no ghost" signal the card needs; never computed by interpolating
+  // between two other years.
+  const deltaStartScore = rawTrend ? computeLevelScore(data, config, "AUS", rawTrend.startYear) : null;
   const deltaLabel = rawTrend
     ? (() => {
         // Same zero-crossing/near-zero guard as computePeerTrajectory —
@@ -619,6 +641,9 @@ export function buildGaugeView(args: BuildGaugeViewArgs): GaugeView {
     ausBand: ausBandObj.id,
     rank: rankLabel,
     delta: deltaLabel,
+    deltaStartYear: rawTrend?.startYear ?? null,
+    deltaStartScore,
+    deltaEndYear: rawTrend?.endYear ?? null,
     peerMedian: peerMedianRaw,
     peers,
     missingPeers,

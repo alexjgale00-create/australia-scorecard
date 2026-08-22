@@ -961,6 +961,123 @@ content region. The one coincidental hit before scoping to `.register`
 — was traced to `Footer`'s unrelated, untouched styling before being ruled
 out, not assumed benign.
 
+### A real bug, found later: inherited colour falling through to `<body>`
+
+Added 2026-08 (`design/register-card-trend`). WHAT'S MOVING's gauge name,
+delta value, and "over N yrs" text had no explicit colour and inherited
+from `<body>` — the *old*, still dark-mode-switching `--text-primary`
+token, not `--register-ink`. In light mode that's a near-black close
+enough to pass casual inspection; in forced dark mode it's white, against
+the `.register` region's deliberately-fixed light paper — illegible,
+reported as "fades out mid-sentence." Not a mask, clamp, or overflow —
+confirmed by walking the ancestor chain (`overflow`, `textOverflow`,
+`maskImage`, `webkitLineClamp` all came back inert at every level) and
+only found by checking `getComputedStyle(...).color` directly in forced
+dark mode, where it read `rgb(255, 255, 255)`. Every other homepage
+component root (`GaugeCard`, `AwaitingDataCard`, `UnscoredGaugeCard`,
+`CrossReferenceCard`, `DimensionRuler`, `AnchoredSparkline`, the maturity
+banner) sets an explicit fixed-ink colour at its own root and was checked
+clean — this was isolated to one block, not systemic on the homepage.
+**Fixed** with one class (`text-ink` on the wrapping grid div, so the
+whole block inherits the fixed token instead of `<body>`'s) — verified
+clean (`rgb(32, 34, 36)` in all four combinations) at 380px and desktop,
+light and forced-dark, real Chromium, `Cache-Control: no-store`.
+
+**Same class of gap, checked on `/table/[plate]` and `/section/[n]`
+— clean.** Both are `.register`-scoped surfaces built before this bug
+class was known, and every earlier verification pass on them ran in
+light mode only — real cause for suspicion, not assumed fine. Audited
+directly: real Chromium, forced dark, both widths, across a spread of
+render branches chosen for coverage (scored/envelope-trajectory,
+`SAMPLE_DATA`, unscored/S7, a reused gauge's `reuseNote`, awaiting-data,
+both dimension overviews) — every leaf text element inside `.register`
+checked by computed luminance, not sampled by eye. Zero flags, all 28
+combinations (7 pages × 2 widths × 2 schemes). The detector itself was
+sanity-checked against the *pre-fix* homepage build in the same pass and
+correctly flagged all 8 known-bad elements at `luminance: 1` — a clean
+result from an unvalidated checker isn't evidence; this one earned it.
+Root cause, confirmed structurally too: both `Gauge.tsx` and
+`SectionOverview.tsx` set `text-ink` on their single top-level wrapper
+that everything else nests inside (no separate un-nested siblings the
+way the homepage's `DimensionVerdict` — itself lacking a root ink colour
+— had room for one), and neither file references any old dark-switching
+token anywhere (repo-wide grep). **Not a guarantee against a future
+instance of this bug class on these pages** — a future edit could still
+introduce an un-colored element outside that root's reach — but nothing
+in the pages as they exist today.
+
+### Homepage gauge card — ghost mark (Option A)
+
+Added 2026-08. The 24 gauge cards showed current peer positions (the tick
+strip) and a text delta, but no shape of movement — the dimension verdict
+cards above them do (the trailing-decade sparkline), the cards themselves
+didn't. Two options were argued: **A** — no new chart, make the existing
+tick strip do more work by adding a second, past-position mark for
+Australia on the same strip, so movement reads as displacement. **B** — a
+minimal multi-point trend line, tiny and ink-only. **A shipped.** B's own
+honest answer to "what does a shape tell a reader that the words don't"
+was a real one — *whether the move was steady or sudden* — but B could
+not be honestly distinguished from the sparkline-in-a-card pattern this
+site already excluded from `GaugeCard`: the exclusion was never about
+size or point-count, it was about the pattern (a rendered curve over
+multiple time points, in a card, repeated 24 times), and a smaller
+version of that is still that. Building it would have been rationalising
+around a rule this project has otherwise held to. A's honest answer to
+the same question is narrower — *peer-relative anchoring for a number
+currently stated only in Australia's own terms* — and that's the claim
+actually shipped, not oversold as "shape."
+
+**What it shows**: a hollow `◇` at Australia's peer-relative score at the
+delta window's *start* year, a filled `◆` at its current score (unchanged
+from before), same tick strip, same 0–100 coordinate space peer marks
+already use. A thin `--chrome` connector between them — **tested with and
+without in a real render, not assumed**: without it, the two diamond
+marks read as two more entries in the peer-tick field, indistinguishable
+from the actual peer ticks at a glance; with it, the pair reads
+immediately as one displacement, at both 380px and desktop. Shipped with
+the connector.
+
+**A real, honest thing it revealed on the first gauge checked**
+(`living-standards`, Table 1.1): the delta text reads "+7.7% ⟶ widening"
+— Australia's own GDP per capita *rose*. The ghost mark shows the
+opposite direction on the peer-relative scale: the hollow 2015 mark sits
+*ahead* of the filled 2025 mark. Both are true and consistent — peers
+grew faster, so Australia's absolute growth still cost it relative
+ground, matching the gauge's own `SLIPPING` band. This is exactly the
+kind of thing peer-relative anchoring exists to surface, and exactly what
+the raw-value delta text alone can't say.
+
+**Data**: `deltaStartYear`/`deltaStartScore`/`deltaEndYear` added to
+`ScoredGauge` (`lib/gauge-view.ts`), computed once in `buildGaugeView` —
+`deltaStartYear`/`deltaEndYear` come straight from the `rawTrend` window
+already computed there (`computeRawValueTrend`); `deltaStartScore` is one
+more call to the already-exported `computeLevelScore`, at that exact
+year — no new scoring math, nothing touched in `lib/scoring.ts` itself.
+**Never interpolated**: `computeLevelScore` returns `null` on its own if
+fewer than two countries reported that exact year (a real, if less
+common, gap than the raw value having a point there — `computeRawValueTrend`
+only requires Australia's own data). `deltaStartScore: null` renders the
+current mark alone, no ghost, no connector — never a mark at a guessed
+position. Unexercised today: all 20 of 20 currently-scored gauge cards
+have a value at their delta's start year, so the "no ghost" branch is
+real, type-checked code with no live trigger yet — same "unexercised, not
+untested" category as several other branches already logged in
+HANDOVER.md.
+
+**Accessible name states both positions and the year**, since the
+displacement is the information a sighted reader gets from the marks: the
+ghost + connector + current mark are grouped under one `role="img"` with
+a combined `aria-label` (e.g. *"Australia: 57 of 100 in 2015, 42 of 100
+in 2025"*) — verified present in a real render, not assumed from the
+JSX. Peer ticks keep their own individual `title` attributes, untouched,
+outside this group.
+
+**Verified**: real Chromium, `Cache-Control: no-store`, 380px and desktop,
+light and forced-dark. Zero document overflow, zero colour anywhere in
+the page's `.register` region (computed-style sweep, same banned-hex list
+as every other pass), accessible labels confirmed present and correctly
+worded on real cards.
+
 ---
 
 ## State Management

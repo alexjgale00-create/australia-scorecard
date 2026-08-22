@@ -159,7 +159,7 @@ export default function DimensionVerdict({
               <p className="font-martian-mono text-[9.5px] font-bold tracking-[.14em] text-ink-3 mb-3">
                 WHAT&rsquo;S MOVING
               </p>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 font-public-sans text-[13.5px]">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 font-public-sans text-[13.5px] text-ink">
                 <p>
                   <span className={`font-martian-mono text-[11px] ${riserRose ? "font-bold" : ""} text-ink`}>
                     {riserRose ? "▲ BIGGEST RISER:" : "→ HELD UP BEST:"}
