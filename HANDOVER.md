@@ -138,7 +138,13 @@ one confirmed-clean audit, one unexercised branch:**
   zero flags. The detector was itself validated against the known-bad
   pre-fix homepage build in the same pass (correctly flagged all 8 bad
   elements) before this clean result was trusted. Full record in
-  DESIGN.md.
+  DESIGN.md. **Confirmed clean at `276319f` (2026-08-23), not a standing
+  guarantee.** The failure mode is a missing explicit colour on a *new*
+  element relying on inheritance — anything added to either page after
+  this commit without an explicit `text-ink`/`text-ink-2`/`text-ink-3`/
+  `text-stamp` can reintroduce it, the same way WHAT'S MOVING did on the
+  homepage. Re-audit rather than assume this result still holds once
+  either page has changed.
 - **The gauge card's "no ghost mark" branch (`deltaStartScore: null`) is
   unexercised.** All 20 of 20 currently-scored homepage gauge cards have
   a value at their delta window's start year. Real, type-checked code
@@ -146,6 +152,20 @@ one confirmed-clean audit, one unexercised branch:**
   instruction) with no live trigger today — same "unexercised, not
   untested" category as the trajectory chart's name-all/too-thin branches
   and PRECEDENT/S1. See DESIGN.md's "Homepage gauge card — ghost mark".
+- **A positive raw delta with negative peer-relative movement is real,
+  confirmed on live data — `living-standards` (Table 1.1).** The delta
+  text reads "+7.7% ⟶ widening" (Australia's own GDP per capita rose,
+  2015–2025) while the ghost mark shows the *opposite* direction on the
+  peer-relative scale — the 2015 mark sits ahead of the 2025 one. Both
+  are true, not a bug and not a contradiction: peers grew faster over the
+  same window, so Australia's own growth still cost it relative ground,
+  consistent with the gauge's `SLIPPING` band. Logged here specifically
+  so that if a reader questions why a *growing* number sits in a
+  worsening band, the answer is on record rather than re-derived under
+  pressure: raw-value trend and peer-relative trend are different
+  measurements by design (see CLAUDE.md's "Scoring" section — this is
+  the same real-disagreement case that section already documents for the
+  primary direction arrows, now visible on the homepage card too).
 
 **From the trajectory-chart pass (`design/register-trajectory`) — two tracked
 follow-ups:**
