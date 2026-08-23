@@ -99,8 +99,16 @@ export default function GaugeCard({ view, plate }: { view: ScoredGauge; plate: s
         RANK {view.rank} · {view.delta}
       </div>
 
-      <div className={`font-martian-mono text-[9.5px] mt-1 ${view.stale ? "text-stamp" : "text-ink-3"}`}>
-        AS OF {view.asOf}
+      {/* DATA THROUGH — the observation year, not the retrieval date (see
+          CLAUDE.md's 2026-08-24 AS-OF ruling); the retrieval date is one tap
+          away on the gauge's own table page, surfaced here only as a title
+          tooltip so the compact card states the one fact that answers "how
+          current is this" without conflating it with a second one. */}
+      <div
+        className={`font-martian-mono text-[9.5px] mt-1 ${view.stale ? "text-stamp" : "text-ink-3"}`}
+        title={`Retrieved ${view.asOf}`}
+      >
+        DATA THROUGH {view.dataThroughYear ?? "—"}
         {view.stale ? " · STALE" : ""}
       </div>
     </Link>

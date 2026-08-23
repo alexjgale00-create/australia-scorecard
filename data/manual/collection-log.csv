@@ -1,2 +1,5 @@
 gauge_id,pulled_date,collected_by,extract_note
-productivity,EXAMPLE_DELETE_THIS_ROW,EXAMPLE_DELETE_THIS_ROW,EXAMPLE_DELETE_THIS_ROW
+human-capital-depth,2026-08-24,intern,"Raw SDMX CSV export from data-explorer.oecd.org, converted directly (not the fillable template). AUS 2022/2023 genuinely blank in OECD's own export, dropped not zeroed."
+inequality,2026-08-24,intern,"Raw SDMX CSV export from data-explorer.oecd.org, converted directly. AUS only 5 points (2012-2020) -- OECD's real publication ceiling for this country. JPN missing at latestSharedYear 2020, declared in missingCountries."
+work-life-balance,2026-08-24,intern,"Raw SDMX CSV export from data-explorer.oecd.org, converted directly -- appended 2020-2025 to the existing 1995-2019 series. 8 overlapping country/year points checked value-for-value against the existing file before merging, all matched."
+productivity,2026-08-24,intern,"Raw SDMX CSV export from data-explorer.oecd.org, converted directly. BASE_PER=2020, not the 2015 PPPs originally specified -- OECD retired the 2015 base 2026-06-04, site owner ruled to amend the spec and ingest as 2020-base. Zero blank OBS_VALUE rows across all 9 peers. KOR starts 2011 (OECD's own coverage gap, not a collection artifact)."

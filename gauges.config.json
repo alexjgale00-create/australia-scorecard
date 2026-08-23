@@ -128,7 +128,7 @@
       "id": "productivity",
       "name": "Productivity",
       "shortName": "Productivity",
-      "unit": "GDP per hour worked (USD, constant prices, 2015 PPPs)",
+      "unit": "GDP per hour worked (USD, constant prices, 2020 PPPs)",
       "historyStartYear": 1990,
       "accessType": "manual",
       "polarity": "higher_is_better",

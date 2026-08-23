@@ -1,0 +1,597 @@
+{
+  "gaugeId": "inequality",
+  "provenance": {
+    "status": "LIVE",
+    "institution": "OECD",
+    "seriesId": "OECD.WISE.INE:DSD_WISE_IDD@DF_IDD(1.0)",
+    "seriesName": "Income Distribution Database — Gini coefficient, disposable income",
+    "url": "https://data-explorer.oecd.org/vis?df%5Bds%5D=DisseminateFinalDMZ&df%5Bid%5D=DSD_WISE_IDD%40DF_IDD&df%5Bag%5D=OECD.WISE.INE",
+    "retrievedAt": "2026-08-24T00:00:00.000Z",
+    "sourcePulledAt": "2026-08-24T00:00:00.000Z",
+    "note": "First real entry — was SAMPLE_DATA-equivalent (Awaiting Data) before this. Manual OECD Data Explorer download (raw SDMX CSV export, not the fillable template), converted directly from the export rather than transcribed, per the site owner's explicit instruction — dimension columns verified directly from the file, not assumed: MEASURE=INC_DISP_GINI, AGE=_T, METHODOLOGY=METH2012, DEFINITION=D_CUR, UNIT_MEASURE=0_TO_1 (0-1 scale), STATISTICAL_OPERATION=_Z, POVERTY_LINE=_Z, FREQ=A — single value per dimension throughout, no conflicts. All 9 peers present. Spot-checked against the site owner's own independent read of the file before ingesting: AUS 2020 = 0.319, exact match. Australia's own series is short and dated: only 5 points (2012, 2014, 2016, 2018, 2020), OECD's own latest published figure for Australia — this is a real ceiling in what OECD currently publishes for this country, not a partial or interrupted download. latestSharedYear resolves to 2020; Japan has no 2020 observation (only 2018 and 2021 — its own real reporting cadence, not a collection gap) and is declared in missingCountries accordingly. KNOWN GAP, flagged not fixed: the site's AS OF field (lib/gauge-view.ts) renders provenance.retrievedAt (today, 2026-08-24), not the actual latest observation year (2020) — a 5-6 year gap between what AS OF displays and what the number actually represents, for this gauge specifically. The real 2020 date is visible in the dense-layer AUS SERIES table and in the tier-1 delta text (which names 2020 as its end year), but neither is framed as an explicit staleness disclosure the way AS OF is designed to be (R4, DESIGN.md). This is a sitewide gap affecting every manual-lane gauge, not unique to this one — surfaced here because this gauge is the most extreme current case (data 5-6 years old at time of entry). Not fixed in this pass — flagged to the site owner for a ruling, see HANDOVER.md.",
+    "missingCountries": [
+      {
+        "code": "JPN",
+        "name": "Japan",
+        "reason": "OECD's Income Distribution Database has a genuine Gini observation for Japan in 2018 and again in 2021, but none in 2020 — Japan's own real reporting cadence for this series, not a gap in this collection. Rank and median are computed over the seven other reporting peers."
+      }
+    ],
+    "scheduledRefreshCount": 0,
+    "lastScheduledRefreshAt": null
+  },
+  "countries": {
+    "AUS": {
+      "name": "Australia",
+      "series": [
+        {
+          "year": 2012,
+          "value": 0.326
+        },
+        {
+          "year": 2014,
+          "value": 0.337
+        },
+        {
+          "year": 2016,
+          "value": 0.33
+        },
+        {
+          "year": 2018,
+          "value": 0.325
+        },
+        {
+          "year": 2020,
+          "value": 0.319
+        }
+      ]
+    },
+    "CAN": {
+      "name": "Canada",
+      "series": [
+        {
+          "year": 1990,
+          "value": 0.289
+        },
+        {
+          "year": 1991,
+          "value": 0.296
+        },
+        {
+          "year": 1992,
+          "value": 0.296
+        },
+        {
+          "year": 1993,
+          "value": 0.290296338
+        },
+        {
+          "year": 1994,
+          "value": 0.291137711
+        },
+        {
+          "year": 1995,
+          "value": 0.293374639
+        },
+        {
+          "year": 1996,
+          "value": 0.301
+        },
+        {
+          "year": 1997,
+          "value": 0.304
+        },
+        {
+          "year": 1998,
+          "value": 0.31
+        },
+        {
+          "year": 1999,
+          "value": 0.308
+        },
+        {
+          "year": 2000,
+          "value": 0.315
+        },
+        {
+          "year": 2001,
+          "value": 0.317
+        },
+        {
+          "year": 2002,
+          "value": 0.317
+        },
+        {
+          "year": 2003,
+          "value": 0.315
+        },
+        {
+          "year": 2004,
+          "value": 0.321
+        },
+        {
+          "year": 2005,
+          "value": 0.315
+        },
+        {
+          "year": 2006,
+          "value": 0.316
+        },
+        {
+          "year": 2007,
+          "value": 0.317
+        },
+        {
+          "year": 2008,
+          "value": 0.315
+        },
+        {
+          "year": 2009,
+          "value": 0.316
+        },
+        {
+          "year": 2010,
+          "value": 0.316
+        },
+        {
+          "year": 2011,
+          "value": 0.313
+        },
+        {
+          "year": 2012,
+          "value": 0.317
+        },
+        {
+          "year": 2013,
+          "value": 0.319
+        },
+        {
+          "year": 2014,
+          "value": 0.312
+        },
+        {
+          "year": 2015,
+          "value": 0.318
+        },
+        {
+          "year": 2016,
+          "value": 0.307
+        },
+        {
+          "year": 2017,
+          "value": 0.31
+        },
+        {
+          "year": 2018,
+          "value": 0.304
+        },
+        {
+          "year": 2019,
+          "value": 0.3
+        },
+        {
+          "year": 2020,
+          "value": 0.28
+        },
+        {
+          "year": 2021,
+          "value": 0.292
+        },
+        {
+          "year": 2022,
+          "value": 0.3
+        },
+        {
+          "year": 2023,
+          "value": 0.305999994277954
+        }
+      ]
+    },
+    "GBR": {
+      "name": "United Kingdom",
+      "series": [
+        {
+          "year": 2002,
+          "value": 0.358833005
+        },
+        {
+          "year": 2003,
+          "value": 0.353240734
+        },
+        {
+          "year": 2004,
+          "value": 0.353784532
+        },
+        {
+          "year": 2005,
+          "value": 0.358875003
+        },
+        {
+          "year": 2006,
+          "value": 0.364430407
+        },
+        {
+          "year": 2007,
+          "value": 0.372697091
+        },
+        {
+          "year": 2008,
+          "value": 0.368516703
+        },
+        {
+          "year": 2009,
+          "value": 0.373940635
+        },
+        {
+          "year": 2010,
+          "value": 0.350878657
+        },
+        {
+          "year": 2011,
+          "value": 0.353700293
+        },
+        {
+          "year": 2012,
+          "value": 0.351452428
+        },
+        {
+          "year": 2013,
+          "value": 0.358
+        },
+        {
+          "year": 2014,
+          "value": 0.356090734
+        },
+        {
+          "year": 2015,
+          "value": 0.360156422
+        },
+        {
+          "year": 2016,
+          "value": 0.351
+        },
+        {
+          "year": 2017,
+          "value": 0.357
+        },
+        {
+          "year": 2018,
+          "value": 0.366
+        },
+        {
+          "year": 2019,
+          "value": 0.366
+        },
+        {
+          "year": 2020,
+          "value": 0.355
+        },
+        {
+          "year": 2021,
+          "value": 0.354064263
+        },
+        {
+          "year": 2022,
+          "value": 0.364765613
+        },
+        {
+          "year": 2023,
+          "value": 0.36703035235405
+        }
+      ]
+    },
+    "NZL": {
+      "name": "New Zealand",
+      "series": [
+        {
+          "year": 2006,
+          "value": 0.332
+        },
+        {
+          "year": 2007,
+          "value": 0.331
+        },
+        {
+          "year": 2008,
+          "value": 0.328
+        },
+        {
+          "year": 2009,
+          "value": 0.329
+        },
+        {
+          "year": 2010,
+          "value": 0.335
+        },
+        {
+          "year": 2011,
+          "value": 0.329
+        },
+        {
+          "year": 2012,
+          "value": 0.335
+        },
+        {
+          "year": 2013,
+          "value": 0.341
+        },
+        {
+          "year": 2014,
+          "value": 0.341
+        },
+        {
+          "year": 2015,
+          "value": 0.325
+        },
+        {
+          "year": 2016,
+          "value": 0.333
+        },
+        {
+          "year": 2017,
+          "value": 0.335
+        },
+        {
+          "year": 2018,
+          "value": 0.33
+        },
+        {
+          "year": 2019,
+          "value": 0.326
+        },
+        {
+          "year": 2020,
+          "value": 0.318
+        },
+        {
+          "year": 2021,
+          "value": 0.303
+        },
+        {
+          "year": 2022,
+          "value": 0.326
+        }
+      ]
+    },
+    "KOR": {
+      "name": "South Korea",
+      "series": [
+        {
+          "year": 2011,
+          "value": 0.386999994516373
+        },
+        {
+          "year": 2012,
+          "value": 0.382999986410141
+        },
+        {
+          "year": 2013,
+          "value": 0.370000004768372
+        },
+        {
+          "year": 2014,
+          "value": 0.361000001430511
+        },
+        {
+          "year": 2015,
+          "value": 0.349999994039536
+        },
+        {
+          "year": 2016,
+          "value": 0.352999985218048
+        },
+        {
+          "year": 2017,
+          "value": 0.351999998092651
+        },
+        {
+          "year": 2018,
+          "value": 0.342000007629395
+        },
+        {
+          "year": 2019,
+          "value": 0.335999995470047
+        },
+        {
+          "year": 2020,
+          "value": 0.328000009059906
+        },
+        {
+          "year": 2021,
+          "value": 0.328999996185303
+        },
+        {
+          "year": 2022,
+          "value": 0.324000000953674
+        },
+        {
+          "year": 2023,
+          "value": 0.323000013828278
+        }
+      ]
+    },
+    "NLD": {
+      "name": "Netherlands",
+      "series": [
+        {
+          "year": 2011,
+          "value": 0.294
+        },
+        {
+          "year": 2012,
+          "value": 0.293
+        },
+        {
+          "year": 2013,
+          "value": 0.287
+        },
+        {
+          "year": 2014,
+          "value": 0.305
+        },
+        {
+          "year": 2015,
+          "value": 0.305
+        },
+        {
+          "year": 2016,
+          "value": 0.292
+        },
+        {
+          "year": 2017,
+          "value": 0.298
+        },
+        {
+          "year": 2018,
+          "value": 0.295
+        },
+        {
+          "year": 2019,
+          "value": 0.312
+        },
+        {
+          "year": 2020,
+          "value": 0.295
+        },
+        {
+          "year": 2021,
+          "value": 0.295
+        },
+        {
+          "year": 2022,
+          "value": 0.291999995708466
+        },
+        {
+          "year": 2023,
+          "value": 0.321000009775162
+        },
+        {
+          "year": 2024,
+          "value": 0.310999989509583
+        }
+      ]
+    },
+    "USA": {
+      "name": "United States",
+      "series": [
+        {
+          "year": 2013,
+          "value": 0.3959848
+        },
+        {
+          "year": 2014,
+          "value": 0.39381632
+        },
+        {
+          "year": 2015,
+          "value": 0.38955993
+        },
+        {
+          "year": 2016,
+          "value": 0.39123223
+        },
+        {
+          "year": 2017,
+          "value": 0.3899
+        },
+        {
+          "year": 2018,
+          "value": 0.3927
+        },
+        {
+          "year": 2019,
+          "value": 0.3949
+        },
+        {
+          "year": 2020,
+          "value": 0.3773
+        },
+        {
+          "year": 2021,
+          "value": 0.3752
+        },
+        {
+          "year": 2022,
+          "value": 0.3961
+        },
+        {
+          "year": 2023,
+          "value": 0.3944025
+        }
+      ]
+    },
+    "DEU": {
+      "name": "Germany",
+      "series": [
+        {
+          "year": 2008,
+          "value": 0.28473
+        },
+        {
+          "year": 2011,
+          "value": 0.2905
+        },
+        {
+          "year": 2012,
+          "value": 0.2888
+        },
+        {
+          "year": 2013,
+          "value": 0.29215
+        },
+        {
+          "year": 2014,
+          "value": 0.2887
+        },
+        {
+          "year": 2015,
+          "value": 0.29318
+        },
+        {
+          "year": 2016,
+          "value": 0.29441
+        },
+        {
+          "year": 2017,
+          "value": 0.28916
+        },
+        {
+          "year": 2018,
+          "value": 0.28934
+        },
+        {
+          "year": 2019,
+          "value": 0.2959
+        },
+        {
+          "year": 2020,
+          "value": 0.30256
+        },
+        {
+          "year": 2021,
+          "value": 0.312539994716644
+        },
+        {
+          "year": 2022,
+          "value": 0.309150010347366
+        },
+        {
+          "year": 2023,
+          "value": 0.307000011205673
+        }
+      ]
+    },
+    "JPN": {
+      "name": "Japan",
+      "series": [
+        {
+          "year": 2018,
+          "value": 0.334
+        },
+        {
+          "year": 2021,
+          "value": 0.338
+        }
+      ]
+    }
+  }
+}

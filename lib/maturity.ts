@@ -54,6 +54,17 @@ function monthsSince(iso: string): number {
   return (Date.now() - new Date(iso).getTime()) / (30.44 * 86_400_000);
 }
 
+/**
+ * The latest year Australia's own series actually has a data point for —
+ * "data through [this year]," the fact a reader needs to judge currency,
+ * independent of when the file holding it was last written or
+ * re-downloaded. Same `.at(-1)` "series is stored sorted ascending"
+ * convention buildGaugeView already relies on elsewhere.
+ */
+export function latestDataYear(data: GaugeData | null): number | null {
+  return data?.countries.AUS?.series.at(-1)?.year ?? null;
+}
+
 export function computeMaturity(config: GaugeConfig, data: GaugeData | null): MaturityInfo {
   if (!data || data.provenance.status !== "LIVE") {
     return { tier: "awaiting-data", reason: null };
@@ -142,23 +153,34 @@ export function summarizeMaturityCounts(counts: Record<MaturityTier, number>): s
  * check exactly, so /status and the monthly pipeline report never
  * disagree. Not a tier demotion — old-but-real data doesn't become less
  * real for being overdue; it's a separate "due for a refresh" disclosure.
+ *
+ * **Computed from the latest OBSERVATION year, not from when the file was
+ * pulled.** Ruled 2026-08-24, after inequality shipped with real data
+ * ending 2020 but a `retrievedAt`/`sourcePulledAt` of the ingestion day —
+ * the old pull-date basis would have shown it as freshly current on the
+ * strength of re-downloading (and re-confirming) an old number, which is
+ * exactly backwards: a gauge whose real data ends 2020 is just as stale
+ * in 2026 no matter how recently someone re-pulled that same 2020 figure.
+ * `sourcePulledAt`/`retrievedAt` remain meaningful — they answer "when did
+ * we last check this source," shown separately as the Retrieved date —
+ * but neither feeds this calculation any more.
  */
 export function manualStaleness(
   config: GaugeConfig,
   data: GaugeData | null
 ): { stale: boolean; ageDescription: string } | null {
   if (config.accessType !== "manual" || !data || data.provenance.status !== "LIVE") return null;
-  if (!data.provenance.retrievedAt) return null;
+
+  const year = latestDataYear(data);
+  if (year === null) return null;
 
   const staleAfterMonths = config.staleAfterMonths ?? DEFAULT_MANUAL_STALE_AFTER_MONTHS;
-  // Prefer the real source-pull date over ingestion time when it's known —
-  // see GaugeData.provenance.sourcePulledAt in lib/types.ts. Fallback-safe:
-  // every gauge file that predates this field has no sourcePulledAt, so this
-  // resolves to the old retrievedAt-only behaviour for all of them, nothing
-  // to migrate.
-  const pulledAt = data.provenance.sourcePulledAt ?? data.provenance.retrievedAt;
-  const ageMonths = monthsSince(pulledAt);
-  const ageDescription = `last entered ${pulledAt.slice(0, 10)} (~${Math.round(ageMonths)} month${Math.round(ageMonths) === 1 ? "" : "s"} ago)`;
+  // Treated as of December 31 of the latest observation year — the
+  // earliest point at which "data through [year]" could possibly be
+  // called stale.
+  const ageMonths = monthsSince(`${year}-12-31`);
+  const roundedMonths = Math.round(ageMonths);
+  const ageDescription = `data through ${year} (~${roundedMonths} month${roundedMonths === 1 ? "" : "s"} old)`;
 
   return { stale: ageMonths > staleAfterMonths, ageDescription };
 }

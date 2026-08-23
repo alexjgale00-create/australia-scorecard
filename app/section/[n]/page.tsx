@@ -111,6 +111,7 @@ export default async function SectionPage({ params }: { params: Promise<{ n: str
       rank: view.rank,
       delta: view.delta,
       asOf: view.asOf,
+      dataThroughYear: view.dataThroughYear,
       stale: view.stale,
     };
   });

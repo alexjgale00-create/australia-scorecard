@@ -531,12 +531,12 @@ failure, since re-running the pipeline can't fix a manual gauge (see
 
 ## Current build status
 
-**Phase C in progress, as of 2026-07-16.** All 16 planned gauges are now
-configured; **13 have real LIVE data** (12 fetched automatically every
-month — including Internal cohesion, automated 2026-07-16 — plus
-Education entered by hand the same day), 3 remain manual-lane and still
-awaiting their first real entry (Productivity, Human capital depth,
-Inequality). Every gauge's real status is in its own
+**Phase C, as of 2026-08-24.** All 16 planned gauges are now
+configured, and **all 16 have real LIVE data** (12 fetched automatically
+every month — including Internal cohesion, automated 2026-07-16 — plus
+Education, Human capital depth, Inequality, and Productivity entered by
+hand). Productivity was the last to land: see "Productivity — 2020 base
+year ruling" below for the full BASE_PER decision. Every gauge's real status is in its own
 `data/processed/*.json` file's `provenance.status` field (`SAMPLE_DATA` or
 `LIVE`, or no file at all for "awaiting data") — the site badges each one
 individually, plus a page-level note whenever the set is mixed. Weights
@@ -557,15 +557,51 @@ weights once all 16 gauges are live with real data (Phase D).
 | Military capability | 🟢 Live | SIPRI | Direct `.xlsx` download, fetched and parsed automatically (`pipeline/lib/xlsx.mjs`, `pipeline/lib/sipri.mjs`) — verified live 2026-07-14, not originally planned as automatable |
 | Economic complexity | 🟢 Live | Harvard Growth Lab | Public GraphQL API, no auth required (`pipeline/lib/harvardAtlas.mjs`) — verified live 2026-07-14, not originally planned as automatable |
 | Internal cohesion | 🟢 Live | V-Dem (`v2cacamps`), via Our World in Data | Automated 2026-07-16 (`pipeline/lib/vdem.mjs`) — V-Dem's own dataset stays registration-gated, but OWID's maintained, version-pinned re-publication isn't; every fetch's provenance discloses the full chain, never implying a direct V-Dem fetch. Switched from `v2x_cspart` to `v2cacamps` the same day — see "Internal cohesion" below and CLAUDE.md's reversal + automation writeups. Untested from GitHub Actions specifically as of this build |
-| Productivity | 🟡 Manual lane | OECD | Dataflow flagged `NonProductionDataflow=true` by OECD itself; automated route abandoned by design, not oversight. See `data/manual/README.md` |
-| Human capital depth | 🟡 Manual lane | OECD | Automated API never returned data across 3 attempts. See `data/manual/README.md` |
-| Inequality | 🟡 Manual lane | OECD (Gini) | SDMX endpoint Cloudflare-blocked on every attempt from this environment; dataflow structure never verified enough to trust an automated fetcher. WID wealth-share context display is built (`contextSeries`) and ready, awaiting its own data entry |
+| Productivity | 🟢 Live (manual entry) | OECD | Dataflow flagged `NonProductionDataflow=true` by OECD itself; automated route abandoned by design, not oversight. Real data entered 2026-08-24 from a raw SDMX CSV export (`OECD.SDD.TPS:DSD_PDB@DF_PDB_LV(1.0)`). **`BASE_PER=2020`, not the 2015 PPPs the spec originally named** — see "Productivity — 2020 base year ruling" below. Korea's series starts 2011, not 1995 (OECD's own coverage gap for this country) |
+| Human capital depth | 🟢 Live (manual entry) | OECD | Automated API never returned data across 3 attempts (see `data/manual/README.md`); real data entered 2026-08-24 from a raw SDMX CSV export (`OECD.EDU.IMEP:DSD_EAG_LSO_EA@DF_LSO_NEAC_DISTR_EA(1.0)`). AUS: 24 points, 2000-2021 and 2024-2025 — **2022 and 2023 are genuine publication gaps** (OECD's own export has blank `OBS_VALUE` for Australia those two years, not a download error), visible on the gauge's dense-layer series table |
+| Inequality | 🟢 Live (manual entry) | OECD (Gini) | SDMX endpoint Cloudflare-blocked on every attempt from this environment (see `data/manual/README.md`); real data entered 2026-08-24 from a raw SDMX CSV export (`OECD.WISE.INE:DSD_WISE_IDD@DF_IDD(1.0)`). **Australia's own series is short and dated: only 5 points (2012, 2014, 2016, 2018, 2020) — this is OECD's actual publication ceiling for Australia on this series, not a partial collection.** Japan has no 2020 observation (only 2018 and 2021 — its own real cadence, declared in `missingCountries`, rank/median computed over the other 7 reporting peers). WID wealth-share context display is built (`contextSeries`) and ready, awaiting its own data entry |
 | Education | 🟢 Live (manual entry) | OECD PISA | No fetchable SDMX dataflow or API endpoint (ASP.NET form wizard) — real numbers entered by hand 2026-07-16, PISA 2018 and 2022 cycles (Table I.1 of each cycle's Results Volume I), superseding the Phase A sample placeholder. Only 2 of a possible several cycles so far; direction now computes from real 2018→2022 movement |
 
 See `data/manual/README.md` for each manual gauge's download template and
 instructions, and CLAUDE.md ("OECD SDMX trio" and "Fetch-before-guessing
 pass on the 5 remaining manual gauges") for the full reasoning behind
 every automated-vs-manual split on this site.
+
+### Productivity — 2020 base year ruling (2026-08-24)
+
+Productivity's raw OECD export carries `BASE_PER=2020` — not the 2015 PPPs
+this gauge's unit spec originally named. Checked before ruling, not
+assumed: OECD rebased its entire Productivity Database on 2026-06-04 as
+part of a broader methodology revamp, confirmed via OECD's own release
+notes and cross-checked against DBnomics' independent mirror of the same
+dataflow, which likewise carries no 2015-base variant any more. **The 2015
+base is retired, not merely hidden behind a filter — there is nothing to
+re-download.**
+
+**Ruling: amend the spec to 2020 base and ingest as-is.** Levels are not
+comparable to any pre-2026-06-04 2015-base figure a reader might recall or
+find cited elsewhere — the unit label now reads "2020 PPPs"
+(`gauges.config.json`). Peer-relative standing (rank, band, gap-to-median)
+is expected to be largely preserved, since a base-year rescale is normally
+close to a level shift that cancels out in a same-year cross-country
+comparison — but this is a reasoned expectation, disclosed as such, not a
+certified guarantee: OECD's June 2026 change was a broader methodology
+revamp alongside the rebase, not base-year arithmetic alone, so some drift
+in peer-relative position can't be ruled out.
+
+**Distinct from, and not in tension with, the Inequality gauge's WID
+decision.** That decision (see "Inequality" above) rejected the World
+Inequality Database / Penn World Table PPP variant on **source and
+methodology** grounds — PWT's multiple-benchmark PPP construction versus
+OECD's national-accounts basis — a judgment about which institution and
+methodology to trust, with no bearing on any base year. This productivity
+ingestion is the reverse situation: same institution, same methodology,
+same underlying series (OECD's own Productivity Database — GDPHRS,
+USD_PPP_H, constant prices, all unchanged) — only the PPP conversion's
+reference year moved, because OECD itself moved it. A future reader
+noticing OECD's base year changed here while a PPP-methodology variant was
+rejected elsewhere should not read that as an inconsistent standard —
+they're answers to two different questions.
 
 **Quality of Life dimension, as of Phase E's data-model-and-homepage
 checkpoint (2026-08):** 8 gauges configured, all in the manual lane pending
@@ -584,7 +620,7 @@ record and CLAUDE.md's Phase E entry for the session-to-session summary.
 | Life expectancy | 🟢 Live | World Bank | `SP.DYN.LE00.IN` — automated 2026-08-09, same generic World Bank route as 6 Power gauges |
 | Life satisfaction | 🟢 Live | Gallup World Poll, via World Happiness Report (dashboard API) | Survey-based. Automated 2026-08-11 — WHR's old data panel is dead, fetched instead via the dashboard's own backend API; column meaning (`LI`, not `EV`/`AV`) verified against the app's own source legend. See `pipeline/lib/whr.mjs` |
 | Personal safety | 🟢 Live, ⚠ intermittent | UNODC, via World Bank | `VC.IHR.PSRC.P5` — automated 2026-08-09. Two World Bank API timeouts on later Actions runs (2026-08-09) after a clean first landing — investigated 2026-08-09: not measurably slower/larger than other successful World Bank gauges from this project's own sandbox (near-identical response time and payload size to life-expectancy), so no gauge-specific fix applied; most likely cumulative network load from this pipeline's now-much-longer sequential run (2 OWID gauges × ~36 calls each, an xlsx download, multiple OECD calls, ~9 World Bank calls) rather than anything about this indicator itself |
-| Work-life balance | 🟡 Manual lane | OECD | 3 automation rounds, decided 2026-08-09 — the third surfaced a second, structurally different conflict (not just another dimension to pin), per the site owner's "no fourth round" rule. Real 1995-2019 data from the retired automated fetch is the current baseline; see "Work-life balance: OECD dimension pin" below and `data/manual/README.md` |
+| Work-life balance | 🟢 Live (manual entry) | OECD | 3 automation rounds, decided 2026-08-09 — the third surfaced a second, structurally different conflict (not just another dimension to pin), per the site owner's "no fourth round" rule. Real 1995-2019 data from the retired automated fetch was the baseline; **2020-2025 appended by hand 2026-08-24** from a raw SDMX CSV export, `WORKER_STATUS=_T` confirmed unambiguous in this export (same pin as the original fetch, no conflict). Merge checked for overlap before writing: CAN/NZL/KOR/USA already had a handful of post-2019 points from the earlier automated fetch, all 8 overlapping year/country values matched the new export exactly (deduplicated, not double-counted). `latestSharedYear` now 2025, all 9 peers reporting — see "Work-life balance: OECD dimension pin" below and `data/manual/README.md` |
 | Air quality | 🟢 Live | World Bank (IHME GBD) | `EN.ATM.PM25.MC.M3` — automated 2026-08-09, same generic World Bank route |
 | Cohesion — minority experience | 🟢 Live | V-Dem (`v2clsocgrp`), via Our World in Data | Automated 2026-08-09 via the same proven OWID route as `internal-cohesion` (`pipeline/lib/vdem.mjs` generalised into a factory serving both) |
 | Cohesion — majority acceptance | 🟢 Live, **not scored** | Gallup Migrant Acceptance Index (news releases) | Survey-based. Entered by hand 2026-08-11 from the two Gallup articles' own tables — real data (8/9 peers 2016/17, 4/9 peers 2019). **Converted to an unscored gauge same day**: the 2019 wave's 4 peers are precisely the highest scorers, so any computed score would be structurally biased upward. See "Unscored gauges" below |

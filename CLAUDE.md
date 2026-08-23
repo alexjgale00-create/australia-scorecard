@@ -92,6 +92,71 @@ limitation — see "Pipeline environment quirks" below), so the unattended
 pipeline can never refresh it even though local runs keep it current.
 Capped at Live with that reason displayed on `/status`.
 
+### "AS OF" field — data-through vs. retrieved-on split (2026-08-24)
+
+Found while ingesting Inequality's real data (5 points, ending 2020): the
+site's one prior "AS OF [date]" field rendered `provenance.retrievedAt` —
+when the file was last written — with no separate field for the year the
+data itself actually describes, and the STALE badge was computed from that
+same pull date. Built the actual page and confirmed the failure mode
+empirically before fixing anything: re-entering Inequality's genuinely
+6-year-old 2020 figure on 2026-08-24 rendered "AS OF 2026-08-24" with no
+STALE tag — a reader would reasonably read that as current 2026 data.
+Re-downloading and re-confirming an old number doesn't make the number any
+less old; the old design let it look like it did.
+
+**Ruling: two distinct fields everywhere, never one collapsed line.**
+"Data through `[latest observation year]`" states what the number
+describes; "Retrieved `[pull date]`" states when the source was last
+checked. Both real, neither implies the other. Implemented as
+`ScoredGauge`/`UnscoredGauge`'s new `dataThroughYear` field
+(`lib/gauge-view.ts`, backed by `latestDataYear` in `lib/maturity.ts` —
+the latest year Australia's own series has a point for) alongside the
+existing `asOf` (now explicitly the retrieval date, preferring
+`sourcePulledAt` over `retrievedAt` when both exist). Rendered on every
+surface that previously showed "AS OF": the gauge detail page header
+(`components/Gauge.tsx`), the homepage card (`components/GaugeCard.tsx` —
+DATA THROUGH is primary, RETRIEVED is a title-attribute tooltip, since the
+card has no room for two lines), `/section/[n]`'s gauge table
+(`components/SectionOverview.tsx` — same tooltip pattern on desktop), and
+`/status`'s "Every gauge" table, which now has separate Data-through and
+Retrieved columns.
+
+**Staleness logic changed to match, for manual-lane gauges specifically.**
+`lib/maturity.ts`'s `manualStaleness` (kept its name; still gated on
+`accessType === "manual"`) now computes the STALE flag from
+`latestDataYear` — treated as of December 31 of that year — against the
+gauge's `staleAfterMonths` cadence, replacing the old
+`sourcePulledAt ?? retrievedAt` basis entirely. `pipeline/index.mjs`'s
+matching report-time check (`report.manualStale`/`manualFresh`) was
+updated identically (a new `latestAusYear` helper reading straight from
+each gauge's JSON, since the pipeline can't import from `lib/`) so the
+monthly pipeline report and `/status` can never disagree about which year
+a gauge's staleness is measured against — same discipline the original
+comment on this function already promised.
+
+**Deliberately NOT extended to automated (`accessType: "api"`) gauges'
+STALE-flag computation in this pass.** The two-field *display* did go out
+to every gauge, automated included — an automated gauge whose pipeline ran
+today but whose source hasn't published a new year yet has exactly the
+same data-through/retrieved distinction, and readers deserve to see both
+facts there too. But turning the same 15-month-default staleness
+*verdict* on for all 13 automated gauges was not attempted: several of
+this site's automated sources (World Bank, OECD annual series) have a
+normal 1–3 year publication lag baked into how they're published, and
+none of those gauges has ever had a `staleAfterMonths` reviewed against
+its own real cadence the way every manual gauge's threshold was
+individually set (see "Per-gauge manual-lane staleness thresholds" under
+Phase C) — flipping the flag on without that review would likely paint a
+run of healthy, normally-lagged Established gauges as false-positive
+STALE. If this should extend further, it needs the same per-gauge cadence
+review manual gauges already got, not a blanket default.
+
+Verified live against the actual failure case, not just reasoned: built
+the site and inspected `out/table/1.15.html` (Inequality) — confirms
+"DATA THROUGH 2020 · STALE" now renders, distinct from a "RETRIEVED
+2026-08-24" line that no longer implies currency.
+
 ## Phase E: Quality of Life dimension — Step 1 ruled, Step 2 checkpoint landed (2026-08)
 
 A second, independently-scored composite alongside Power: does Australia

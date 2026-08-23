@@ -19,7 +19,7 @@ import {
   describeScoringBasis,
   latestSharedYear,
 } from "@/lib/scoring";
-import { computeMaturity, manualStaleness, type MaturityInfo } from "@/lib/maturity";
+import { computeMaturity, manualStaleness, latestDataYear, type MaturityInfo } from "@/lib/maturity";
 import { buildTrajectoryView, type TrajectoryView } from "@/lib/trajectory";
 
 /**
@@ -141,7 +141,10 @@ interface GaugeViewBase {
   section: 1 | 2;
   title: string;
   unitLine: string;
+  /** When this gauge's data was last pulled from its source — "Retrieved [date]." Distinct from dataThroughYear (below): a fresh pull of an old number is still an old number. See CLAUDE.md's 2026-08-24 AS-OF ruling. */
   asOf: string;
+  /** The latest year Australia's own series actually has a data point for — "Data through [year]," the fact that answers "how current is this," never conflated with asOf on any page. Null only when there's no AUS data at all. */
+  dataThroughYear: number | null;
   stale: boolean;
   staleReason?: string;
   refreshNote: string;
@@ -442,7 +445,10 @@ export function buildGaugeView(args: BuildGaugeViewArgs): GaugeView {
     section,
     title: config.name,
     unitLine: config.unit,
-    asOf: data?.provenance.retrievedAt?.slice(0, 10) ?? "—",
+    // Prefer the real source-pull date over file-write time when it's
+    // known — see GaugeData.provenance.sourcePulledAt in lib/types.ts.
+    asOf: (data?.provenance.sourcePulledAt ?? data?.provenance.retrievedAt)?.slice(0, 10) ?? "—",
+    dataThroughYear: latestDataYear(data),
     stale: staleness?.stale ?? false,
     staleReason: config.staleDisclosure,
     refreshNote:

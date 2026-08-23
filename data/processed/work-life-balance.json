@@ -6,35 +6,10 @@
     "seriesId": "OECD.ELS.SAE,DSD_HW@DF_AVG_ANN_HRS_WKD,1.0",
     "seriesName": "Average annual hours actually worked per worker",
     "url": "https://data-explorer.oecd.org/vis?df%5Bag%5D=OECD.ELS.SAE&df%5Bid%5D=DSD_HW%40DF_AVG_ANN_HRS_WKD",
-    "retrievedAt": "2026-08-09T04:26:44.894Z",
-    "note": "Live data from OECD, Average annual hours actually worked per worker. Recent-years probe (2020+, WORKER_STATUS unpinned) hit a real conflict, not applied (per the site owner's \"no fourth round\" ruling — this is reported, not fixed): OECD SDMX API returned conflicting values for DEU in 2023 (1299.8 vs 1338.8) — the query key is under-constrained. Series A [8:0:0:0:0:0:0:0:0:0:0:0:0]: REF_AREA=DEU, MEASURE=HW, UNIT_MEASURE=H_Y_PS, SEX=_Z, AGE=_Z, LABOUR_FORCE_STATUS=EMP, WORK_PERIOD=A, HOURS_TYPE=ACTUAL, WORKER_STATUS=ICSE93_1, WORK_TIME_ARNGMNT=_Z, AGGREGATION_OPERATION=MEAN, HOUR_BANDS=_Z, JOB_COVERAGE=_T. Series B [8:0:0:0:0:0:0:0:1:0:0:0:0]: REF_AREA=DEU, MEASURE=HW, UNIT_MEASURE=H_Y_PS, SEX=_Z, AGE=_Z, LABOUR_FORCE_STATUS=EMP, WORK_PERIOD=A, HOURS_TYPE=ACTUAL, WORKER_STATUS=_T, WORK_TIME_ARNGMNT=_Z, AGGREGATION_OPERATION=MEAN, HOUR_BANDS=_Z, JOB_COVERAGE=_T. Compare those two dimension breakdowns to see which one differs — that's the dimension to pin. This data is too ambiguous to trust as-is; narrowing the key is required, not silently picking one value.",
-    "missingCountries": [
-      {
-        "code": "CAN",
-        "name": "Canada",
-        "reason": "Published by OECD but not captured in this dataset — this project's own round-2 automated fetch (before the gauge moved to the manual lane) didn't retrieve 2019 for this country. Scheduled for the next manual collection round via data-explorer.oecd.org."
-      },
-      {
-        "code": "GBR",
-        "name": "United Kingdom",
-        "reason": "Published by OECD but not captured in this dataset — this project's own round-2 automated fetch (before the gauge moved to the manual lane) didn't retrieve 2019 for this country. Scheduled for the next manual collection round via data-explorer.oecd.org."
-      },
-      {
-        "code": "KOR",
-        "name": "South Korea",
-        "reason": "Published by OECD but not captured in this dataset — this project's own round-2 automated fetch (before the gauge moved to the manual lane) didn't retrieve 2019 for this country. Scheduled for the next manual collection round via data-explorer.oecd.org."
-      },
-      {
-        "code": "NLD",
-        "name": "Netherlands",
-        "reason": "Published by OECD but not captured in this dataset — this project's own round-2 automated fetch (before the gauge moved to the manual lane) didn't retrieve 2019 for this country. Scheduled for the next manual collection round via data-explorer.oecd.org."
-      },
-      {
-        "code": "DEU",
-        "name": "Germany",
-        "reason": "Published by OECD but not captured in this dataset — this project's own round-2 automated fetch (before the gauge moved to the manual lane) didn't retrieve 2019 for this country. Scheduled for the next manual collection round via data-explorer.oecd.org."
-      }
-    ],
+    "retrievedAt": "2026-08-24T00:00:00.000Z",
+    "sourcePulledAt": "2026-08-24T00:00:00.000Z",
+    "note": "Appended 2020-2025 (manual OECD Data Explorer download, raw SDMX CSV export, WORKER_STATUS=_T confirmed unambiguous in this export — same pin as the round-2 automated fetch that produced the original 1995-2019 series, no conflict) to the existing 1995-2019 manual-lane series. Dimension columns verified directly from the file: MEASURE=HW, UNIT_MEASURE=H_Y_PS, LABOUR_FORCE_STATUS=EMP, WORK_PERIOD=A, HOURS_TYPE=ACTUAL, WORKER_STATUS=_T, AGGREGATION_OPERATION=MEAN, JOB_COVERAGE=_T — single value per dimension, no conflicts. All 9 peers present in the new export. Spot-checked against the site owner's own independent read of the file before ingesting: AUS 2025 = 1633, exact match. Merge checked for overlap before writing, not assumed clean: CAN (2025), NZL (2020-2022), KOR (2021), and USA (2020, 2023-2024) already had post-2019 points in the existing file from an earlier partial pipeline run before this gauge moved to the manual lane — all 8 overlapping year/country pairs compared value-for-value against the new export and matched exactly, so these are deduplicated, not double-counted or overwritten with a differing number. AUS, GBR, NLD, DEU, JPN had no overlap at all (existing series ended at or before 2019 for all five). latestSharedYear moves from 2019 to 2025 with this append; all 9 peers now report at 2025, so the missingCountries entries for CAN/GBR/KOR/NLD/DEU at 2019 (populated 2026-08-21, see HANDOVER.md) no longer describe the current shared year and are cleared — not because those countries' 2019 gap was ever filled (it wasn't; this export starts at 2020), but because the site's peer-coverage disclosure is scoped to the current latestSharedYear, not a fixed historical one.",
+    "missingCountries": [],
     "scheduledRefreshCount": 0,
     "lastScheduledRefreshAt": null
   },
@@ -117,12 +92,56 @@
         {
           "year": 2019,
           "value": 1651
+        },
+        {
+          "year": 2020,
+          "value": 1610
+        },
+        {
+          "year": 2021,
+          "value": 1620
+        },
+        {
+          "year": 2022,
+          "value": 1626
+        },
+        {
+          "year": 2023,
+          "value": 1645
+        },
+        {
+          "year": 2024,
+          "value": 1627
+        },
+        {
+          "year": 2025,
+          "value": 1633
         }
       ]
     },
     "CAN": {
       "name": "Canada",
       "series": [
+        {
+          "year": 2020,
+          "value": 1658
+        },
+        {
+          "year": 2021,
+          "value": 1691
+        },
+        {
+          "year": 2022,
+          "value": 1693
+        },
+        {
+          "year": 2023,
+          "value": 1694
+        },
+        {
+          "year": 2024,
+          "value": 1697
+        },
         {
           "year": 2025,
           "value": 1687
@@ -175,6 +194,30 @@
         {
           "year": 2016,
           "value": 1541.275
+        },
+        {
+          "year": 2020,
+          "value": 1364.383
+        },
+        {
+          "year": 2021,
+          "value": 1498.087
+        },
+        {
+          "year": 2022,
+          "value": 1531.715
+        },
+        {
+          "year": 2023,
+          "value": 1524.404
+        },
+        {
+          "year": 2024,
+          "value": 1537.716
+        },
+        {
+          "year": 2025,
+          "value": 1532.915
         }
       ]
     },
@@ -312,6 +355,18 @@
         {
           "year": 2022,
           "value": 1748
+        },
+        {
+          "year": 2023,
+          "value": 1751
+        },
+        {
+          "year": 2024,
+          "value": 1741
+        },
+        {
+          "year": 2025,
+          "value": 1723
         }
       ]
     },
@@ -347,8 +402,28 @@
           "value": 2018
         },
         {
+          "year": 2020,
+          "value": 1907
+        },
+        {
           "year": 2021,
           "value": 1910
+        },
+        {
+          "year": 2022,
+          "value": 1900
+        },
+        {
+          "year": 2023,
+          "value": 1872
+        },
+        {
+          "year": 2024,
+          "value": 1865
+        },
+        {
+          "year": 2025,
+          "value": 1833
         }
       ]
     },
@@ -374,6 +449,30 @@
         {
           "year": 1994,
           "value": 1447
+        },
+        {
+          "year": 2020,
+          "value": 1402.138
+        },
+        {
+          "year": 2021,
+          "value": 1442.164
+        },
+        {
+          "year": 2022,
+          "value": 1451.119
+        },
+        {
+          "year": 2023,
+          "value": 1447.011
+        },
+        {
+          "year": 2024,
+          "value": 1451.98
+        },
+        {
+          "year": 2025,
+          "value": 1436.037
         }
       ]
     },
@@ -501,12 +600,24 @@
           "value": 1799.777
         },
         {
+          "year": 2021,
+          "value": 1818.849
+        },
+        {
+          "year": 2022,
+          "value": 1809.896
+        },
+        {
           "year": 2023,
           "value": 1804.95
         },
         {
           "year": 2024,
           "value": 1795.906
+        },
+        {
+          "year": 2025,
+          "value": 1800.232
         }
       ]
     },
@@ -532,6 +643,30 @@
         {
           "year": 1994,
           "value": 1536.58
+        },
+        {
+          "year": 2020,
+          "value": 1313.6
+        },
+        {
+          "year": 2021,
+          "value": 1341.2
+        },
+        {
+          "year": 2022,
+          "value": 1343.4
+        },
+        {
+          "year": 2023,
+          "value": 1338.8
+        },
+        {
+          "year": 2024,
+          "value": 1334.4
+        },
+        {
+          "year": 2025,
+          "value": 1332.2
         }
       ]
     },
@@ -657,6 +792,30 @@
         {
           "year": 2019,
           "value": 1644
+        },
+        {
+          "year": 2020,
+          "value": 1597.011
+        },
+        {
+          "year": 2021,
+          "value": 1607.483
+        },
+        {
+          "year": 2022,
+          "value": 1606.995
+        },
+        {
+          "year": 2023,
+          "value": 1610.745
+        },
+        {
+          "year": 2024,
+          "value": 1617.381
+        },
+        {
+          "year": 2025,
+          "value": 1597.507
         }
       ]
     }

@@ -40,7 +40,9 @@ export type SectionRow =
       bandOverstates: boolean;
       rank: string;
       delta: string;
+      /** Retrieval date — distinct from dataThroughYear, never conflated (CLAUDE.md's 2026-08-24 AS-OF ruling). */
       asOf: string;
+      dataThroughYear: number | null;
       stale: boolean;
     }
   | {
@@ -218,7 +220,7 @@ export default function SectionOverview({
                 <td className="border-b border-ink py-2">BAND</td>
                 <td className="border-b border-ink py-2 text-right">RANK</td>
                 <td className="border-b border-ink py-2 text-right">Δ</td>
-                <td className="border-b border-ink py-2 pl-6">AS OF</td>
+                <td className="border-b border-ink py-2 pl-6">DATA THROUGH</td>
               </tr>
             </thead>
             <tbody className="font-martian-mono text-[12.5px]">
@@ -416,8 +418,8 @@ function GaugeRow({ row, isLast }: { row: SectionRow; isLast: boolean }) {
           : row.rank}
       </td>
       <td className="text-right py-2.5 pr-3.5">{row.delta === "n.a." ? <span className="text-stamp">n.a.</span> : row.delta.replace(/^Δ [^:]+:\s*/, "")}</td>
-      <td className={`pl-6 text-[10.5px] py-2.5 ${row.stale ? "text-stamp" : ""}`}>
-        {row.asOf}
+      <td className={`pl-6 text-[10.5px] py-2.5 ${row.stale ? "text-stamp" : ""}`} title={`Retrieved ${row.asOf}`}>
+        {row.dataThroughYear ?? "—"}
         {row.stale ? " · STALE" : ""}
       </td>
     </tr>
@@ -477,8 +479,11 @@ function MobileGaugeRow({ row }: { row: SectionRow }) {
       <div className="mt-1.5">
         <PositionStrip aus={row.aus} peers={row.peers} />
       </div>
-      <div className={`font-martian-mono text-[10px] mt-1 ${row.stale ? "text-stamp" : "text-ink-2"}`}>
-        AS OF {row.asOf}
+      <div
+        className={`font-martian-mono text-[10px] mt-1 ${row.stale ? "text-stamp" : "text-ink-2"}`}
+        title={`Retrieved ${row.asOf}`}
+      >
+        DATA THROUGH {row.dataThroughYear ?? "—"}
         {row.stale ? " · STALE" : ""}
       </div>
     </div>

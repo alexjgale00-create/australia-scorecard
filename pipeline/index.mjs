@@ -107,6 +107,24 @@ function describeExistingData(gaugeId) {
   }
 }
 
+/**
+ * The latest year Australia's own series has a data point for — mirrors
+ * lib/maturity.ts's latestDataYear exactly (this file can't import from
+ * lib/ — it's plain Node, not part of the Next.js build), so the pipeline
+ * report and /status never disagree about which year a gauge's staleness
+ * is measured against.
+ */
+function latestAusYear(gaugeId) {
+  const path = join(dataDir, `${gaugeId}.json`);
+  if (!existsSync(path)) return null;
+  try {
+    const series = JSON.parse(readFileSync(path, "utf-8")).countries?.AUS?.series;
+    return series?.length ? series[series.length - 1].year : null;
+  } catch {
+    return null;
+  }
+}
+
 function daysSince(isoDate) {
   return Math.round((Date.now() - new Date(isoDate).getTime()) / 86_400_000);
 }
@@ -198,8 +216,21 @@ for (const config of gaugesConfig.gauges) {
     continue;
   }
 
-  const ageMonths = (Date.now() - new Date(existing.retrievedAt).getTime()) / (30.44 * 86_400_000);
-  const ageDescription = `last entered ${existing.retrievedAt.slice(0, 10)} (~${Math.round(ageMonths)} month${Math.round(ageMonths) === 1 ? "" : "s"} ago)`;
+  // Staleness is measured from the latest OBSERVATION year, not from when
+  // this file was last pulled — see lib/maturity.ts's manualStaleness for
+  // the full ruling (2026-08-24). Re-downloading and re-confirming an old
+  // number doesn't make that number any less old.
+  const dataYear = latestAusYear(config.id);
+  if (dataYear === null) {
+    report.manualAwaiting(
+      config.id,
+      `Entry exists but no Australia series found — check data/processed/${config.id}.json.`
+    );
+    continue;
+  }
+
+  const ageMonths = (Date.now() - new Date(`${dataYear}-12-31`).getTime()) / (30.44 * 86_400_000);
+  const ageDescription = `data through ${dataYear} (~${Math.round(ageMonths)} month${Math.round(ageMonths) === 1 ? "" : "s"} old)`;
 
   if (ageMonths > staleAfterMonths) {
     report.manualStale(

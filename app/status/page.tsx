@@ -10,6 +10,7 @@ import {
   computeMaturity,
   computeMaturityCounts,
   describeWhatsNext,
+  latestDataYear,
   MATURITY_TIER_LABELS,
   summarizeMaturityCounts,
 } from "@/lib/maturity";
@@ -62,6 +63,10 @@ export default function StatusPage() {
       config,
       data,
       maturity,
+      // Distinct facts, both shown — never collapsed into one "as of" column
+      // (CLAUDE.md's 2026-08-24 AS-OF ruling): dataThrough is what the
+      // number describes, lastUpdate is when we last checked the source.
+      dataThrough: latestDataYear(data),
       lastUpdate: data?.provenance.retrievedAt ? data.provenance.retrievedAt.slice(0, 10) : "—",
       whatsNext: describeWhatsNext(config, data, maturity),
     };
@@ -222,12 +227,13 @@ export default function StatusPage() {
                 <th className="px-4 py-3 font-medium">Dimension</th>
                 <th className="px-4 py-3 font-medium">Tier</th>
                 <th className="px-4 py-3 font-medium">Source</th>
-                <th className="px-4 py-3 font-medium">Last update</th>
+                <th className="px-4 py-3 font-medium">Data through</th>
+                <th className="px-4 py-3 font-medium">Retrieved</th>
                 <th className="px-4 py-3 font-medium">What&rsquo;s next</th>
               </tr>
             </thead>
             <tbody>
-              {rows.map(({ config, maturity, lastUpdate, whatsNext }) => {
+              {rows.map(({ config, maturity, dataThrough, lastUpdate, whatsNext }) => {
                 const scoringBasisNote = describeScoringBasis(config);
                 return (
                   <tr key={config.id} className="border-b border-[var(--gridline)] last:border-0">
@@ -257,6 +263,7 @@ export default function StatusPage() {
                       )}
                     </td>
                     <td className="px-4 py-3 text-[var(--text-secondary)]">{config.source.institution}</td>
+                    <td className="px-4 py-3 tabular-nums text-[var(--text-secondary)]">{dataThrough ?? "—"}</td>
                     <td className="px-4 py-3 tabular-nums text-[var(--text-secondary)]">{lastUpdate}</td>
                     <td className="px-4 py-3 text-[var(--text-secondary)]">{whatsNext}</td>
                   </tr>

@@ -20,7 +20,7 @@ export default function Gauge({ view, density = "page" }: { view: GaugeView; den
   const [dense, setDense] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  const citeText = `Australia Scorecard, Table ${view.plate} — ${view.title}, as at ${view.asOf}. /table/${view.plate}`;
+  const citeText = `Australia Scorecard, Table ${view.plate} — ${view.title}, data through ${view.dataThroughYear ?? "—"} (retrieved ${view.asOf}). /table/${view.plate}`;
   const copyCite = () => {
     if (typeof navigator !== "undefined" && navigator.clipboard) {
       navigator.clipboard.writeText(citeText).catch(() => {});
@@ -61,10 +61,16 @@ export default function Gauge({ view, density = "page" }: { view: GaugeView; den
           </div>
         </div>
         <div className="text-right font-martian-mono text-[11px] leading-[1.9] tabular-nums">
+          {/* DATA THROUGH (what the number describes) and RETRIEVED (when we
+              last checked the source) are different facts — see CLAUDE.md's
+              2026-08-24 AS-OF ruling. Never collapse them into one line: a
+              gauge re-pulled today whose real data still ends years ago must
+              not read as current just because the retrieval date is recent. */}
           <div className={`font-bold ${view.stale ? "text-stamp" : "text-ink"}`}>
-            AS OF {view.asOf}
+            DATA THROUGH {view.dataThroughYear ?? "—"}
             {view.stale ? " · STALE" : ""}
           </div>
+          <div className="text-ink-3">RETRIEVED {view.asOf}</div>
           <div className="text-ink-3">{view.refreshNote}</div>
           <div className="text-ink-3">{view.observation}</div>
           {view.stale && view.staleReason && <div className="text-stamp">{view.staleReason}</div>}

@@ -1,0 +1,931 @@
+{
+  "gaugeId": "human-capital-depth",
+  "provenance": {
+    "status": "LIVE",
+    "institution": "OECD",
+    "seriesId": "OECD.EDU.IMEP:DSD_EAG_LSO_EA@DF_LSO_NEAC_DISTR_EA(1.0)",
+    "seriesName": "Adults' educational attainment distribution — tertiary, 25-34 year-olds, % of age group",
+    "url": "https://data-explorer.oecd.org/vis?df%5Bds%5D=DisseminateFinalDMZ&df%5Bid%5D=DSD_EAG_LSO_EA%40DF_LSO_NEAC_DISTR_EA&df%5Bag%5D=OECD.EDU.IMEP",
+    "retrievedAt": "2026-08-24T00:00:00.000Z",
+    "sourcePulledAt": "2026-08-24T00:00:00.000Z",
+    "note": "First real entry — was Awaiting Data before this (the automated fetch attempted 2026-07-14 got HTTP 404 three times against this dataflow with no actionable diagnostic; see data/manual/README.md). Manual OECD Data Explorer download (raw SDMX CSV export, not the fillable template), converted directly from the export per the site owner's explicit instruction — dimension columns verified directly from the file: SEX=_T, AGE=Y25T34, ATTAINMENT_LEV=ISCED11A_5T8, EDUCATION_FIELD=_T, MEASURE=POP, UNIT_MEASURE=PT_POP_SEX_AGE, EDU_STATUS=ED_NED, LABOUR_FORCE_STATUS=POP, STATISTICAL_OPERATION=OBS, QUESTIONNAIRE=NEAC, FREQ=A — single value per dimension throughout, no conflicts. All 9 peers present. Spot-checked against the site owner's own independent read of the file before ingesting: AUS 2025 = 58.244, exact match (58.2441342124229 rounds to 58.244). Australia has real, published-blank gaps at 2022 and 2023 specifically (OBS_VALUE empty in the source export for those two rows, OBS_STATUS=A/Normal — not a download error) — dropped, not written as zero, per the site owner's instruction; the gauge's own historical series is otherwise continuous 2000-2021 and 2024-2025.",
+    "missingCountries": [],
+    "scheduledRefreshCount": 0,
+    "lastScheduledRefreshAt": null
+  },
+  "countries": {
+    "AUS": {
+      "name": "Australia",
+      "series": [
+        {
+          "year": 2000,
+          "value": 31.372517
+        },
+        {
+          "year": 2001,
+          "value": 33.511932
+        },
+        {
+          "year": 2002,
+          "value": 35.797337
+        },
+        {
+          "year": 2003,
+          "value": 36.322815
+        },
+        {
+          "year": 2004,
+          "value": 36.168247
+        },
+        {
+          "year": 2005,
+          "value": 38.098312
+        },
+        {
+          "year": 2006,
+          "value": 38.804123
+        },
+        {
+          "year": 2007,
+          "value": 40.728859
+        },
+        {
+          "year": 2008,
+          "value": 41.99683
+        },
+        {
+          "year": 2009,
+          "value": 44.778488
+        },
+        {
+          "year": 2010,
+          "value": 44.374836
+        },
+        {
+          "year": 2011,
+          "value": 44.615528
+        },
+        {
+          "year": 2012,
+          "value": 47.231079
+        },
+        {
+          "year": 2013,
+          "value": 45.745182
+        },
+        {
+          "year": 2014,
+          "value": 48.13139
+        },
+        {
+          "year": 2015,
+          "value": 48.466274
+        },
+        {
+          "year": 2016,
+          "value": 49.30521
+        },
+        {
+          "year": 2017,
+          "value": 52.1686399075946
+        },
+        {
+          "year": 2018,
+          "value": 51.6995080737056
+        },
+        {
+          "year": 2019,
+          "value": 52.3998879865584
+        },
+        {
+          "year": 2020,
+          "value": 55.019769403047
+        },
+        {
+          "year": 2021,
+          "value": 54.6320031946291
+        },
+        {
+          "year": 2024,
+          "value": 57.20615005493164
+        },
+        {
+          "year": 2025,
+          "value": 58.2441342124229
+        }
+      ]
+    },
+    "CAN": {
+      "name": "Canada",
+      "series": [
+        {
+          "year": 2000,
+          "value": 48.400093
+        },
+        {
+          "year": 2001,
+          "value": 50.856735
+        },
+        {
+          "year": 2002,
+          "value": 51.629013
+        },
+        {
+          "year": 2003,
+          "value": 53.179329
+        },
+        {
+          "year": 2004,
+          "value": 53.197052
+        },
+        {
+          "year": 2005,
+          "value": 53.694931
+        },
+        {
+          "year": 2006,
+          "value": 54.622643
+        },
+        {
+          "year": 2007,
+          "value": 55.674667
+        },
+        {
+          "year": 2008,
+          "value": 55.619267
+        },
+        {
+          "year": 2009,
+          "value": 55.780476
+        },
+        {
+          "year": 2010,
+          "value": 56.169838
+        },
+        {
+          "year": 2011,
+          "value": 56.77151489257813
+        },
+        {
+          "year": 2012,
+          "value": 57.40181350708008
+        },
+        {
+          "year": 2013,
+          "value": 57.90598297119141
+        },
+        {
+          "year": 2014,
+          "value": 57.83132553100586
+        },
+        {
+          "year": 2015,
+          "value": 59.39533996582031
+        },
+        {
+          "year": 2016,
+          "value": 60.5557861328125
+        },
+        {
+          "year": 2017,
+          "value": 60.81632614135742
+        },
+        {
+          "year": 2018,
+          "value": 61.7599983215332
+        },
+        {
+          "year": 2019,
+          "value": 62.85546112060547
+        },
+        {
+          "year": 2020,
+          "value": 64.33365631103516
+        },
+        {
+          "year": 2021,
+          "value": 66.3627700805664
+        },
+        {
+          "year": 2022,
+          "value": 66.90245819091797
+        },
+        {
+          "year": 2023,
+          "value": 66.92130279541016
+        },
+        {
+          "year": 2024,
+          "value": 68.85604095458984
+        },
+        {
+          "year": 2025,
+          "value": 67.6596445029625
+        }
+      ]
+    },
+    "GBR": {
+      "name": "United Kingdom",
+      "series": [
+        {
+          "year": 2000,
+          "value": 28.901674
+        },
+        {
+          "year": 2001,
+          "value": 30.066694
+        },
+        {
+          "year": 2002,
+          "value": 31.410488
+        },
+        {
+          "year": 2003,
+          "value": 33.321693
+        },
+        {
+          "year": 2004,
+          "value": 34.897144
+        },
+        {
+          "year": 2005,
+          "value": 35.345379
+        },
+        {
+          "year": 2006,
+          "value": 41.8297
+        },
+        {
+          "year": 2007,
+          "value": 43.08427
+        },
+        {
+          "year": 2008,
+          "value": 43.337868
+        },
+        {
+          "year": 2009,
+          "value": 45.283749
+        },
+        {
+          "year": 2010,
+          "value": 46.046906
+        },
+        {
+          "year": 2011,
+          "value": 46.910782
+        },
+        {
+          "year": 2012,
+          "value": 47.860847
+        },
+        {
+          "year": 2013,
+          "value": 48.31358
+        },
+        {
+          "year": 2014,
+          "value": 49.185982
+        },
+        {
+          "year": 2015,
+          "value": 49.943413
+        },
+        {
+          "year": 2016,
+          "value": 51.775383
+        },
+        {
+          "year": 2017,
+          "value": 51.624851
+        },
+        {
+          "year": 2018,
+          "value": 50.752552
+        },
+        {
+          "year": 2019,
+          "value": 52.26434326171875
+        },
+        {
+          "year": 2020,
+          "value": 56.39443206787109
+        },
+        {
+          "year": 2021,
+          "value": 57.89417266845703
+        },
+        {
+          "year": 2022,
+          "value": 58.11116409301758
+        },
+        {
+          "year": 2023,
+          "value": 60.58328628540039
+        },
+        {
+          "year": 2024,
+          "value": 60.32399368286133
+        },
+        {
+          "year": 2025,
+          "value": 61.1865194944378
+        }
+      ]
+    },
+    "NZL": {
+      "name": "New Zealand",
+      "series": [
+        {
+          "year": 2014,
+          "value": 40.402225
+        },
+        {
+          "year": 2015,
+          "value": 39.7976391231029
+        },
+        {
+          "year": 2016,
+          "value": 43.396225
+        },
+        {
+          "year": 2017,
+          "value": 44.158596
+        },
+        {
+          "year": 2018,
+          "value": 45.811745
+        },
+        {
+          "year": 2019,
+          "value": 43.792194
+        },
+        {
+          "year": 2020,
+          "value": 43.913631
+        },
+        {
+          "year": 2021,
+          "value": 45.316936
+        },
+        {
+          "year": 2022,
+          "value": 44.085281
+        },
+        {
+          "year": 2023,
+          "value": 45.87904739379883
+        },
+        {
+          "year": 2024,
+          "value": 47.92797470092773
+        },
+        {
+          "year": 2025,
+          "value": 47.7257205299822
+        }
+      ]
+    },
+    "KOR": {
+      "name": "South Korea",
+      "series": [
+        {
+          "year": 2000,
+          "value": 36.81242
+        },
+        {
+          "year": 2001,
+          "value": 38.955528
+        },
+        {
+          "year": 2002,
+          "value": 41.017273
+        },
+        {
+          "year": 2003,
+          "value": 46.514172
+        },
+        {
+          "year": 2004,
+          "value": 49.056168
+        },
+        {
+          "year": 2005,
+          "value": 50.858059
+        },
+        {
+          "year": 2006,
+          "value": 52.953865
+        },
+        {
+          "year": 2007,
+          "value": 55.490356
+        },
+        {
+          "year": 2008,
+          "value": 57.842369
+        },
+        {
+          "year": 2009,
+          "value": 60.575958
+        },
+        {
+          "year": 2010,
+          "value": 61.449047
+        },
+        {
+          "year": 2011,
+          "value": 63.734528
+        },
+        {
+          "year": 2012,
+          "value": 65.603264
+        },
+        {
+          "year": 2013,
+          "value": 67.088554
+        },
+        {
+          "year": 2014,
+          "value": 67.665947
+        },
+        {
+          "year": 2015,
+          "value": 68.861946
+        },
+        {
+          "year": 2016,
+          "value": 69.851555
+        },
+        {
+          "year": 2017,
+          "value": 69.752068
+        },
+        {
+          "year": 2018,
+          "value": 69.574219
+        },
+        {
+          "year": 2019,
+          "value": 69.802818
+        },
+        {
+          "year": 2020,
+          "value": 69.812752
+        },
+        {
+          "year": 2021,
+          "value": 69.288513
+        },
+        {
+          "year": 2022,
+          "value": 69.58013153
+        },
+        {
+          "year": 2023,
+          "value": 69.68691254
+        },
+        {
+          "year": 2024,
+          "value": 70.55189514160156
+        },
+        {
+          "year": 2025,
+          "value": 71.1302228911345
+        }
+      ]
+    },
+    "NLD": {
+      "name": "Netherlands",
+      "series": [
+        {
+          "year": 2000,
+          "value": 26.57077
+        },
+        {
+          "year": 2001,
+          "value": 26.544241
+        },
+        {
+          "year": 2002,
+          "value": 28.261511
+        },
+        {
+          "year": 2003,
+          "value": 32.107986
+        },
+        {
+          "year": 2004,
+          "value": 34.481209
+        },
+        {
+          "year": 2005,
+          "value": 35.375629
+        },
+        {
+          "year": 2006,
+          "value": 35.957436
+        },
+        {
+          "year": 2007,
+          "value": 36.696419
+        },
+        {
+          "year": 2008,
+          "value": 39.766335
+        },
+        {
+          "year": 2009,
+          "value": 40.122009
+        },
+        {
+          "year": 2010,
+          "value": 40.803711
+        },
+        {
+          "year": 2011,
+          "value": 39.784946
+        },
+        {
+          "year": 2012,
+          "value": 43.036243
+        },
+        {
+          "year": 2013,
+          "value": 43.793591
+        },
+        {
+          "year": 2014,
+          "value": 45.43515
+        },
+        {
+          "year": 2015,
+          "value": 46.253574
+        },
+        {
+          "year": 2016,
+          "value": 46.487251
+        },
+        {
+          "year": 2017,
+          "value": 47.994652
+        },
+        {
+          "year": 2018,
+          "value": 49.308193
+        },
+        {
+          "year": 2019,
+          "value": 49.565659
+        },
+        {
+          "year": 2020,
+          "value": 52.15403
+        },
+        {
+          "year": 2021,
+          "value": 55.604595
+        },
+        {
+          "year": 2022,
+          "value": 56.420319
+        },
+        {
+          "year": 2023,
+          "value": 54.52541351
+        },
+        {
+          "year": 2024,
+          "value": 55.6392936706543
+        },
+        {
+          "year": 2025,
+          "value": 56.1264654844034
+        }
+      ]
+    },
+    "USA": {
+      "name": "United States",
+      "series": [
+        {
+          "year": 2000,
+          "value": 38.083973
+        },
+        {
+          "year": 2001,
+          "value": 38.717625
+        },
+        {
+          "year": 2002,
+          "value": 39.336624
+        },
+        {
+          "year": 2003,
+          "value": 38.652836
+        },
+        {
+          "year": 2004,
+          "value": 39.042027
+        },
+        {
+          "year": 2005,
+          "value": 39.363441
+        },
+        {
+          "year": 2006,
+          "value": 39.239269
+        },
+        {
+          "year": 2007,
+          "value": 40.386425
+        },
+        {
+          "year": 2008,
+          "value": 41.564896
+        },
+        {
+          "year": 2009,
+          "value": 41.056328
+        },
+        {
+          "year": 2010,
+          "value": 42.310982
+        },
+        {
+          "year": 2011,
+          "value": 43.132984
+        },
+        {
+          "year": 2012,
+          "value": 44.042595
+        },
+        {
+          "year": 2013,
+          "value": 44.779469
+        },
+        {
+          "year": 2014,
+          "value": 45.663815
+        },
+        {
+          "year": 2015,
+          "value": 46.517712
+        },
+        {
+          "year": 2016,
+          "value": 47.521809
+        },
+        {
+          "year": 2017,
+          "value": 47.757
+        },
+        {
+          "year": 2018,
+          "value": 49.373737
+        },
+        {
+          "year": 2019,
+          "value": 50.380188
+        },
+        {
+          "year": 2020,
+          "value": 51.856071
+        },
+        {
+          "year": 2021,
+          "value": 51.1675
+        },
+        {
+          "year": 2022,
+          "value": 51.255699
+        },
+        {
+          "year": 2023,
+          "value": 51.82859039
+        },
+        {
+          "year": 2025,
+          "value": 52.7706759165652
+        }
+      ]
+    },
+    "DEU": {
+      "name": "Germany",
+      "series": [
+        {
+          "year": 2000,
+          "value": 22.250971
+        },
+        {
+          "year": 2001,
+          "value": 21.779524
+        },
+        {
+          "year": 2002,
+          "value": 21.739561
+        },
+        {
+          "year": 2003,
+          "value": 21.799734
+        },
+        {
+          "year": 2004,
+          "value": 22.942751
+        },
+        {
+          "year": 2005,
+          "value": 22.494616
+        },
+        {
+          "year": 2006,
+          "value": 21.983997
+        },
+        {
+          "year": 2007,
+          "value": 22.62182
+        },
+        {
+          "year": 2008,
+          "value": 23.916872
+        },
+        {
+          "year": 2009,
+          "value": 25.655298
+        },
+        {
+          "year": 2010,
+          "value": 26.133959
+        },
+        {
+          "year": 2011,
+          "value": 27.67141
+        },
+        {
+          "year": 2012,
+          "value": 28.956329
+        },
+        {
+          "year": 2013,
+          "value": 29.995255
+        },
+        {
+          "year": 2014,
+          "value": 28.422802
+        },
+        {
+          "year": 2015,
+          "value": 29.588667
+        },
+        {
+          "year": 2016,
+          "value": 30.527618
+        },
+        {
+          "year": 2017,
+          "value": 31.308737
+        },
+        {
+          "year": 2018,
+          "value": 32.281734
+        },
+        {
+          "year": 2019,
+          "value": 33.260235
+        },
+        {
+          "year": 2020,
+          "value": 34.7816276550293
+        },
+        {
+          "year": 2021,
+          "value": 36.94021987915039
+        },
+        {
+          "year": 2022,
+          "value": 36.99085235595703
+        },
+        {
+          "year": 2023,
+          "value": 38.00624847412109
+        },
+        {
+          "year": 2024,
+          "value": 39.57233047485352
+        },
+        {
+          "year": 2025,
+          "value": 40.882102573125
+        }
+      ]
+    },
+    "JPN": {
+      "name": "Japan",
+      "series": [
+        {
+          "year": 2000,
+          "value": 47.844826
+        },
+        {
+          "year": 2001,
+          "value": 48.525471
+        },
+        {
+          "year": 2002,
+          "value": 50.993023
+        },
+        {
+          "year": 2003,
+          "value": 51.645981
+        },
+        {
+          "year": 2004,
+          "value": 52.640175
+        },
+        {
+          "year": 2005,
+          "value": 53.185596
+        },
+        {
+          "year": 2006,
+          "value": 54.074074
+        },
+        {
+          "year": 2007,
+          "value": 53.696037
+        },
+        {
+          "year": 2008,
+          "value": 55.060974
+        },
+        {
+          "year": 2009,
+          "value": 55.667507
+        },
+        {
+          "year": 2010,
+          "value": 56.70573
+        },
+        {
+          "year": 2011,
+          "value": 58.721333
+        },
+        {
+          "year": 2012,
+          "value": 58.554874
+        },
+        {
+          "year": 2013,
+          "value": 58.368496
+        },
+        {
+          "year": 2014,
+          "value": 58.585857
+        },
+        {
+          "year": 2015,
+          "value": 59.646538
+        },
+        {
+          "year": 2016,
+          "value": 60.120392
+        },
+        {
+          "year": 2017,
+          "value": 60.426178
+        },
+        {
+          "year": 2018,
+          "value": 60.730949
+        },
+        {
+          "year": 2019,
+          "value": 61.514194
+        },
+        {
+          "year": 2020,
+          "value": 63.54916
+        },
+        {
+          "year": 2021,
+          "value": 64.814812
+        },
+        {
+          "year": 2022,
+          "value": 65.68236542
+        },
+        {
+          "year": 2023,
+          "value": 65.47335052
+        },
+        {
+          "year": 2024,
+          "value": 66.00790405273438
+        },
+        {
+          "year": 2025,
+          "value": 67.5294117647059
+        }
+      ]
+    }
+  }
+}
