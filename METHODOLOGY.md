@@ -270,22 +270,69 @@ A constitutional change that alters nothing about Australia's own verdict
 today is still worth ruling on — the bands now discriminate correctly at
 the extremes even though Australia isn't sitting at either one.
 
-**Quality of Life: still on the old shared placeholder
-(`0-24/25-44/45-59/60-79/80-100`), explicitly blocked rather than merely
-unreviewed.** The same re-run found every one of QoL's candidate schemes
-failing a hard constraint at the 2025 historical-series endpoint (51.4)
-against the live composite (67.9) — a 16.5-point gap — and every one of
-them *passing* at 2023 (0.3-point gap, full 7-of-7 gauge coverage). That's
-conclusive: the trajectory series' construction breaks specifically where
-gauge coverage thins at the tail (3 of 7 QoL gauges hadn't reached
-2024/2025 as of this ruling), not a defect in any threshold scheme tried.
-Recalibrating on top of a known-defective series would bake a data problem
-into a constitutional decision — see "Trajectory series fix" below for the
-remedy and its own trade-offs. Scheme 3 (`42/54/68/82`, centered Holding,
-two stable 13- and 14-year eras, lowest churn of any QoL candidate tested,
-but a live-composite proximity of 0.037× a median move — confirmed
-fragile, not just apparently so) is the standing provisional preference
-for the re-run once the series is fixed — **not adopted**.
+**4. The common derivation rule, stated once — it applies to both
+dimensions, and the numbers differ because the dimensions do, not because
+the method does.** Each dimension's score bands divide *that dimension's
+own achievable range* — the true minimum and maximum any of the 9 peers
+has actually reached, any year from 1990 to present, on that dimension's
+composite — into five equal parts. One rule, run twice:
+
+| | Achievable range | Extremes (country, year) | Thresholds (FB / Slip / Hold / Streng / Lead) |
+|---|---|---|---|
+| **Power** | 27.1 – 72.2 | min: Korea, 1991 · max: United States, 1992 | 0-35 / 36-44 / 45-53 / 54-62 / 63-100 |
+| **Quality of Life** | 9.8 – 83.8 | min: United States, 2005 · max: Germany, 2020 | 0-24 / 25-38 / 39-53 / 54-68 / 69-100 |
+
+Power's real range is under half the width of Quality of Life's (45.1
+points against 74.0) — the same five-way division of two genuinely
+different-shaped distributions necessarily produces two different
+threshold sets. A reader who notices the numbers differ between the two
+dimension pages should read that as the ranges differing, not the rule.
+
+**On the 45 boundary sitting close to today's live Power composite (42.9,
+one median annual move away — 1.000×): disclosed, not adjusted, and the
+reasoning generalises to any boundary this rule ever produces.** The
+boundary falls out of dividing the true achievable range into five equal
+parts — arithmetic with no knowledge of, and no reference to, where any
+country's current score happens to land. A boundary that is close to
+today's value but was derived without reference to it is honest; one
+moved because the proximity was uncomfortable would not be. If this site
+is ever accused of drawing lines to flatter or punish a country, this is
+the sentence to point at.
+
+**5. Quality of Life ruled: `0-24 / 25-38 / 39-53 / 54-68 / 69-100`
+(2026-08-24), after the trajectory-series fix landed (see below) and the
+full options memo was re-run against the corrected series.** Every
+candidate scheme now passes the hard constraint (2023 endpoint 67.6 vs.
+live 67.9 — a 0.3-point gap, down from 16.5 before the fix), so the choice
+came down to which derivation method to use, not which one produced a
+passable number.
+
+**Scheme 3 (`42/54/68/82`, hand-centered on the pooled median, two stable
+13- and 14-year eras, lowest churn of every QoL candidate tested) was the
+standing provisional preference through most of this review and was
+rejected at ruling time — on a consistency ground, not a metrics one.**
+Power had already adopted the achievable-range method. Had QoL adopted
+Scheme 3 instead, the site would need to defend two different derivation
+methods for two dimensions in the same ruling — "achievable range for one,
+a hand-centred median with admittedly arbitrary outer widths for the
+other" — and Scheme 3's own memo entry had already conceded there was no
+principled answer to "why 42 and not 40." A scheme whose own writeup
+concedes an unanswerable question isn't a stronger candidate than one
+with a slightly worse noise ratio and an identical churn profile: Scheme
+1's changes/churn/sustained split (5/2/3) on the corrected series is
+*identical* to Scheme 3's, and its noise margin (5.19× a typical annual
+move) is better. The ruling was that bands diverge by dimension; the
+derivation method does not.
+
+**Verdict impact**: Australia's own Quality of Life reading is
+**unchanged** — 67.9 was Strengthening under the old shared placeholder
+and stays Strengthening under the new thresholds. As with Power, this is
+a constitutional change that alters nothing about Australia's own verdict
+today — though on Quality of Life specifically, that verdict now sits
+close to its nearest boundary (67.9 against 69, 0.41× a typical annual
+move) purely because the peer pack is genuinely dense in that range, not
+because of anything about the threshold choice — see "Proximity
+disclosure" (pending, drafted not yet built) for the planned treatment.
 
 ### Trajectory series fix — Approach B adopted (2026-08-24)
 
@@ -305,6 +352,39 @@ site is handled (disclosure, not silent correction — same principle as
 band-robustness §3.3 and every staleness disclosure), and it doesn't put
 36 years of already-shown numbers at risk of changing under a future
 rebuild. See CLAUDE.md for the implementation record.
+
+**The cliff threshold (`COVERAGE_CLIFF_THRESHOLD = 0.2`, `lib/scoring.ts`)
+was checked for sensitivity before being trusted, not assumed correct
+because it looked reasonable.** Chosen from a real, empirically-found gap
+in the missing-data distribution: every ordinary year (an OECD series'
+uneven per-country lag, GBD's non-annual release cadence, a gauge simply
+not having launched yet in that era) tops out at 18.75% of that year's
+already-launched gauges missing on Power, 16.7% on Quality of Life; every
+year that turned out to be a genuine coverage-cliff artifact starts at
+25%. Re-run at 0.15 and 0.25 to check the choice wasn't arbitrary within
+that gap:
+
+- **0.15 over-excludes**: sweeps in 1997 and 1999 on Power, 2010 and 2011
+  on Quality of Life — years that are ordinary early-history coverage (a
+  slower-launching gauge genuinely hadn't started yet), not the cliff
+  pattern, incorrectly caught by too strict a cutoff.
+- **0.25 under-excludes**: leaves Power's 2023 and 2024 in, despite both
+  sitting at exactly the 25% missing mark this review's own evidence
+  identified as where the cliff pattern starts (strict `>` excludes
+  nothing sitting exactly at the boundary).
+- **The achievable range — and therefore every band threshold in this
+  ruling — is identical at 0.15, 0.20, and 0.25, on both dimensions.**
+  Checked directly, not inferred: 27.1–72.2 (Power) and 9.8–83.8 (Quality
+  of Life) don't move at any of the three settings, because the true
+  extremes on both dimensions occurred in years nowhere near the ones the
+  threshold choice affects (Power's in 1991/1992, Quality of Life's in
+  2005/2020). The parameter changes only how many years render on the
+  trajectory chart — never a published band, a verdict, or a threshold.
+
+That invariance is the strongest evidence in this whole ruling that the
+bands don't quietly depend on an arbitrary internal constant: three
+materially different cutoffs, same achievable ranges, same thresholds,
+same verdicts.
 
 ### Phase D — rejected band-scheme approaches (2026-08-24)
 
@@ -381,15 +461,15 @@ have known whether `§3.1`/`§3.2` existed. They didn't. This section is
 where they now live for real, numbered to match what the shipped apparatus
 actually cites.
 
-### §3.1 — Band thresholds under review
+### §3.1 — Band thresholds: ruled
 
 Pointer, not new content: this is the "Phase D, Item 1" section above.
-**Power's thresholds (0-35 / 36-44 / 45-53 / 54-62 / 63-100) are ruled and
-final** as of 2026-08-24, set against Power's own achievable range — not a
-placeholder any more. **Quality of Life's thresholds (0–24 / 25–44 / 45–59
-/ 60–79 / 80–100) remain placeholders**, explicitly blocked on the
-trajectory-series coverage fix rather than merely unreviewed — see above
-for the full ruling, ranked candidate schemes, and what's still pending.
+**Both dimensions' thresholds are ruled and final** as of 2026-08-24 —
+Power (0-35 / 36-44 / 45-53 / 54-62 / 63-100) and Quality of Life (0-24 /
+25-38 / 39-53 / 54-68 / 69-100), each set against that dimension's own
+achievable range by the same rule. Neither is a placeholder any more —
+see above for the full options memo, the common derivation rule, and the
+cliff-threshold sensitivity check.
 
 ### §3.2 — Evidence standard for a causal attribution
 

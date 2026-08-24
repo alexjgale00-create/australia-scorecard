@@ -131,22 +131,23 @@ export default function MethodologyPage() {
           gauges, or a peer country.
         </p>
         <p className="mt-3 text-[var(--text-secondary)]">
-          <strong>Power and Quality of Life are now on two different band regimes</strong>,
-          ruled 2026-08-24: no single threshold set fit both, because the two dimensions&rsquo;
-          composites occupy genuinely different real ranges (Power stays within roughly 27&ndash;72
-          across 36 years of real data; Quality of Life spans a much wider 10&ndash;90) &mdash;
-          the same boundaries either clustered Power&rsquo;s peers into two bands or scattered
-          Quality of Life&rsquo;s into an unrepresentative spread. Each dimension&rsquo;s table
-          below is its own, never the other&rsquo;s.
+          <strong>Both dimensions are ruled, final, and on the same derivation rule</strong> as
+          of 2026-08-24: each dimension&rsquo;s bands divide{" "}
+          <em>that dimension&rsquo;s own achievable range</em> &mdash; the true minimum and
+          maximum any of the 9 peers has actually reached, any year from 1990 to present &mdash;
+          into five equal parts. One rule, run twice. The two tables below show different
+          numbers because the two dimensions&rsquo; real ranges are different shapes (Power:
+          27.1&ndash;72.2; Quality of Life: 9.8&ndash;83.8, well over half again as wide) &mdash;
+          not because a different method was used. A reader who notices the thresholds differ
+          between the two dimension pages should read that as the ranges differing, not the rule.
         </p>
 
-        <h3 className="mt-5 text-base font-semibold">Power &mdash; ruled, final</h3>
+        <h3 className="mt-5 text-base font-semibold">Power</h3>
         <p className="mt-2 text-sm text-[var(--text-secondary)]">
-          Thresholds set against Power&rsquo;s own true achievable range (any of the 9 peers, any
-          year 1990&ndash;2025: 27.1&ndash;72.2), divided into 5 equal bands &mdash; a
-          &ldquo;constitutional,&rdquo; one-time decision, not provisional. Full options memo
-          (three schemes tested, run-length/churn decomposition, hard-constraint and proximity
-          checks) is in METHODOLOGY.md&rsquo;s &ldquo;Phase D, Item 1.&rdquo;
+          Achievable range 27.1&ndash;72.2 (minimum: South Korea, 1991 &middot; maximum: United
+          States, 1992). Full options memo (three schemes tested, run-length/churn decomposition,
+          hard-constraint and proximity checks) is in METHODOLOGY.md&rsquo;s &ldquo;Phase D, Item
+          1.&rdquo;
         </p>
         <div className="mt-3 space-y-2">
           {gaugesConfig.dimensions
@@ -166,19 +167,19 @@ export default function MethodologyPage() {
             ))}
         </div>
 
-        <h3 className="mt-6 text-base font-semibold">Quality of Life &mdash; still provisional</h3>
-        <div
-          className="mt-2 rounded-md border p-3 text-sm"
-          style={{ borderColor: "var(--status-warning)", color: "var(--text-secondary)" }}
-        >
-          ⚠ <strong>Blocked, not merely unreviewed.</strong>{" "}Recalibrating these bands is on
-          hold because the historical series any calibration would run against is known-defective
-          at its own tail (3 of 7 gauges haven&rsquo;t reached 2024/2025 yet, producing a
-          16.5-point gap between the trajectory chart&rsquo;s last point and the live composite)
-          &mdash; fixing thresholds on top of that would bake a data-coverage artifact into a
-          constitutional decision. Waiting on the trajectory-series fix landing and the analysis
-          being re-run against the corrected series.
-        </div>
+        <h3 className="mt-6 text-base font-semibold">Quality of Life</h3>
+        <p className="mt-2 text-sm text-[var(--text-secondary)]">
+          Achievable range 9.8&ndash;83.8 (minimum: United States, 2005 &middot; maximum:
+          Germany, 2020) &mdash; computed after fixing a real defect in the trajectory series
+          that fed this calculation (see &ldquo;Trajectory series fix&rdquo; in METHODOLOGY.md):
+          3 of 7 gauges hadn&rsquo;t reached 2024/2025 yet, so those years were excluded from the
+          range calculation, not just the chart. A hand-centred alternative (Holding on the
+          pooled median, wider outer bands) was the standing preference for most of this review
+          but was rejected at ruling time &mdash; its own outer boundaries had no principled
+          answer to &ldquo;why there and not two points either side,&rdquo; and adopting a
+          different derivation method per dimension was judged worse than the difference between
+          the two schemes.
+        </p>
         <div className="mt-3 space-y-2">
           {gaugesConfig.dimensions
             .find((d) => d.id === "quality-of-life")!
