@@ -17,10 +17,11 @@ what this specific build session learned and left open.
 Each is a distinct failure mode. The first four are why the verification
 record and the `writtenAgainst` guard exist — read this section if you're
 ever tempted to think either of those is bureaucratic overhead. Entries 5
-and 6 are later additions from subsequent sessions, kept in this same
+through 7 are later additions from subsequent sessions, kept in this same
 record rather than scattered across dated log sections, because they're
 the same class of finding: something false or misleading reached a
-reader, undetected, until someone happened to look.
+reader, undetected, until someone happened to look. Entry 7 names a
+pattern across 5 and 6 rather than reporting a third incident.
 
 1. **innovation.md cited "the 2024 Strategic Examination of R&D."** The
    review was *commissioned* December 2024; its actual final report
@@ -119,6 +120,50 @@ reader, undetected, until someone happened to look.
    earlier this session), no guard checks a chart's rendered range
    against its own label, and the coverage-cliff guard's blind spot
    (above) meant even that check would have passed the bad data cleanly.
+   **The label itself fixed 2026-08-25** — checked git history back to
+   the project's first commit before touching anything: the chart has
+   shown full history since Phase A, "TRAILING DECADE" was introduced
+   fresh during the REGISTER rebuild (`373dbe9`) by reusing, for this
+   chart, a phrase that correctly describes a genuinely different,
+   real 10-year window elsewhere on the same page (see entry 7).
+   Relabelled to "COMPOSITE TRAJECTORY," no date range in the heading —
+   `AnchoredSparkline`'s own footer already prints the real start/end
+   year, so a heading duplicating that would go stale every time the
+   series grows.
+
+7. **A pattern across entries 5 and 6, worth naming on its own: both were
+   false public-facing claims with no code fault behind them, and neither
+   could have been caught by anything this site already checks.** The
+   `/methodology` build-status text and the "TRAILING DECADE" heading are
+   the same failure shape twice — copy written alongside working code,
+   then left behind once whatever it described moved on (gauges going
+   live, in one case; a phrase migrating onto an unrelated chart during a
+   rebuild, in the other). In both cases the *code* was correct throughout
+   — `bandForScore` computed the right band, `computeHistoricalComposite`
+   returned the right composite for whatever series it was given — it was
+   the *prose describing* correct code that went wrong, silently. A build
+   guard, a type check, `verify-gauge-invariants.mjs` — none of this
+   site's existing machinery checks whether a sentence or a heading still
+   matches what the code next to it actually does, because none of it was
+   built to; they check data shape and computation, not English. Both
+   were live for a meaningful stretch (the methodology text: unknown exact
+   window, found "in an unrelated session"; the chart heading: at least
+   3 days 8 hours, likely longer — the label predates this session
+   entirely and nobody knows how long it read wrong before that). Both
+   were found the same way: someone reading the page while doing
+   something else, not a check designed to catch this.
+
+   **Recorded as an open question, not a solved one, per the site
+   owner's explicit instruction not to design a fix here.** This project
+   has no mechanism for verifying that public-facing claims — headings,
+   status paragraphs, any prose asserting something about what the code
+   does or the data shows — still match reality once the surrounding
+   context changes. That gap is now named and accepted deliberately,
+   not sitting there unnoticed. Whether it's worth building something
+   (a lint-style scan for hardcoded counts and stale-sounding phrases? a
+   periodic "does this sentence still describe this code" review pass?
+   something else?) is a real question for whoever picks this up next,
+   not pre-answered here.
 
 ---
 

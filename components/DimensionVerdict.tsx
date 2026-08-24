@@ -172,8 +172,19 @@ export default function DimensionVerdict({
       </p>
 
       <div className="mt-6 border-t border-grid pt-5">
+        {/* "COMPOSITE TRAJECTORY", not "TRAILING DECADE — ..." (fixed
+            2026-08-25): this chart has shown full history since Phase A's
+            first commit, never a 10-year window — "TRAILING DECADE" was
+            introduced here during the REGISTER rebuild by mistakenly
+            reusing the phrase that correctly describes the IMPROVING/FLAT/
+            DETERIORATING tally on DimensionRuler (a genuine 10-year window,
+            trailingStartYear's windowYears=10) for this unrelated, never-
+            windowed chart. No date range in the heading either — AnchoredSparkline's
+            own footer already prints the real start/end year and value, and
+            a heading duplicating that would go stale every time the series
+            grows. See HANDOVER.md and METHODOLOGY.md for the full record. */}
         <p className="font-martian-mono text-[9.5px] font-bold tracking-[.14em] text-ink-3 mb-2">
-          TRAILING DECADE — COMPOSITE TRAJECTORY
+          COMPOSITE TRAJECTORY
         </p>
         <AnchoredSparkline
           points={historicalComposite}
