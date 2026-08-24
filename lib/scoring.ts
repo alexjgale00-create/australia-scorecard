@@ -528,10 +528,57 @@ export function describeScoringBasis(config: GaugeConfig): string | null {
   );
 }
 
+/**
+ * A year is a coverage cliff, not ordinary noise, once more than this
+ * fraction of that year's already-launched gauges (see `gaugeStartYear`
+ * below) are missing from the blend. Not a round number picked for
+ * convenience — a real, empirically-found gap in the missing-data
+ * distribution separates the two on both dimensions independently:
+ * checked live 2026-08-24 against every year 1990-2025, every "ordinary"
+ * year (an OECD series' uneven per-country lag, GBD's non-annual release
+ * cadence, etc.) tops out at 18.75% missing on Power and 16.7% on Quality
+ * of Life; every year that turned out to be a real coverage-cliff artifact
+ * (Power's 2023-2025, QoL's 2024-2025) starts at 25% and climbs to 42.9%.
+ * 20% sits cleanly in that gap on both dimensions. See CLAUDE.md's
+ * "Trajectory series fix" entry for the full check and the specific years
+ * this excludes on each dimension as of this ruling.
+ */
+const COVERAGE_CLIFF_THRESHOLD = 0.2;
+
+/**
+ * Composite trajectory series, coverage-cliff-guarded. Feeds ONLY the
+ * homepage's "TRAILING DECADE — COMPOSITE TRAJECTORY" sparkline
+ * (`DimensionVerdict.tsx`) — confirmed by tracing every consumer before
+ * this guard was added: no direction verdict, no WHAT'S MOVING riser/
+ * faller, and no per-gauge trend anywhere on the site reads this
+ * function's output. Those are all computed from each individual gauge's
+ * OWN `latestSharedYear` (`computeGaugeScore`, `computeLevelScoreDelta`),
+ * never from this AUS-anchored, multi-gauge-blended series, so they were
+ * never at risk from the defect this guard fixes.
+ *
+ * **The defect, and the fix.** Forcing every gauge in a dimension onto one
+ * shared, AUS-anchored calendar year works fine while gauge coverage is
+ * even — but a year where several gauges simply haven't published yet
+ * (not a real historical event, just recency) used to produce a real,
+ * plotted point anyway: any year with at least one reporting gauge was
+ * included, with no coverage floor at all. Found 2026-08-24 when Quality
+ * of Life's 2025 point (4 of 7 gauges) read 51.4 against a live composite
+ * of 67.9 — a 16.5-point gap that would have visibly disagreed with the
+ * headline verdict on the same page. Ruled: exclude such years from the
+ * computation itself (Approach B — see METHODOLOGY.md), not just flag
+ * them cosmetically in the UI, since nothing downstream needs the
+ * unrepresentative value and a hidden-but-still-computed number is exactly
+ * the kind of silent artifact this project has repeatedly guarded against
+ * elsewhere (the truncation guard, the composite-exclusion disclosure).
+ * A gauge's "already launched" year comes from its own real AUS data
+ * (`gaugeStartYear`, the earliest point actually on file), not the
+ * declared `historyStartYear` target in config, which can legitimately
+ * differ from what was actually ingested.
+ */
 export function computeHistoricalComposite(
   gaugesData: { data: GaugeData; config: GaugeConfig }[],
   dimensionId: DimensionId
-): { year: number; composite: number }[] {
+): { points: { year: number; composite: number }[]; excludedYears: number[] } {
   const inDimension = gaugesData.filter(({ config }) => config.weights[dimensionId] !== undefined);
 
   const allYears = inDimension
@@ -539,7 +586,15 @@ export function computeHistoricalComposite(
     .filter((y, i, arr) => arr.indexOf(y) === i)
     .sort((a, b) => a - b);
 
+  const gaugeStartYear = new Map(
+    inDimension.map(({ config, data }) => {
+      const years = data.countries.AUS?.series.map((p) => p.year) ?? [];
+      return [config.id, years.length > 0 ? Math.min(...years) : Infinity];
+    })
+  );
+
   const points: { year: number; composite: number }[] = [];
+  const excludedYears: number[] = [];
   for (const year of allYears) {
     const weighted = inDimension
       .map(({ data, config }) => {
@@ -549,6 +604,16 @@ export function computeHistoricalComposite(
       .filter((w): w is { score: number; weight: number } => w !== null);
 
     if (weighted.length === 0) continue;
+
+    const eligibleCount = inDimension.filter(
+      ({ config }) => (gaugeStartYear.get(config.id) ?? Infinity) <= year
+    ).length;
+    const missingFraction = eligibleCount > 0 ? (eligibleCount - weighted.length) / eligibleCount : 0;
+    if (missingFraction > COVERAGE_CLIFF_THRESHOLD) {
+      excludedYears.push(year);
+      continue;
+    }
+
     const totalWeight = weighted.reduce((sum, w) => sum + w.weight, 0);
     const composite =
       Math.round(
@@ -556,7 +621,7 @@ export function computeHistoricalComposite(
       ) / 10;
     points.push({ year, composite });
   }
-  return points;
+  return { points, excludedYears };
 }
 
 /**

@@ -77,7 +77,8 @@ export default function DimensionVerdict({
   const band = ausComposite !== null ? bandForScore(ausComposite, scoreBands) : null;
   const peerMedian = median(allComposites.filter((c) => c.code !== "AUS").map((c) => c.score));
 
-  const historicalComposite = computeHistoricalComposite(gaugesWithData, dimension.id).map((p) => ({
+  const { points: historicalPoints, excludedYears } = computeHistoricalComposite(gaugesWithData, dimension.id);
+  const historicalComposite = historicalPoints.map((p) => ({
     year: p.year,
     score: p.composite,
   }));
@@ -148,6 +149,16 @@ export default function DimensionVerdict({
           points={historicalComposite}
           bandBoundaries={scoreBands.slice(0, -1).map((b) => b.max + 0.5)}
         />
+        {excludedYears.length > 0 && (
+          <p className="font-martian-mono text-[9.5px] text-ink-3 mt-1.5">
+            {excludedYears.length === 1
+              ? `${excludedYears[0]} excluded`
+              : `${excludedYears[0]}–${excludedYears[excludedYears.length - 1]} excluded`}{" "}
+            — too few of this dimension&rsquo;s gauges have reached that year yet for a
+            representative reading. Today&rsquo;s composite above already reflects every gauge
+            at its own latest year regardless.
+          </p>
+        )}
       </div>
 
       {showWhatsMoving &&
