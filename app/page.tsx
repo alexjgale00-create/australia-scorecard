@@ -68,7 +68,12 @@ export default function Home() {
           for how each is built.
         </p>
 
-        {/* Equal prominence, side by side; stacks below lg. Same shared 0-100 scale on both rulers (gaugesConfig.scoreBands) — see DESIGN.md "Homepage." */}
+        {/* Equal prominence, side by side; stacks below lg. Each ruler uses
+            its OWN dimension's scoreBands, not a shared array — Power and
+            Quality of Life diverged 2026-08-24 (Phase D). The two rulers
+            can legitimately render different band widths now; that's the
+            point of divergence being real, not a bug. See DESIGN.md
+            "Homepage." */}
         <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
           {gaugesConfig.dimensions.map((dimension) => (
             <DimensionVerdict
@@ -77,7 +82,7 @@ export default function Home() {
               gaugesWithData={gaugesWithData}
               scores={scores}
               allConfigs={gaugesConfig.gauges}
-              scoreBands={gaugesConfig.scoreBands}
+              scoreBands={dimension.scoreBands}
               totalGaugeCount={
                 getGaugesForDimension(dimension.id).filter((g) => isScoredInDimension(g, dimension.id))
                   .length

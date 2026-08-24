@@ -126,35 +126,99 @@ export default function MethodologyPage() {
         <h2 className="text-lg font-semibold">Score bands (the verdict label)</h2>
         <p className="mt-2 text-[var(--text-secondary)]">
           The composite score is also shown as a plain-English band, so &ldquo;37.1 / 100&rdquo;
-          reads as &ldquo;Australia is Slipping.&rdquo; Bands apply to any 0&ndash;100 score on
-          this site: the composite verdict, an individual gauge, or a peer country.
+          reads as &ldquo;Australia is Slipping.&rdquo; Bands apply to any 0&ndash;100 score
+          within a dimension: that dimension&rsquo;s composite verdict, one of its individual
+          gauges, or a peer country.
         </p>
+        <p className="mt-3 text-[var(--text-secondary)]">
+          <strong>Power and Quality of Life are now on two different band regimes</strong>,
+          ruled 2026-08-24: no single threshold set fit both, because the two dimensions&rsquo;
+          composites occupy genuinely different real ranges (Power stays within roughly 27&ndash;72
+          across 36 years of real data; Quality of Life spans a much wider 10&ndash;90) &mdash;
+          the same boundaries either clustered Power&rsquo;s peers into two bands or scattered
+          Quality of Life&rsquo;s into an unrepresentative spread. Each dimension&rsquo;s table
+          below is its own, never the other&rsquo;s.
+        </p>
+
+        <h3 className="mt-5 text-base font-semibold">Power &mdash; ruled, final</h3>
+        <p className="mt-2 text-sm text-[var(--text-secondary)]">
+          Thresholds set against Power&rsquo;s own true achievable range (any of the 9 peers, any
+          year 1990&ndash;2025: 27.1&ndash;72.2), divided into 5 equal bands &mdash; a
+          &ldquo;constitutional,&rdquo; one-time decision, not provisional. Full options memo
+          (three schemes tested, run-length/churn decomposition, hard-constraint and proximity
+          checks) is in METHODOLOGY.md&rsquo;s &ldquo;Phase D, Item 1.&rdquo;
+        </p>
+        <div className="mt-3 space-y-2">
+          {gaugesConfig.dimensions
+            .find((d) => d.id === "power")!
+            .scoreBands.map((b) => (
+              <div key={b.id} className="flex items-center gap-3 text-sm">
+                <span
+                  className="inline-block h-3 w-3 shrink-0 rounded-full"
+                  style={{ background: b.color }}
+                  aria-hidden="true"
+                />
+                <span className="w-32 shrink-0 font-medium">{b.label}</span>
+                <span className="tabular-nums text-[var(--text-muted)]">
+                  {b.min}&ndash;{b.max}
+                </span>
+              </div>
+            ))}
+        </div>
+
+        <h3 className="mt-6 text-base font-semibold">Quality of Life &mdash; still provisional</h3>
         <div
-          className="mt-4 rounded-md border p-3 text-sm"
+          className="mt-2 rounded-md border p-3 text-sm"
           style={{ borderColor: "var(--status-warning)", color: "var(--text-secondary)" }}
         >
-          ⚠ <strong>Placeholder thresholds.</strong>{" "}The boundaries below (24/44/59/79) were
-          picked for a clean 5-way split of 0&ndash;100 and have <strong>not</strong>{" "}been
-          calibrated against real data. They must be reviewed at Phase D, once all 16 gauges
-          are live with real numbers, before any public release.
-          <br className="hidden sm:block" />
-          Band boundaries are provisional pending full-data recalibration. — dated 2026-07-14.
+          ⚠ <strong>Blocked, not merely unreviewed.</strong>{" "}Recalibrating these bands is on
+          hold because the historical series any calibration would run against is known-defective
+          at its own tail (3 of 7 gauges haven&rsquo;t reached 2024/2025 yet, producing a
+          16.5-point gap between the trajectory chart&rsquo;s last point and the live composite)
+          &mdash; fixing thresholds on top of that would bake a data-coverage artifact into a
+          constitutional decision. Waiting on the trajectory-series fix landing and the analysis
+          being re-run against the corrected series.
         </div>
-        <div className="mt-4 space-y-2">
-          {gaugesConfig.scoreBands.map((b) => (
-            <div key={b.id} className="flex items-center gap-3 text-sm">
-              <span
-                className="inline-block h-3 w-3 shrink-0 rounded-full"
-                style={{ background: b.color }}
-                aria-hidden="true"
-              />
-              <span className="w-32 shrink-0 font-medium">{b.label}</span>
-              <span className="tabular-nums text-[var(--text-muted)]">
-                {b.min}&ndash;{b.max}
-              </span>
-            </div>
-          ))}
+        <div className="mt-3 space-y-2">
+          {gaugesConfig.dimensions
+            .find((d) => d.id === "quality-of-life")!
+            .scoreBands.map((b) => (
+              <div key={b.id} className="flex items-center gap-3 text-sm">
+                <span
+                  className="inline-block h-3 w-3 shrink-0 rounded-full"
+                  style={{ background: b.color }}
+                  aria-hidden="true"
+                />
+                <span className="w-32 shrink-0 font-medium">{b.label}</span>
+                <span className="tabular-nums text-[var(--text-muted)]">
+                  {b.min}&ndash;{b.max}
+                </span>
+              </div>
+            ))}
         </div>
+      </section>
+
+      <section className="mt-4 rounded-lg border border-[var(--gridline)] bg-[var(--surface-1)] p-5">
+        <h2 className="text-lg font-semibold">A disclosed limitation of equal weighting</h2>
+        <p className="mt-2 text-[var(--text-secondary)]">
+          Power&rsquo;s 16 gauges are weighted equally (1/16 each) by design &mdash; see
+          &ldquo;How the composite verdict is calculated&rdquo; above. A correlation check across
+          each gauge&rsquo;s 36-year Australia level-score series found that four of them (
+          <strong>Living standards</strong>, <strong>Productivity</strong>,{" "}
+          <strong>Economic output</strong>, and <strong>Trade</strong>) move together strongly
+          (r&nbsp;=&nbsp;0.65&ndash;0.85): different measurements of the same underlying thing,
+          how large and productive the economy is. Because each still carries its own full 1/16,
+          this cluster&rsquo;s shared concept currently accounts for roughly a quarter of the
+          Power composite, while a conceptually distinct, single-indicator concern like rule of
+          law and corruption carries a sixteenth. We checked for this rather than assuming it
+          away, and chose not to build correction machinery for it (a sub-index grouping, or a
+          statistical re-weighting) &mdash; doing so would trade one transparent, easily-stated
+          judgment (every gauge counts the same) for a less transparent one (which correlations
+          reflect genuine overlap versus one country&rsquo;s coincidental 36-year history, and how
+          much to discount them), and this project has never built or attempted that kind of
+          machinery elsewhere. Flagging the concentration plainly is the position; fixing it is
+          not, at least not yet.
+        </p>
       </section>
 
       <section className="mt-4 rounded-lg border border-[var(--gridline)] bg-[var(--surface-1)] p-5">

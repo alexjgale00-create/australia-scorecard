@@ -12,8 +12,10 @@ import TrajectoryChart from "@/components/TrajectoryChart";
  * states, all prop-driven off a single GaugeView (lib/gauge-view.ts).
  *
  * No ScoreBand.color is imported anywhere in this file, on purpose (R1).
- * Band count, labels, and tick glyphs all come from `view.bands`
- * (gaugesConfig.scoreBands) — nothing here hardcodes a band count.
+ * Band count, labels, and tick glyphs all come from `view.bands` (that
+ * gauge's own dimension's scoreBands, resolved in buildGaugeView — Power
+ * and Quality of Life diverged 2026-08-24) — nothing here hardcodes a
+ * band count or assumes both dimensions share one set.
  */
 
 export default function Gauge({ view, density = "page" }: { view: GaugeView; density?: "page" | "card" }) {

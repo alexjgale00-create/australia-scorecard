@@ -42,10 +42,17 @@ const BAND_ABBREVIATION: Record<string, string> = {
  * satisfied without individually plotting peers: the summary line below
  * the ruler (rank, peer median, movement tally) is real peer context in
  * the same visual frame as the AUS mark, never behind a toggle or fold.
- * Because both dimensions share the exact same band thresholds
- * (gaugesConfig.scoreBands, not per-dimension), drawing both rulers at
- * identical width makes them directly comparable — the point of "two
- * verdicts, read against each other."
+ * Each ruler renders its OWN dimension's `bands` prop — Power and Quality
+ * of Life diverged 2026-08-24 (Phase D: separate, differently-shaped
+ * achievable ranges get separate thresholds, not one shared 0-100 split).
+ * This component makes no assumption the two are identical; `gridTemplate`
+ * is computed fresh from whatever `bands` it's given, so the two rulers
+ * can legitimately show different column widths side by side now — that's
+ * divergence being visible, not a layout bug. The mark position (`score`
+ * plotted on the raw 0-100 physical axis) is independent of band widths
+ * either way, so "two verdicts, read against each other" still holds:
+ * both scores sit on the same physical ruler, just with different
+ * band-boundary paint underneath.
  */
 export default function DimensionRuler({
   name,

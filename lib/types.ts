@@ -17,6 +17,15 @@ export interface DimensionConfig {
   shortName: string;
   tagline: string;
   description: string;
+  /**
+   * This dimension's own score bands — per-dimension since the 2026-08-24
+   * Phase D ruling: Power and Quality of Life diverged, each set from that
+   * dimension's own real achievable range rather than a single shared
+   * 0-100 split. Every 0-100 score *within* this dimension (its composite
+   * verdict, an individual gauge, a peer country) maps through this array,
+   * never the other dimension's. See METHODOLOGY.md's "Phase D, Item 1."
+   */
+  scoreBands: ScoreBand[];
 }
 
 /**
@@ -274,10 +283,14 @@ export interface GaugesConfigFile {
   directionThresholdPctPerYear: number;
   /** Threshold for the peer-relative direction — the primary "improving/flat/deteriorating" basis used everywhere (cards, dot strips, What's Moving). */
   directionThresholdScorePointsPerYear: number;
-  /** The two independently-scored dimensions — see DimensionConfig. Order here is display order (Power first, matching the site's original identity). */
+  /**
+   * The two independently-scored dimensions — see DimensionConfig. Order
+   * here is display order (Power first, matching the site's original
+   * identity). Each dimension carries its own `scoreBands` — see
+   * DimensionConfig; there is no shared top-level scoreBands any more as
+   * of the 2026-08-24 Phase D ruling (Power/QoL diverged).
+   */
   dimensions: DimensionConfig[];
-  /** Shared by both dimensions' composites — still provisional pending Phase D, which will decide whether the two dimensions ever need separate bands. */
-  scoreBands: ScoreBand[];
   gauges: GaugeConfig[];
 }
 

@@ -158,7 +158,7 @@ excluded from the bands, since it already means "data caveat" elsewhere on
 the site (the Sample Data badge) — reusing it here would make amber mean two
 different things on the same page.
 
-### Phase D, Item 1 — band threshold ruling (recorded, not yet final)
+### Phase D, Item 1 — band threshold ruling (Power ruled, Quality of Life deferred, 2026-08-24)
 
 A first calibration pass was run on the 11 gauges live at the time (missing
 Education, Productivity, Human capital depth, Inequality, Internal
@@ -225,6 +225,129 @@ all 9 peers at Australia's `latestSharedYear` per gauge (this is what
 today's 9-country spread against both the current and proposed bands, and
 median/max absolute decade-over-decade change.
 
+**3. Power ruled; Quality of Life remains deferred (2026-08-24).** Once all
+23 gauges were LIVE, the deferred recalibration above was re-run on
+complete data — full options memo (three candidate schemes per dimension,
+run-length/churn decomposition, hard-constraint and proximity checks) in
+the session record; durable outcome recorded here.
+
+**Power: `0-35 / 36-44 / 45-53 / 54-62 / 63-100`** (Falling Behind /
+Slipping / Holding / Strengthening / Leading), set against Power's own
+true achievable range across 1990-2025 (any of the 9 peers, any year:
+27.1-72.2), divided into 5 equal ~9-point bands. This is now live in
+`gauges.config.json`'s Power `scoreBands` — a constitutional, one-time
+decision, not provisional. Chosen over two centered-Holding variants that
+were also tested (one hand-widened around the pooled median, one
+IQR-based) because both, despite better-looking distribution today, turned
+out on decomposition to be dominated by single-year runs — ping-pong
+across a boundary, not sustained regime change — and one of the two failed
+a hard constraint (the trajectory chart's endpoint and the live composite
+landing in different bands on the same page). Scheme 1 shares neither
+defect: its 10 band-changes across 36 years have the same run structure as
+the old placeholder (not single-year churn), and both the historical
+endpoint and the live composite land in Slipping.
+
+**On the 45 boundary sitting close to today's live composite (42.9, one
+median annual move away — 1.000×, computed 2026-08-24): this proximity is
+disclosed, not adjusted, and the distinction matters enough to state
+plainly.** The boundary falls out of dividing the true achievable range
+into five equal parts — arithmetic that has no knowledge of, and gives no
+weight to, where Australia's own score happens to land. A boundary that is
+close to today's value but was derived without reference to it is honest;
+one moved because we didn't like the proximity would not be. If this site
+is ever accused of drawing lines to flatter or punish Australia, this is
+the sentence to point at: the 45 was fixed by the shape of 36 years of
+real peer data, before anyone checked where 2026's number would fall
+against it.
+
+**Verdict impact of adopting Scheme 1**: Australia's own headline reading
+is **unchanged** — 42.9 was Slipping under the old placeholder and stays
+Slipping under Scheme 1. The visible change is to peers only: Germany
+moves Holding → Strengthening (57.9), New Zealand moves Slipping → Falling
+Behind (35.1); every other peer (Canada, Netherlands, Japan, South Korea,
+United Kingdom, United States) stays in the same band it was already in.
+A constitutional change that alters nothing about Australia's own verdict
+today is still worth ruling on — the bands now discriminate correctly at
+the extremes even though Australia isn't sitting at either one.
+
+**Quality of Life: still on the old shared placeholder
+(`0-24/25-44/45-59/60-79/80-100`), explicitly blocked rather than merely
+unreviewed.** The same re-run found every one of QoL's candidate schemes
+failing a hard constraint at the 2025 historical-series endpoint (51.4)
+against the live composite (67.9) — a 16.5-point gap — and every one of
+them *passing* at 2023 (0.3-point gap, full 7-of-7 gauge coverage). That's
+conclusive: the trajectory series' construction breaks specifically where
+gauge coverage thins at the tail (3 of 7 QoL gauges hadn't reached
+2024/2025 as of this ruling), not a defect in any threshold scheme tried.
+Recalibrating on top of a known-defective series would bake a data problem
+into a constitutional decision — see "Trajectory series fix" below for the
+remedy and its own trade-offs. Scheme 3 (`42/54/68/82`, centered Holding,
+two stable 13- and 14-year eras, lowest churn of any QoL candidate tested,
+but a live-composite proximity of 0.037× a median move — confirmed
+fragile, not just apparently so) is the standing provisional preference
+for the re-run once the series is fixed — **not adopted**.
+
+### Trajectory series fix — Approach B adopted (2026-08-24)
+
+The tail-coverage defect above (QoL's 2024/2025 points computed from a
+shrinking, non-representative subset of gauges) needed a fix independent
+of any band decision. Two approaches were weighed: carrying each gauge's
+most recent value forward to fill thin years (closes the numeric gap, but
+touches the composite computation for all 23 gauges across the full
+36-year history, risks silently changing already-published historical
+values, and reopens the AS-OF fix's "don't imply currency you don't have"
+question unless capped by each gauge's own `staleAfterMonths`); or
+visibly excluding/flagging thin-coverage years so the chart stops
+implying comparability it doesn't have, without touching the underlying
+numbers. **Approach B (exclude, don't carry forward) was adopted** —
+lower blast radius, consistent with how every other honesty gap on this
+site is handled (disclosure, not silent correction — same principle as
+band-robustness §3.3 and every staleness disclosure), and it doesn't put
+36 years of already-shown numbers at risk of changing under a future
+rebuild. See CLAUDE.md for the implementation record.
+
+### Phase D — rejected band-scheme approaches (2026-08-24)
+
+Recorded so none of this is re-litigated cold in a future session. Full
+numbers and reasoning are in the session record; this is the durable
+summary.
+
+- **The original Phase D proposal (0-29/30-34/35-50/51-62/63-100) —
+  retired for good.** Its apparent stability (flicker=0 on Power, flicker=1
+  on Quality of Life across the full 36-year series) is vacuous, not a
+  virtue: the bands are wide enough that Australia's real composite
+  movement over 36 years never registers a change at all. A verdict that
+  never moves because the band is too wide to detect real movement is a
+  broken instrument, not a stable one — confirmed quantitatively, not just
+  argued: its narrowest inter-boundary gap is only 1.8-2.4× the composite's
+  own typical annual move, unremarkable next to schemes that discriminate
+  far better at similar or better noise-margins.
+- **Percentile-derived bands — both the dynamic (recomputed every year from
+  that year's live peer cross-section) and frozen (computed once from the
+  pooled 36-year distribution, then fixed) variants — rejected on
+  stability grounds, plus a structural circularity worth stating
+  explicitly.** A percentile threshold is partly computed from the very
+  observation it is then used to classify. This isn't hypothetical:
+  Power's frozen-percentile scheme placed a boundary at 44.5 — exactly
+  equal to the 2025 historical-series value that helped compute it in the
+  first place, landing Australia's own reading directly on its own
+  boundary. The dynamic variant has the same defect in a different form
+  (a boundary that moves whenever any peer moves, so Australia's verdict
+  can flip with nothing Australia did) and was the least stable scheme
+  tested on both dimensions (16 changes on Power, 7 on Quality of Life,
+  worst of every scheme tried).
+- **Flicker count alone, as the sole stability criterion — superseded by
+  run-length decomposition.** A raw change count can't distinguish a
+  scheme tracking real regime change from one ping-ponging across a single
+  boundary — confirmed directly: two schemes with similar total flicker
+  counts turned out to have opposite character once decomposed (run
+  lengths, churn-within-3-years vs. sustained transitions). A scheme where
+  most "changes" are single-year reversals is a materially worse candidate
+  than one with the same count made of a few long, sustained transitions,
+  and the bare count cannot tell them apart. Any future re-run of this
+  analysis should decompose flicker into run-length/churn/sustained from
+  the start, not add it as an afterthought.
+
 ### Phase D, Item 2 — PISA 2015 mode-change comparability caveat (logged, 2026-08-20)
 
 Surfaced during the REGISTER why-this-matters audit (see CLAUDE.md), not
@@ -260,12 +383,13 @@ actually cites.
 
 ### §3.1 — Band thresholds under review
 
-Pointer, not new content: this is the "Phase D, Item 1" section immediately
-above. Band thresholds (0–24 / 25–44 / 45–59 / 60–79 / 80–100) are
-placeholders, not yet calibrated against the complete 16-gauge composite,
-and the site does not launch until that's resolved — see above for the
-full ruling, the recorded signal from the 11-gauge pass, and the exact
-reproduction method for the re-run.
+Pointer, not new content: this is the "Phase D, Item 1" section above.
+**Power's thresholds (0-35 / 36-44 / 45-53 / 54-62 / 63-100) are ruled and
+final** as of 2026-08-24, set against Power's own achievable range — not a
+placeholder any more. **Quality of Life's thresholds (0–24 / 25–44 / 45–59
+/ 60–79 / 80–100) remain placeholders**, explicitly blocked on the
+trajectory-series coverage fix rather than merely unreviewed — see above
+for the full ruling, ranked candidate schemes, and what's still pending.
 
 ### §3.2 — Evidence standard for a causal attribution
 

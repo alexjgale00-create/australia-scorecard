@@ -7,6 +7,7 @@ import type {
   GaugeData,
   GaugesConfigFile,
   Polarity,
+  ScoreBand,
 } from "@/lib/types";
 import {
   bandForScore,
@@ -38,7 +39,7 @@ export interface Band {
   ticks: TickGlyph;
   min: number;
   max: number;
-  /** Uniform across every gauge — derived from gaugesConfig.scoreBands, never per-gauge (Ruling B). */
+  /** Uniform across every gauge within one dimension — derived from that dimension's own scoreBands, never per-gauge (Ruling B). Power and Quality of Life have diverged as of 2026-08-24 (Phase D) — this is never the OTHER dimension's bands. */
   widthPct: number;
 }
 
@@ -383,7 +384,7 @@ function median(values: number[]): number | null {
   return sorted.length % 2 === 0 ? (sorted[mid - 1] + sorted[mid]) / 2 : sorted[mid];
 }
 
-function buildBands(scoreBands: GaugesConfigFile["scoreBands"]): Band[] {
+function buildBands(scoreBands: ScoreBand[]): Band[] {
   const sorted = [...scoreBands].sort((a, b) => a.min - b.min);
   return sorted.map((b) => ({
     key: b.id,
@@ -438,6 +439,15 @@ export function buildGaugeView(args: BuildGaugeViewArgs): GaugeView {
   const isUnscored = (config.unscoredDimensions ?? []).includes(dimensionId);
   const maturity = computeMaturity(config, data);
   const staleness = data ? dataStaleness(config, data) : null;
+
+  // Per-dimension since the 2026-08-24 Phase D ruling — Power and Quality
+  // of Life diverged, each on its own scoreBands. Every band lookup below
+  // for this gauge uses ITS dimension's bands, never the other one's.
+  const dimensionConfig = gaugesConfig.dimensions.find((d) => d.id === dimensionId);
+  if (!dimensionConfig) {
+    throw new Error(`${config.id}: no dimension config found for dimensionId "${dimensionId}".`);
+  }
+  const scoreBands = dimensionConfig.scoreBands;
 
   const base = {
     plate,
@@ -535,8 +545,8 @@ export function buildGaugeView(args: BuildGaugeViewArgs): GaugeView {
     ? `${rankInfo?.rank ?? "—"} OF ${totalReporting} REPORTING`
     : `${rankInfo?.rank ?? "—"}/${rankInfo?.of ?? totalReporting}`;
 
-  const bands = buildBands(gaugesConfig.scoreBands);
-  const ausBandObj = bandForScore(ausScore, gaugesConfig.scoreBands);
+  const bands = buildBands(scoreBands);
+  const ausBandObj = bandForScore(ausScore, scoreBands);
   if (!ausBandObj) {
     throw new Error(`${config.id}: score ${ausScore} matched no band — see bandForScore in lib/scoring.ts.`);
   }
@@ -611,7 +621,7 @@ export function buildGaugeView(args: BuildGaugeViewArgs): GaugeView {
 
   let bandRobustness: ScoredGauge["bandRobustness"];
   if (config.bandRobustness?.status === "outlier-dependent") {
-    const alt = gaugesConfig.scoreBands.find((b) => b.id === config.bandRobustness!.alternateBand);
+    const alt = scoreBands.find((b) => b.id === config.bandRobustness!.alternateBand);
     const dependsOn = gaugesConfig.peerCountries.find((c) => c.code === config.bandRobustness!.dependsOnCountry);
     if (!alt || !dependsOn || !config.bandRobustness.methodsRef || !config.bandRobustness.direction) {
       throw new Error(`${config.id}: bandRobustness is outlier-dependent but missing a required field.`);
