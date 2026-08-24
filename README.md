@@ -6,14 +6,18 @@ A free, public site that turns official statistics into one weighted,
 internationally benchmarked verdict on Australia's national trajectory —
 readable in 60 seconds, with full drill-down for sceptics.
 
-**Phase C in progress.** All 16 gauges are configured. 11 are **live**,
-fetched automatically every month from World Bank, IMF, BIS, OECD, SIPRI,
-and Harvard Growth Lab. 4 (Productivity, Human capital depth, Inequality,
-Internal cohesion) are in a manual download lane after their real sources
-turned out not to be safely automatable — see `data/manual/README.md` for
-the templates and instructions. 1 (Education) is still sample data,
-pending its first manual entry. Every page shows exactly which gauges are
-live vs. sample vs. awaiting data — never silently.
+**Phase E complete.** The site scores two independent dimensions — Power
+(16 gauges) and Quality of Life (8 gauges, one — Housing pressure —
+shared with Power) — 23 unique gauges in total, all of them **live** with
+real data. 17 fetch automatically every month from World Bank, IMF, BIS,
+OECD, SIPRI, Harvard Growth Lab, and V-Dem/Our World in Data; 6 (Education,
+Productivity, Human capital depth, Inequality, Work-life balance, Cohesion
+— majority acceptance) are entered by hand in a manual download lane after
+their real sources turned out not to be safely automatable — see
+`data/manual/README.md` for the templates and instructions. Every page
+shows exactly which gauges are live vs. sample vs. awaiting data — never
+silently. See `METHODOLOGY.md`'s "Current build status" for the
+authoritative, always-current per-gauge table.
 
 You don't need to know how to code to run any of this. The three commands
 below are all you need.
