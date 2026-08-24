@@ -217,6 +217,42 @@ follow-ups:**
     session's harness had the same vulnerability. Not claimed fine, not
     claimed broken — genuinely unknown, flagged rather than guessed at.
 
+**From the automated-gauge staleness review (2026-08-24) — two tracked
+findings, not acted on:**
+
+- **The pipeline's staleness report covers the wrong 6 gauges.**
+  `pipeline/index.mjs`'s manual-staleness loop (`report.manualStale`/
+  `manualFresh`) only ever checks `accessType === "manual"` gauges — the 6
+  manual-lane ones. But `lib/maturity.ts`'s `dataStaleness` was extended
+  this same day to cover all 15 automated (`accessType: "api"`) gauges too,
+  now that each has a real, reviewed `staleAfterMonths`. Those 15 are
+  currently only checked at **site build time** (`computeMaturity`/
+  `dataStaleness`, evaluated when Next.js renders each gauge page) — never
+  by the pipeline itself. That's backwards: the pipeline is the thing that
+  actually runs on a schedule (the monthly cron); the site only rebuilds
+  when someone pushes. A source that's gone quietly stale between pushes
+  produces no signal anywhere until the next deploy happens to notice it.
+  Fix would be straightforward (mirror the manual loop's shape, call
+  `dataStaleness`-equivalent logic against every gauge regardless of
+  `accessType`, report `manualStale`/`manualFresh` for both) — not done
+  here because it wasn't part of what this pass was asked to touch.
+- **World Bank returns an identical life-expectancy value for Australia in
+  2023 and 2024** (`83.0512195121951`, confirmed via a direct query to the
+  World Bank API, not just the committed file). If that's a carried-forward
+  provisional figure — 2024 not yet independently estimated, silently
+  repeating 2023's number rather than being flagged as provisional or
+  omitted — the site is presenting a repeated observation as if it were a
+  new one. Concretely: it inserts a real flat segment into `life-expectancy`'s
+  trend/direction calculation and its year-over-year series that isn't a
+  genuine "no change" finding, it's an artifact of the source not having
+  updated yet. This is the same principle `pipeline/gauges/economic-output.mjs`
+  already enforces by name (excluding any year that could be an unflagged
+  forecast rather than risk presenting one as an achieved fact) — worth
+  the same treatment here if confirmed, but not confirmed yet: needs
+  checking against World Bank's own revision/vintage metadata (or simply
+  watching whether 2024 ever changes to a distinct value on a later pull)
+  before assuming rather than asserting it's provisional.
+
 **The intern's four manual datasets.** `productivity`, `human-capital-depth`,
 and `inequality` have no real data yet (the first two: no data file at all;
 `inequality` likewise Awaiting Data); `work-life-balance` has real 1995-2019
