@@ -20,7 +20,13 @@ import {
   describeScoringBasis,
   latestSharedYear,
 } from "@/lib/scoring";
-import { computeMaturity, dataStaleness, latestDataYear, type MaturityInfo } from "@/lib/maturity";
+import {
+  computeMaturity,
+  dataStaleness,
+  latestDataYear,
+  resolveStaleDisclosure,
+  type MaturityInfo,
+} from "@/lib/maturity";
 import { buildTrajectoryView, type TrajectoryView } from "@/lib/trajectory";
 
 /**
@@ -460,7 +466,7 @@ export function buildGaugeView(args: BuildGaugeViewArgs): GaugeView {
     asOf: (data?.provenance.sourcePulledAt ?? data?.provenance.retrievedAt)?.slice(0, 10) ?? "—",
     dataThroughYear: latestDataYear(data),
     stale: staleness?.stale ?? false,
-    staleReason: config.staleDisclosure,
+    staleReason: resolveStaleDisclosure(config, data),
     refreshNote:
       config.accessType === "manual"
         ? "manual lane · no unattended refresh"

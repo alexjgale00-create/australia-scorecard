@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { gaugesConfig, getGaugeData, getGaugesForDimension } from "@/lib/gauges-data";
-import { latestDataYear } from "@/lib/maturity";
+import { latestDataYear, resolveStaleDisclosure } from "@/lib/maturity";
 
 export const metadata = { title: "Methodology — The Australia Scorecard" };
 
@@ -351,7 +351,7 @@ export default function MethodologyPage() {
                         style={{ borderColor: "var(--gridline)", color: "var(--text-secondary)" }}
                       >
                         <span className="text-[var(--text-muted)]">Staleness: </span>
-                        {g.staleDisclosure}
+                        {resolveStaleDisclosure(g, getGaugeData(g.id))}
                       </p>
                     )}
                     {g.accessType === "api" && !g.staleDisclosure && g.staleAfterMonths !== undefined && (

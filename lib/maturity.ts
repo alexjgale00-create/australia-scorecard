@@ -206,6 +206,34 @@ export function nextScheduledRunDescription(): string {
   return next.toLocaleDateString("en-AU", { year: "numeric", month: "long", day: "numeric", timeZone: "UTC" });
 }
 
+/**
+ * A gauge's `staleDisclosure` prose may embed `{{DATA_AGE_YEARS}}` and/or
+ * `{{DATA_THROUGH_YEAR}}` tokens instead of writing a specific age or year
+ * directly — the age is a fact about the gauge's own data, not a fact about
+ * the prose describing it, and a literal number written into config goes
+ * wrong the moment a calendar year passes with nobody touching this file
+ * (found 2026-08-25: cohesion-majority-acceptance's disclosure said
+ * "genuinely 7 years old" as a static string, the same hardcoding the
+ * methodology page's card copy had just been fixed to compute instead —
+ * two strings stating the same fact with two different expiry dates).
+ * Substituted from `latestDataYear` here, at render time, wherever
+ * `staleDisclosure` is actually shown — not baked into the config value
+ * itself. Plain strings with no tokens pass through unchanged, so this is
+ * safe to call on every gauge's disclosure, not just ones that use it.
+ */
+export function resolveStaleDisclosure(config: GaugeConfig, data: GaugeData | null): string | undefined {
+  const disclosure = config.staleDisclosure;
+  if (!disclosure || !disclosure.includes("{{")) return disclosure;
+
+  const year = latestDataYear(data);
+  const ageYears = year !== null ? String(new Date().getFullYear() - year) : "several";
+  const throughYear = year !== null ? String(year) : "an earlier year";
+
+  return disclosure
+    .replaceAll("{{DATA_AGE_YEARS}}", ageYears)
+    .replaceAll("{{DATA_THROUGH_YEAR}}", throughYear);
+}
+
 /** The /status page's "What's next" column — one plain-English line per gauge. */
 export function describeWhatsNext(
   config: GaugeConfig,
@@ -231,7 +259,7 @@ export function describeWhatsNext(
   // verdict, and shown unconditionally when present — innovation/
   // personal-safety have no computed staleAfterMonths at all (see
   // dataStaleness above), so this is the only place their caveat surfaces.
-  if (config.staleDisclosure) return config.staleDisclosure;
+  if (config.staleDisclosure) return resolveStaleDisclosure(config, data)!;
 
   const staleness = dataStaleness(config, data);
   if (staleness?.stale) {
