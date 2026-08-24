@@ -386,6 +386,25 @@ bands don't quietly depend on an arbitrary internal constant: three
 materially different cutoffs, same achievable ranges, same thresholds,
 same verdicts.
 
+**The coverage-cliff guard has a blind spot by construction, and a fixed
+1990 floor sits next to it for exactly that reason — not as a
+duplicate check.** The guard measures missing gauges as a fraction of
+that year's already-*launched* gauges (`gaugeStartYear` in
+`lib/scoring.ts`). That definition is structurally unable to see a
+different failure: a year where almost nothing has launched *yet*.
+Power's 1980 point is built from 2 gauges out of 2 that had started by
+then — 0% of eligible gauges missing, a clean pass — while still being
+exactly the thin, unrepresentative extreme this whole apparatus exists to
+keep out of a constitutional decision. A relative guard cannot fix this
+on its own; it needs an absolute floor alongside it. 1990 is that floor
+here because it's this project's own long-standing convention for where
+"too few gauges exist yet" stops being true, not derived from the same
+20%/enough-eligible-gauges logic the cliff guard uses. Anyone reusing
+`computeHistoricalComposite`'s pattern for a new composite series should
+carry both checks, not assume the relative one alone is sufficient — see
+CLAUDE.md's 2026-08-24 entry for how this was found and confirmed not to
+move any already-shipped threshold.
+
 ### Proximity disclosure (2026-08-24)
 
 Every dimension page now states, for any country whose composite sits
