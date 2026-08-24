@@ -156,6 +156,47 @@ console.log(
 );
 
 // ---------------------------------------------------------------------------
+// Automated-gauge staleness guard (2026-08-24). lib/maturity.ts's
+// dataStaleness deliberately gives an accessType:"api" gauge NO computed
+// STALE verdict unless staleAfterMonths has been explicitly, evidence-
+// reviewed set for it — no silent fallback to the manual default, per the
+// per-gauge cadence review recorded in CLAUDE.md. That's a real behaviour
+// change to a gate every automated gauge's staleness display depends on,
+// with no automated test in this repo to catch a regression (there is no
+// test framework at all — see CLAUDE.md). This is the cheap, build-time
+// substitute: every api gauge must EITHER carry a reviewed
+// staleAfterMonths OR an explanatory staleDisclosure — silently having
+// neither would mean a reader can never learn how current that gauge's
+// data actually is, the exact failure the whole review exists to prevent.
+// ---------------------------------------------------------------------------
+const staleCoverageFailures = [];
+
+for (const g of config.gauges) {
+  if (g.accessType !== "api") continue;
+  const hasThreshold = typeof g.staleAfterMonths === "number";
+  const hasDisclosure = typeof g.staleDisclosure === "string" && g.staleDisclosure.length > 0;
+  if (!hasThreshold && !hasDisclosure) {
+    staleCoverageFailures.push(
+      `  - ${g.id}: accessType "api" with no staleAfterMonths and no staleDisclosure — this gauge can ` +
+        `never show a staleness verdict at all. Either set staleAfterMonths from a real, checked ` +
+        `publication cadence, or add a staleDisclosure explaining why one can't be set (see innovation/ ` +
+        `personal-safety for the pattern).`
+    );
+  }
+}
+
+if (staleCoverageFailures.length > 0) {
+  console.error(
+    "✖ verify-gauge-invariants: automated gauge with no staleness coverage at all\n" + staleCoverageFailures.join("\n")
+  );
+  process.exit(1);
+}
+
+console.log(
+  "✓ verify-gauge-invariants: every automated gauge has either a reviewed staleAfterMonths or a staleDisclosure"
+);
+
+// ---------------------------------------------------------------------------
 // why-this-matters verification coverage — informational, never fails.
 // A number, not a gate: see the site owner's ruling that this is legibility,
 // not a completeness mandate. Regex-counted from the .ts source rather than

@@ -130,8 +130,9 @@ card has no room for two lines), `/section/[n]`'s gauge table
 Retrieved columns.
 
 **Staleness logic changed to match, for manual-lane gauges specifically.**
-`lib/maturity.ts`'s `manualStaleness` (kept its name; still gated on
-`accessType === "manual"`) now computes the STALE flag from
+`lib/maturity.ts`'s staleness function (later renamed `dataStaleness` and
+generalised beyond manual-lane gauges — see the 2026-08-24
+automated-gauge review below) now computes the STALE flag from
 `latestDataYear` — treated as of December 31 of that year — against the
 gauge's `staleAfterMonths` cadence, replacing the old
 `sourcePulledAt ?? retrievedAt` basis entirely. `pipeline/index.mjs`'s

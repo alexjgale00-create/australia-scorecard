@@ -328,13 +328,15 @@ export interface GaugeData {
      * The date the underlying number was actually pulled from its source —
      * distinct from `retrievedAt` (when this JSON file was written). For a
      * manual-lane gauge those two events can differ by however long a
-     * filled-in CSV sits before someone converts it; S5 staleness should
-     * count from the real source pull, not from ingestion. Populated from
+     * filled-in CSV sits before someone converts it. Populated from
      * `data/manual/collection-log.csv`'s `pulled_date` column when a manual
-     * gauge is converted — see lib/maturity.ts's `manualStaleness`, which
-     * prefers this field and falls back to `retrievedAt` when absent, so no
-     * existing gauge file needs migrating. Additive: `retrievedAt` keeps its
-     * existing meaning and is never overwritten by this.
+     * gauge is converted. Additive: `retrievedAt` keeps its existing meaning
+     * and is never overwritten by this. NOT used for staleness any more —
+     * `lib/maturity.ts`'s `dataStaleness` computes staleness from the
+     * latest OBSERVATION year instead (see its own doc comment, and
+     * CLAUDE.md's 2026-08-24 ruling); this field's only remaining role is
+     * the "Retrieved" display (`lib/gauge-view.ts`'s `asOf`), preferred
+     * over `retrievedAt` there when both exist.
      */
     sourcePulledAt?: string | null;
     note: string;

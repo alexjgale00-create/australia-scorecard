@@ -217,7 +217,7 @@ for (const config of gaugesConfig.gauges) {
   }
 
   // Staleness is measured from the latest OBSERVATION year, not from when
-  // this file was last pulled — see lib/maturity.ts's manualStaleness for
+  // this file was last pulled — see lib/maturity.ts's dataStaleness for
   // the full ruling (2026-08-24). Re-downloading and re-confirming an old
   // number doesn't make that number any less old.
   const dataYear = latestAusYear(config.id);

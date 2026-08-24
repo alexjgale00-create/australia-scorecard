@@ -157,6 +157,26 @@ export default function MethodologyPage() {
         </div>
       </section>
 
+      <section className="mt-4 rounded-lg border border-[var(--gridline)] bg-[var(--surface-1)] p-5">
+        <h2 className="text-lg font-semibold">Staleness thresholds</h2>
+        <p className="mt-2 text-[var(--text-secondary)]">
+          A gauge is flagged <strong>STALE</strong> when more time has passed since its latest data
+          point than that source normally takes to publish a new one &mdash; set per-gauge from
+          each source&rsquo;s own real publication cadence (see each gauge&rsquo;s entry below),
+          never a single blanket rule. This is separate from a gauge&rsquo;s maturity tier: a gauge
+          can be stale and still Established, since staleness is about whether the number itself is
+          current, not whether the fetch mechanism is proven to keep working.
+        </p>
+        <p className="mt-3 text-[var(--text-secondary)]">
+          Two gauges &mdash; <strong>Innovation</strong> and <strong>Personal safety</strong> &mdash;
+          carry no numeric threshold at all. Their sources have no discoverable, authoritative
+          release calendar precise enough to set one against, and guessing a number would risk
+          flagging healthy, current data as stale &mdash; exactly the false precision this
+          threshold system exists to avoid. Both instead carry their own explanatory note, shown on
+          their own card below and on their gauge page, in place of a computed STALE flag.
+        </p>
+      </section>
+
       <section className="mt-10">
         <h2 className="mb-4 text-xl font-semibold">Every gauge, in full</h2>
         {gaugesConfig.dimensions.map((dimension) => (
@@ -250,6 +270,23 @@ export default function MethodologyPage() {
                       >
                         <span style={{ color: "var(--status-warning)" }}>⚠ Data policy: </span>
                         {g.dataPolicy}
+                      </p>
+                    )}
+                    {g.accessType === "api" && g.staleDisclosure && (
+                      <p
+                        className="mt-3 rounded-md border p-2.5 text-sm"
+                        style={{ borderColor: "var(--gridline)", color: "var(--text-secondary)" }}
+                      >
+                        <span className="text-[var(--text-muted)]">Staleness: </span>
+                        {g.staleDisclosure}
+                      </p>
+                    )}
+                    {g.accessType === "api" && !g.staleDisclosure && g.staleAfterMonths !== undefined && (
+                      <p className="mt-3 text-sm text-[var(--text-secondary)]">
+                        <span className="text-[var(--text-muted)]">Flagged stale after: </span>
+                        {g.staleAfterMonths} months without a newer observation — set from this
+                        source&rsquo;s own real publication cadence, see &ldquo;Staleness
+                        thresholds&rdquo; above.
                       </p>
                     )}
                   </div>
