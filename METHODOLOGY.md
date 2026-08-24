@@ -1244,6 +1244,129 @@ otherwise appear, on both the gauge page and `/status`) states the data is
 genuinely 7 years old, not merely on a slow-but-normal cadence like
 Education/PISA's 3-4-yearly cycle.
 
+### Majority-attitude source re-verification and ruling (2026-08-25)
+
+A ruling session re-checked the state of this gauge against live sources —
+not desk research — after new candidates had emerged since the Step 1
+search above. Four real candidates were checked in detail; the full
+verified coverage matrix (per-source × per-peer × latest year, with a URL
+per cell and a confidence mark for anything not confirmed by direct
+primary read) is in that session's record. Durable findings and rulings:
+
+**ISSP 2023 National Identity & Citizenship (`ZA10010_v1.0.0`)**,
+released 13 March 2026 (GESIS's own study metadata date; ISSP.org's news
+announcement of the same release posted 16 March 2026 — a three-day
+publish-then-announce gap, not two different release events; 13 March is
+the correct release date to cite). Covers 7 of the 9 peers cleanly
+(Australia, Canada, Germany, Korea, Netherlands, New Zealand, United
+States). Great Britain was fielded but published separately as `ZA9132`
+for methodological reasons — GB and Scotland were surveyed as two
+distinct studies, and GB was held out of the integrated file on that
+basis, not dropped. Japan does not appear in this release at all.
+Confirmed live via direct read of ISSP's own news release, not inferred.
+GESIS has real, confirmed precedent for folding in late-arriving
+countries at a later integrated-file version (a prior ISSP module added
+Australia, Netherlands, and Portugal at `v3.0.0` after they'd missed
+`v2.0.0`) — this is the basis for the ISSP trigger below, not a hopeful
+guess.
+
+**WVS Wave 7 (2017-2022)** is the only source confirmed covering all 9
+peers (fieldwork years per country, confirmed live: USA 2017, Germany and
+Korea 2018, Japan 2019, Canada and New Zealand 2020, Netherlands and
+Great Britain 2022). Its Q21 neighbours item and Q121-Q130 "Perceptions
+of Migration" battery both confirmed present in the Wave 7 questionnaire.
+**Whether this source clears this project's eligibility bar is not yet
+resolved** — WVS's own Online Data Analysis tool appears, from its own
+interface documentation, to let a user pull a weighted per-country
+percentage table for a chosen question without downloading microdata,
+which would place it in the same category as every other manual-lane
+source this site uses (a provider-computed statistic, hand-entered) —
+but this was not confirmed by actually driving the tool and reading a
+real output table; every attempt to reach `worldvaluessurvey.org` pages
+beyond navigation shells came back too thin to confirm. **Using WVS's raw
+microdata instead — the fallback if the tool doesn't clear the bar — would
+make this Scorecard compute a country statistic for the first time, which
+this project has explicitly reserved as its own constitutional decision,
+not a by-product of a copy fix.** See the named follow-up below. Note
+also, disclosed rather than treated as disqualifying: WVS's country entity
+is "Great Britain," not "United Kingdom" — the same GB/UK terminology gap
+ISSP has, so treating WVS's version of this as fatal while treating
+ISSP's as a mere caveat would be an inconsistent standard.
+
+**Ipsos/UNHCR World Refugee Day now covers the Netherlands** — confirmed
+live in both the 2025 and 2026 editions, meeting the trigger this project
+had recorded. **A real correction to the desk research that fed the
+original 2026-08-11 search, found and fixed during this ruling**: New
+Zealand is not "absent from every wave." Ipsos rotates its country set
+between a large periodic edition (52 countries — confirmed, with
+moderate confidence, search-corroborated but not primary-verified since
+the source PDF and press pages returned only binary/blocked content to
+this session's tools — to include all 9 peers in 2024) and a smaller
+~29-country annual edition (confirmed live, primary source) that drops
+New Zealand in 2025 and 2026. **The accurate disclosure is that no single
+peer is permanently excluded — the source fails on repeatability, not on
+a fixed structural gap** — a materially different reason than the one
+originally recorded, and the one now carried in `dataPolicy` and the
+Methodology page. Separately, and independently of the above, the
+instrument measures attitudes to refugees specifically, not migrants
+generally — that half of the original finding holds.
+
+**Four named, dated upgrade triggers replace the single Ipsos-Netherlands
+trigger** (which is now resolved, per above):
+
+1. **ISSP `ZA10010` reaching a version with Japan and a usable GB file.**
+   Review by **2027-03-01** (12 months after `v1.0.0`'s release — a
+   plausible late-country cadence based on the one precedent found, a
+   floor rather than a confirmed date).
+2. **WVS Wave 8's public release** (fieldwork January 2024 - December
+   2026; no stated release timetable was found in this project's search).
+   Review by **2027-06-01** (6 months after fieldwork close — Wave 7 took
+   roughly that long from its own December 2021 close to first integrated
+   release; a floor, not a confirmed date).
+3. **Gallup publishing a third Migrant Acceptance Index administration**
+   with full country tables. No cadence to anchor a fixed date to —
+   standing annual check, starting **2027-08-25**.
+4. **The WVS Online Analysis tool eligibility check** (see the named
+   follow-up below) — not tied to an external publication date, and the
+   fastest-resolving of the four since it depends on this project's own
+   next session, not on an outside body's release schedule.
+
+**Retirement, raised and answered, recorded so it is not re-litigated
+cold.** A prior review reportedly flagged this gauge as the only real
+retirement candidate on the site, on the grounds that it could never
+improve by waiting. **That framing could not be found anywhere in this
+file or in `CLAUDE.md`** — it was not located during this ruling and
+appears to have come from a session log outside the repo rather than a
+recorded ruling. Recording that plainly: this is the site owner's own
+gap to note, not a prior session's — an unwritten ruling is exactly the
+kind of thing this project's durable-record discipline exists to prevent,
+and this entry closes that gap by writing down both the correction and
+the answer. On the substance: the "can never improve by waiting" premise
+is wrong as of this ruling. Two real, dated paths to a complete peer set
+exist (triggers 1 and 2 above) — neither is speculative in the way "hope
+a new source appears" would be. **Ruling: do not retire.** Keep the gauge
+unscored with the sharper disclosure above, carry the four dated
+triggers, and revisit at whichever fires first.
+
+**Named follow-up, logged but not started**: confirm whether the WVS
+Online Analysis tool publishes exportable per-country statistics for the
+Q21 neighbours item or the Q121-Q130 migration battery. This is the
+fastest-resolving of the four triggers above, and it gates a second,
+separate question: if WVS does clear the bar, "majority acceptance of
+migrants" as currently specified is a Gallup-shaped construct (a
+three-item average — neighbours, living in the country, marrying into the
+family) that neither of WVS's candidate items matches exactly (Q21 is a
+single rejection-framed neighbours item; Q121-130 asks about perceived
+*impact* of immigrants, not personal acceptance). Whether to keep
+insisting on the original construct (leaving the gauge unscored
+indefinitely if WVS is the only 9-of-9 source) or to name a
+deliberately WVS-scoped version of this gauge is a concept decision, not
+an implementation detail — argued both ways in the ruling session's
+record, not resolved there, and not to be resolved as a side effect of
+answering the tool-eligibility question. Both questions are logged
+together as one follow-up precisely because the second is only live if
+the first resolves in WVS's favor.
+
 ### Non-peer-complete context: Scanlon and Eurobarometer
 
 Two excellent sources don't cover all 9 peers and therefore can't score,

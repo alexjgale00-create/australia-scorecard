@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { gaugesConfig, getGaugeData, getGaugesForDimension } from "@/lib/gauges-data";
+import { latestDataYear } from "@/lib/maturity";
 
 export const metadata = { title: "Methodology — The Australia Scorecard" };
 
@@ -14,6 +15,13 @@ export default function MethodologyPage() {
   const qolGauges = getGaugesForDimension("quality-of-life");
   const powerLiveCount = powerGauges.filter((g) => getGaugeData(g.id)?.provenance.status === "LIVE").length;
   const qolLiveCount = qolGauges.filter((g) => getGaugeData(g.id)?.provenance.status === "LIVE").length;
+
+  // Same rule as above: the gauge's age is derived from its own data at
+  // render time, never hardcoded — a static "seven years old" would itself
+  // go stale the moment this page is rebuilt in a later calendar year.
+  const majorityAcceptanceYear = latestDataYear(getGaugeData("cohesion-majority-acceptance"));
+  const majorityAcceptanceAgeYears =
+    majorityAcceptanceYear !== null ? new Date().getFullYear() - majorityAcceptanceYear : null;
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">
@@ -510,21 +518,88 @@ export default function MethodologyPage() {
             found live.
           </li>
         </ul>
+        <h3 className="mt-5 text-base font-semibold">
+          Majority-attitude source re-verification (2026-08-25)
+        </h3>
+        <p className="mt-2 text-[var(--text-secondary)]">
+          A ruling session re-checked four real candidates live against their own sources rather
+          than relying on desk research, and found two corrections worth recording. ISSP&rsquo;s
+          2023 National Identity &amp; Citizenship module (GESIS, <code>ZA10010_v1.0.0</code>,
+          released 13 March 2026) covers 7 of the 9 peers cleanly — Great Britain was fielded but
+          published separately as <code>ZA9132</code> for methodological reasons (GB and Scotland
+          were surveyed as two distinct studies), and Japan does not appear in this release at all.
+          The World Values Survey&rsquo;s Wave 7 (2017&ndash;2022) is the only source confirmed
+          covering all 9 peers — but whether its own Online Data Analysis tool publishes
+          country-level statistics directly, rather than requiring this Scorecard to compute a
+          country statistic from microdata itself for the first time, is not yet confirmed (see the
+          follow-up below). Ipsos/UNHCR&rsquo;s World Refugee Day survey now covers the Netherlands,
+          confirmed in both the 2025 and 2026 editions — but the earlier finding that
+          &ldquo;New Zealand is absent from every wave&rdquo; does not hold: New Zealand appears in
+          Ipsos&rsquo;s larger periodic edition (52 countries, including all 9 peers, in 2024) and
+          is only absent from the smaller ~29-country annual edition used in 2025 and 2026. The
+          accurate statement is that Ipsos <strong>rotates</strong> its country set rather than
+          structurally excluding any one peer — the source fails on repeatability, not on a fixed
+          gap — and separately, it measures attitudes to refugees specifically, not migrants
+          generally.
+        </p>
         <p className="mt-3 text-[var(--text-secondary)]">
-          <strong>Named upgrade candidates for a later phase</strong>, each with the condition it
-          would need to meet: Ipsos Global Views on Immigration, if a fuller release confirms
-          Netherlands coverage; WVS Wave 8, once its December 2026 fieldwork concludes and results
-          are released. Until then, the gauge page states plainly:
+          <strong>Four named, dated upgrade triggers</strong> replace the single prior Ipsos
+          trigger:
+        </p>
+        <ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-[var(--text-secondary)]">
+          <li>
+            <strong>ISSP <code>ZA10010</code> reaching a version with Japan and a usable GB
+            file</strong> — GESIS has real precedent for folding in late-arriving countries at a
+            later integrated-file version. Review by <strong>2027-03-01</strong>.
+          </li>
+          <li>
+            <strong>WVS Wave 8&rsquo;s public release</strong> — fieldwork runs January 2024 through
+            December 2026; no stated release timetable was found. Review by
+            <strong> 2027-06-01</strong>.
+          </li>
+          <li>
+            <strong>Gallup publishing a third Migrant Acceptance Index administration</strong> with
+            full country tables. No cadence to anchor a date to — standing annual check, starting
+            <strong> 2027-08-25</strong>.
+          </li>
+          <li>
+            <strong>The WVS Online Analysis tool eligibility check</strong> — not tied to an
+            external publication date, and the fastest-resolving of the four. See the named
+            follow-up below.
+          </li>
+        </ul>
+        <p className="mt-3 text-[var(--text-secondary)]">
+          <strong>Retirement was raised and answered, not left open</strong>: this gauge has two
+          real, dated paths to a complete peer set (above), so &ldquo;it can never improve by
+          waiting&rdquo; no longer holds — ruling is do not retire. Full reasoning in
+          METHODOLOGY.md.
+        </p>
+        <p className="mt-3 text-[var(--text-secondary)]">
+          <strong>Named follow-up (not started)</strong>: confirm whether the WVS Online Analysis
+          tool publishes exportable per-country statistics for the Q21 neighbours item or the
+          Q121&ndash;Q130 migration battery. This gates two separate questions at once — whether
+          WVS Wave 7 is usable at all without this Scorecard computing its own country statistic
+          from microdata for the first time (a constitutional decision reserved for its own
+          session), and, only if so, whether &ldquo;majority acceptance&rdquo; should be rescoped to
+          what WVS actually measures rather than Gallup&rsquo;s original construct — a concept
+          change, not a source change, that deserves its own explicit ruling rather than happening
+          by drift.
+        </p>
+        <p className="mt-3 text-[var(--text-secondary)]">
+          Until any of the above resolves, the gauge page states plainly:
         </p>
         <p
           className="mt-3 rounded-md border p-3 text-sm italic"
           style={{ borderColor: "var(--gridline)", color: "var(--text-secondary)" }}
         >
-          &ldquo;No public, peer-complete majority-attitude series is currently available for these
-          nine countries. Gallup continues to field the underlying question, but country-level
-          results since 2019 are published only behind a paid subscription. This gauge therefore
-          uses the last freely published waves (2016/17 and 2019). The absence of a current public
-          series is itself a finding.&rdquo;
+          &ldquo;Four public sources were checked for a current, all-peer measure of majority
+          attitudes toward migrants. None qualifies today — one is missing Japan, one would require
+          this site to compute its own statistic from microdata for the first time, one measures
+          refugee attitudes rather than migrants generally and doesn&rsquo;t repeat with full
+          coverage. This gauge uses the last comparable data actually published, and states plainly
+          that it&rsquo;s{" "}
+          {majorityAcceptanceAgeYears !== null ? `${majorityAcceptanceAgeYears} years` : "several years"}{" "}
+          old.&rdquo;
         </p>
 
         <h3 className="mt-5 text-base font-semibold">Non-peer-complete context: Scanlon and Eurobarometer</h3>
