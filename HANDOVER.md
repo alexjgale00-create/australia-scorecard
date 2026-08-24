@@ -12,11 +12,15 @@ what this specific build session learned and left open.
 
 ---
 
-## 1. The four content defects found this session
+## 1. Production accuracy defects — the original four, plus later additions
 
-Each is a distinct failure mode. Together they're the reason the
-verification record and the `writtenAgainst` guard exist — read this section
-if you're ever tempted to think either of those is bureaucratic overhead.
+Each is a distinct failure mode. The first four are why the verification
+record and the `writtenAgainst` guard exist — read this section if you're
+ever tempted to think either of those is bureaucratic overhead. Entries 5
+and 6 are later additions from subsequent sessions, kept in this same
+record rather than scattered across dated log sections, because they're
+the same class of finding: something false or misleading reached a
+reader, undetected, until someone happened to look.
 
 1. **innovation.md cited "the 2024 Strategic Examination of R&D."** The
    review was *commissioned* December 2024; its actual final report
@@ -69,6 +73,52 @@ if you're ever tempted to think either of those is bureaucratic overhead.
    recurring** — there's no duplicate-claim detector across
    `why-this-matters-verification.ts`. If a future editor cites the same
    fact in two files, nothing will catch it automatically.
+
+5. **`/methodology`'s "Current build status" paragraph stated "16 gauges
+   configured, 13 with real LIVE data" and "most Quality of Life gauges
+   currently show as Awaiting data"** — both false by the time anyone
+   read them, on a page whose own first sentence promises "if a number
+   disagrees with this page, the number is wrong." Found by: routine work
+   in an unrelated session, not a check built for this purpose — spotted
+   while editing the same paragraph for something else. Fixed 2026-08-24
+   (`7f92122`) by deriving both counts from `gaugesConfig` + `getGaugeData`
+   at build time instead of hardcoding them, so this specific pair of
+   numbers can't recur. **Not a general guard** — any other hardcoded
+   count elsewhere on the site (README.md's opening paragraph had the
+   identical fault, found the same day, fixed by hand since it's static
+   markdown, not a rendered page) would need the same fix individually;
+   nothing scans the site for hardcoded counts that could drift.
+
+6. **The composite trajectory sparkline rendered its full, unfloored
+   series while labelled "TRAILING DECADE" — the label was never backed
+   by code.** Two distinct faults in one place, worth recording
+   separately:
+   - The label itself was always wrong. `AnchoredSparkline.tsx` has never
+     had any slicing or truncation logic since it was created (checked
+     its complete git history, one creation commit and one edit, neither
+     adds a limit) — it has always rendered whatever array it was given,
+     start to end, with no "trailing decade" enforced anywhere.
+   - What it was given was, separately, wrong: `computeHistoricalComposite`
+     never excluded 1980-1989, despite that being this project's own
+     documented convention since Phase D's first pass. Power's real 1980
+     point is New Zealand at 3.1, built from 2 gauges — below any
+     coverage standard this site applies anywhere else, and structurally
+     invisible to the coverage-cliff guard added the same week (that
+     guard is relative to already-*launched* gauges; see METHODOLOGY.md's
+     "Phase D, Item 1" for why a relative check can't see this failure
+     mode by construction).
+
+   **This reached production and stayed there for 3 days, 8 hours** —
+   live from the Phase E homepage rebuild (`373dbe9`, 2026-08-21 13:15)
+   to the fix (`7b2cc18`, 2026-08-24 21:21). Found incidentally, not by
+   any guard or check: while verifying the boundary-proximity
+   disclosure's output against this session's own hand-checked numbers,
+   the figures didn't match, which led back to the chart rather than the
+   chart being audited directly. **Nothing in the codebase would have
+   caught this** — no test suite exists on this site at all (confirmed
+   earlier this session), no guard checks a chart's rendered range
+   against its own label, and the coverage-cliff guard's blind spot
+   (above) meant even that check would have passed the bad data cleanly.
 
 ---
 
