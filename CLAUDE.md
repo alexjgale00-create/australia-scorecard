@@ -6,6 +6,13 @@ See `README.md` (how to run this) and `METHODOLOGY.md` (full scoring
 write-up) for detail. This file records durable project decisions that
 should survive across sessions.
 
+## Project facts
+
+- **Live site**: https://australia-scorecard.vercel.app — Vercel
+  auto-deploys from every push to `main` (see README.md). Recorded here
+  2026-08-24 after a session had to ask the site owner for it; also in
+  README.md and `package.json`'s `homepage` field.
+
 ## Auto-loaded instruction files
 
 `AGENTS.md` is `create-next-app` boilerplate, created in the initial

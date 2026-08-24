@@ -1,5 +1,7 @@
 # The Australia Scorecard
 
+**Live at [australia-scorecard.vercel.app](https://australia-scorecard.vercel.app).**
+
 A free, public site that turns official statistics into one weighted,
 internationally benchmarked verdict on Australia's national trajectory —
 readable in 60 seconds, with full drill-down for sceptics.
