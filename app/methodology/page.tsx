@@ -1,9 +1,20 @@
 import Link from "next/link";
-import { gaugesConfig } from "@/lib/gauges-data";
+import { gaugesConfig, getGaugeData, getGaugesForDimension } from "@/lib/gauges-data";
 
 export const metadata = { title: "Methodology — The Australia Scorecard" };
 
 export default function MethodologyPage() {
+  // Derived live from config + data files, not hardcoded — a prior version
+  // of this paragraph stated "13 of 16 live" and "most Quality of Life
+  // gauges awaiting data" long after both had become false, on a page whose
+  // own first sentence promises "if a number disagrees with this page, the
+  // number is wrong." Fixed 2026-08-24 to compute from source so this class
+  // of error can't recur silently — see CLAUDE.md.
+  const powerGauges = getGaugesForDimension("power");
+  const qolGauges = getGaugesForDimension("quality-of-life");
+  const powerLiveCount = powerGauges.filter((g) => getGaugeData(g.id)?.provenance.status === "LIVE").length;
+  const qolLiveCount = qolGauges.filter((g) => getGaugeData(g.id)?.provenance.status === "LIVE").length;
+
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">
       <h1 className="text-3xl font-bold">Methodology</h1>
@@ -259,15 +270,14 @@ export default function MethodologyPage() {
       <section className="mt-4 rounded-lg border border-[var(--gridline)] bg-[var(--surface-1)] p-5">
         <h2 className="text-lg font-semibold">Current build status</h2>
         <p className="mt-2 text-[var(--text-secondary)]">
-          Phase E: the site now scores two dimensions. Power is complete (16 gauges configured, 13
-          with real LIVE data). Quality of Life launched with 8 gauges (2026-08) &mdash; the data
-          model and homepage landed first; the manual downloads and remaining fetchers are the next
-          phase&rsquo;s work, so most Quality of Life gauges currently show as Awaiting data, same
-          honest treatment as any other unfetched gauge on this site. Each gauge&rsquo;s own
-          provenance block states whether it&rsquo;s <strong>live</strong> (fetched by{" "}
-          <code>/pipeline</code> from its named source) or still <strong>sample data</strong>{" "}
-          pending entry. Every gauge card carries its own maturity and evidence tags when
-          applicable, and a page-level note appears whenever a dimension&rsquo;s gauge set is mixed.
+          Phase E: the site now scores two dimensions. Power is complete ({powerGauges.length} gauges
+          configured, {powerLiveCount} with real LIVE data). Quality of Life launched with{" "}
+          {qolGauges.length} gauges (2026-08) and is likewise complete ({qolLiveCount} with real LIVE
+          data). Each gauge&rsquo;s own provenance block states whether it&rsquo;s{" "}
+          <strong>live</strong> (fetched by <code>/pipeline</code> or entered by hand from its named
+          source) or still <strong>sample data</strong> pending entry. Every gauge card carries its
+          own maturity and evidence tags when applicable, and a page-level note appears whenever a
+          dimension&rsquo;s gauge set is mixed.
         </p>
       </section>
 
