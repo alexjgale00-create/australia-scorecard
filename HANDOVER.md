@@ -17,11 +17,13 @@ what this specific build session learned and left open.
 Each is a distinct failure mode. The first four are why the verification
 record and the `writtenAgainst` guard exist — read this section if you're
 ever tempted to think either of those is bureaucratic overhead. Entries 5
-through 7 are later additions from subsequent sessions, kept in this same
+through 8 are later additions from subsequent sessions, kept in this same
 record rather than scattered across dated log sections, because they're
 the same class of finding: something false or misleading reached a
 reader, undetected, until someone happened to look. Entry 7 names a
-pattern across 5 and 6 rather than reporting a third incident.
+pattern across 5 and 6 rather than reporting a third incident; entry 8 is
+a fourth incident in that same family, with one distinction worth
+tracking on its own.
 
 1. **innovation.md cited "the 2024 Strategic Examination of R&D."** The
    review was *commissioned* December 2024; its actual final report
@@ -164,6 +166,37 @@ pattern across 5 and 6 rather than reporting a third incident.
    periodic "does this sentence still describe this code" review pass?
    something else?) is a real question for whoever picks this up next,
    not pre-answered here.
+
+8. **`cohesion-majority-acceptance`'s `staleDisclosure` stated "genuinely
+   7 years old (last freely published wave: 2019)" as a literal string.**
+   Same family as entry 7 — copy that was true when written and would
+   silently stop being true once the surrounding context (in this case,
+   the calendar) moved on, with no guard checking whether the sentence
+   still matched reality. The distinction worth tracking separately: entries
+   5 and 6 went wrong at an unknowable moment (a gauge going live, a
+   phrase migrating during an unrelated rebuild) and nobody could have
+   named the date in advance. This one shipped with its wrong-by date
+   already fixed — "7 years old" is arithmetic on 2019, correct only
+   through 2026, wrong from 1 January 2027 whether or not anyone touched
+   the file. **Existed in the first place because there was no shared
+   mechanism for expressing a gauge's data age in copy** — every other
+   instance of this fact on the site (the "DATA THROUGH" field, the
+   `dataStaleness`/`ageDescription` computation) was already computed,
+   this one string just wasn't wired to either. **Found only because an
+   adjacent fix made the inconsistency visible**: the methodology page's
+   own "N years old" card copy had just been changed from the same
+   hardcoded literal to a render-time computation, in the same session,
+   for the same fact about the same gauge — leaving this second, unfixed
+   copy of the identical number sitting a few lines away was what made it
+   visible, not a scan or a guard. Fixed 2026-08-25: `resolveStaleDisclosure()`
+   (`lib/maturity.ts`) substitutes `{{DATA_AGE_YEARS}}`/`{{DATA_THROUGH_YEAR}}`
+   tokens from `latestDataYear` at render time — see CLAUDE.md's "Age-in-copy
+   token convention" for the rule and both live call sites it's wired
+   into. A repo-wide scan for the same pattern (every string field in
+   `gauges.config.json`, plus live `app/`/`components/`/`content/` copy)
+   found nothing else — this was two instances of one bug (this one and
+   the card copy), not a wider class, but the underlying mechanism gap
+   was real and is what's actually fixed now.
 
 ---
 

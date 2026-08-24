@@ -267,6 +267,22 @@ four-gauge World Bank family wouldn't have false-flagged until ~March
 2027 — a future-dated bug, invisible to any snapshot test, only caught by
 checking the arithmetic itself.
 
+### Age-in-copy token convention: `{{DATA_AGE_YEARS}}` / `{{DATA_THROUGH_YEAR}}` (2026-08-25)
+
+Any copy stating how old a gauge's current data is — "genuinely N years
+old," "last published in [year]" — must use these tokens, never a
+literal number. Found necessary when `cohesion-majority-acceptance`'s
+`staleDisclosure` shipped with a hardcoded "genuinely 7 years old (last
+freely published wave: 2019)": true the day it was written, silently
+wrong the moment a calendar year passed with nobody touching the file.
+`resolveStaleDisclosure()` (`lib/maturity.ts`) substitutes both tokens
+from `latestDataYear` at render time; plain strings with no tokens pass
+through unchanged, so it's safe to call on every gauge's
+`staleDisclosure`. Wired into both live call sites —
+`describeWhatsNext` (feeds `/status`) and `buildGaugeView`'s
+`staleReason` (feeds the canonical `/table/[plate]` gauge page). See
+HANDOVER.md's defect record (entry 8) for how this was found.
+
 ## Phase E: Quality of Life dimension — Step 1 ruled, Step 2 checkpoint landed (2026-08)
 
 A second, independently-scored composite alongside Power: does Australia
