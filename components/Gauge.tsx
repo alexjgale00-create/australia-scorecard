@@ -73,7 +73,11 @@ export default function Gauge({ view, density = "page" }: { view: GaugeView; den
           <div className="text-ink-3">RETRIEVED {view.asOf}</div>
           <div className="text-ink-3">{view.refreshNote}</div>
           <div className="text-ink-3">{view.observation}</div>
-          {view.stale && view.staleReason && <div className="text-stamp">{view.staleReason}</div>}
+          {/* Shown whenever a disclosure exists, not gated on view.stale —
+              innovation/personal-safety have no computed staleAfterMonths
+              at all (no authoritative cadence could be confirmed), so their
+              only caveat is this text. See lib/maturity.ts's dataStaleness. */}
+          {view.staleReason && <div className="text-stamp">{view.staleReason}</div>}
         </div>
       </div>
 

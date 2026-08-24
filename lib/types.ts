@@ -102,20 +102,30 @@ export interface GaugeConfig {
   /** A source-specific data-handling rule worth surfacing (e.g. excluding forecast years) — shown on the Methodology page alongside polarity. */
   dataPolicy?: string;
   /**
-   * Overrides the generic "due for a refresh" staleness copy for a manual
-   * gauge whose real state isn't "overdue on a normal cadence" — e.g.
+   * Overrides the generic "due for a refresh" staleness copy for a gauge
+   * whose real state isn't "overdue on a normal cadence" — e.g.
    * cohesion-majority-acceptance, whose last freely-published wave is 7
    * years old because no newer comparable public wave exists, not because
-   * anyone forgot to re-download it. Always shown verbatim wherever manual
-   * staleness would otherwise render — see lib/maturity.ts.
+   * anyone forgot to re-download it. Always shown unconditionally wherever
+   * staleness copy would otherwise render — see lib/maturity.ts. Two
+   * automated gauges (innovation, personal-safety) use this as their ONLY
+   * staleness caveat, deliberately left with no `staleAfterMonths` at all
+   * (see below) because no authoritative publication cadence could be
+   * confirmed for either.
    */
   staleDisclosure?: string;
   /**
-   * For accessType "manual" gauges only: how many months old this gauge's
-   * data can get before the monthly pipeline report flags it as due for a
-   * refresh. Deliberately per-gauge, not a blanket rule — a 3-4-yearly
-   * source (PISA) and an annual one (SIPRI) have very different "stale"
-   * thresholds. Falls back to 15 months if omitted.
+   * How many months old this gauge's data can get before it's flagged as
+   * due for a refresh. Deliberately per-gauge, not a blanket rule — a
+   * 3-4-yearly source (PISA) and an annual one (SIPRI) have very different
+   * "stale" thresholds. For accessType "manual" gauges, falls back to 15
+   * months if omitted (the project's original default). For accessType
+   * "api" gauges, there is NO fallback: a gauge only gets a computed stale
+   * verdict once this has been explicitly set from a real, evidence-checked
+   * publication-cadence review (see CLAUDE.md's 2026-08-24 automated-gauge
+   * review) — an api gauge left unset here never shows a computed STALE
+   * badge, relying on staleDisclosure instead if it has one. See
+   * lib/maturity.ts's dataStaleness for the exact gating logic.
    */
   staleAfterMonths?: number;
   /**

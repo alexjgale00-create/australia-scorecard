@@ -164,12 +164,26 @@ export function summarizeMaturityCounts(counts: Record<MaturityTier, number>): s
  * `sourcePulledAt`/`retrievedAt` remain meaningful — they answer "when did
  * we last check this source," shown separately as the Retrieved date —
  * but neither feeds this calculation any more.
+ *
+ * **Extended to automated (`accessType: "api"`) gauges the same day**, once
+ * every one of them got a real, source-specific `staleAfterMonths` from a
+ * per-gauge publication-cadence review (see CLAUDE.md) — deliberately NOT
+ * a blanket default: an `api` gauge only gets a verdict when
+ * `staleAfterMonths` has been explicitly, evidence-reviewed set for it.
+ * Two sources (`innovation`, `personal-safety`) were reviewed and left
+ * without a number on purpose — no authoritative publication cadence could
+ * be confirmed for either, and falling back to the manual default would
+ * misrepresent a structurally slow, healthy source as an overdue fetch.
+ * Those two rely solely on `config.staleDisclosure` (always shown — see
+ * `describeWhatsNext` below and `components/Gauge.tsx`) rather than a
+ * computed flag.
  */
-export function manualStaleness(
+export function dataStaleness(
   config: GaugeConfig,
   data: GaugeData | null
 ): { stale: boolean; ageDescription: string } | null {
-  if (config.accessType !== "manual" || !data || data.provenance.status !== "LIVE") return null;
+  if (!data || data.provenance.status !== "LIVE") return null;
+  if (config.accessType !== "manual" && config.staleAfterMonths === undefined) return null;
 
   const year = latestDataYear(data);
   if (year === null) return null;
@@ -208,17 +222,23 @@ export function describeWhatsNext(
 
   if (maturity.reason) return maturity.reason;
 
+  // A gauge can carry a custom staleDisclosure when the generic "due for a
+  // refresh" framing would misrepresent its real state — e.g. cohesion-
+  // majority-acceptance, whose age isn't a missed routine re-download but
+  // the practical end of what's publicly available at all; or innovation
+  // and personal-safety, whose sources are structurally slow and already
+  // returning their freshest available number. Checked before the computed
+  // verdict, and shown unconditionally when present — innovation/
+  // personal-safety have no computed staleAfterMonths at all (see
+  // dataStaleness above), so this is the only place their caveat surfaces.
+  if (config.staleDisclosure) return config.staleDisclosure;
+
+  const staleness = dataStaleness(config, data);
+  if (staleness?.stale) {
+    return `Due for a refresh — ${staleness.ageDescription}.`;
+  }
+
   if (config.accessType === "manual") {
-    const staleness = manualStaleness(config, data);
-    if (staleness?.stale) {
-      // A gauge can carry a custom staleDisclosure when "due for a refresh"
-      // would misrepresent its real state — e.g. cohesion-majority-
-      // acceptance, whose age isn't a missed routine re-download (like
-      // PISA's 3-4-yearly cadence) but the practical end of what's publicly
-      // available at all. Always shown verbatim in that case, never
-      // softened into the generic cadence phrasing.
-      return config.staleDisclosure ?? `Due for a refresh — ${staleness.ageDescription}.`;
-    }
     return "Real data, settled methodology — manual-lane gauges top out at Live, since there's no unattended refresh loop to survive.";
   }
 

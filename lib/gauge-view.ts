@@ -19,7 +19,7 @@ import {
   describeScoringBasis,
   latestSharedYear,
 } from "@/lib/scoring";
-import { computeMaturity, manualStaleness, latestDataYear, type MaturityInfo } from "@/lib/maturity";
+import { computeMaturity, dataStaleness, latestDataYear, type MaturityInfo } from "@/lib/maturity";
 import { buildTrajectoryView, type TrajectoryView } from "@/lib/trajectory";
 
 /**
@@ -437,7 +437,7 @@ export function buildGaugeView(args: BuildGaugeViewArgs): GaugeView {
 
   const isUnscored = (config.unscoredDimensions ?? []).includes(dimensionId);
   const maturity = computeMaturity(config, data);
-  const staleness = data ? manualStaleness(config, data) : null;
+  const staleness = data ? dataStaleness(config, data) : null;
 
   const base = {
     plate,

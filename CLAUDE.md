@@ -157,6 +157,65 @@ the site and inspected `out/table/1.15.html` (Inequality) — confirms
 "DATA THROUGH 2020 · STALE" now renders, distinct from a "RETRIEVED
 2026-08-24" line that no longer implies currency.
 
+### Automated-gauge `staleAfterMonths` review (2026-08-24) — the per-gauge cadence review the AS-OF fix deferred
+
+The AS-OF fix above deliberately left automated gauges' STALE-flag
+computation off, pending "the same per-gauge cadence review manual gauges
+already got." This is that review — every `accessType: "api"` gauge now
+has a real, source-specific `staleAfterMonths`, verified against each
+source's actual publication cadence (SIPRI, WGI, BIS, IMF WEO, V-Dem,
+World Happiness Report — see `gauges.config.json`'s `_staleAfterMonthsDerivation`
+for the derivation rule and full per-gauge sourcing).
+
+**A real arithmetic error in the first draft, caught before it shipped.**
+The first pass anchored each threshold to the *observed* publication lag
+plus a small buffer, forgetting that for an annual series the next data
+point cannot exist until the next reference year has fully elapsed —
+regardless of how short the lag is. Three rows dropped the leading 12
+months this way: the four-gauge World Bank/UN family
+(living-standards/external-position/demographic-momentum/trade, proposed
+15, corrected to 24) and `housing-pressure` (proposed 9 — reasoning from
+OECD RPPI's general quarterly cadence rather than this gauge's own
+`FREQ=A` pin, corrected to 18). `economic-output` also needed resolving
+by reading the fetcher rather than guessing: `pipeline/gauges/economic-output.mjs`
+explicitly excludes the current calendar year onward ("any year that could
+be a forecast is left out rather than risk presenting a projection as an
+achieved fact") — actuals only, never estimates — so it takes the same
+12-month-omission fix as the World Bank family (12 → 24), not the shorter
+"rolling estimate" number the first draft assumed. **Correct derivation
+rule, now recorded in `gauges.config.json` itself so it survives the next
+review**: `threshold = 12 (next reference year must elapse) + observed
+publication lag + buffer`.
+
+**Two gauges deliberately left with no threshold at all**:
+`innovation` (UNESCO R&D expenditure, ~5 years lagged) and `personal-safety`
+(UNODC intentional homicide, ~3 years lagged). Both were real research
+attempts, not a shortcut — UNODC's own metadata and the World Bank's
+mirror confirm "periodicity: Annual" but no discoverable release calendar
+or country-reporting-lag figure precise enough to derive a defensible
+number from; UNESCO's R&D survey cadence is nationally irregular by
+design. Assigning either a number would have been exactly the false
+precision this review exists to avoid. Both instead carry a
+`staleDisclosure` — see the gauge's own config entry — which
+`lib/maturity.ts`'s `dataStaleness` and `describeWhatsNext` now show
+**unconditionally**, not gated behind a computed `stale` flag that these
+two structurally can never trip.
+
+**`dataStaleness` (renamed from `manualStaleness`) now covers every
+`accessType`, not just manual.** An `api` gauge only gets a computed
+verdict once `staleAfterMonths` has been explicitly set for it — no
+silent fallback to the manual 15-month default, which would have
+misrepresented every one of these structurally-slower sources. Verified
+live via `npm run build`: all 15 newly-thresholded automated gauges read
+correctly current (no false STALE), the three genuinely-stale manual
+gauges (productivity, inequality, cohesion-majority-acceptance) are
+unaffected, and `innovation`/`personal-safety` correctly show no computed
+badge. Note this catches a real near-miss that wouldn't have shown up in
+today's build either way: under the first draft's 15-month figure, the
+four-gauge World Bank family wouldn't have false-flagged until ~March
+2027 — a future-dated bug, invisible to any snapshot test, only caught by
+checking the arithmetic itself.
+
 ## Phase E: Quality of Life dimension — Step 1 ruled, Step 2 checkpoint landed (2026-08)
 
 A second, independently-scored composite alongside Power: does Australia
