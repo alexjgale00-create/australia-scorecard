@@ -581,9 +581,28 @@ export function computeHistoricalComposite(
 ): { points: { year: number; composite: number }[]; excludedYears: number[] } {
   const inDimension = gaugesData.filter(({ config }) => config.weights[dimensionId] !== undefined);
 
+  // 1980-1989 excluded outright, separate from (and in addition to) the
+  // coverage-cliff guard below — a pre-existing, already-documented
+  // convention (METHODOLOGY.md's Phase D analysis: "only 2-4 gauges have
+  // data that far back — noisy, not representative") that every offline
+  // calibration script this project has run always applied, but that this
+  // function itself never actually implemented until now. Found
+  // 2026-08-24 while building the proximity disclosure: Power's true
+  // 1980 point is New Zealand at 3.1, built from just 2 gauges (the only
+  // two with data that far back) — passes the coverage-cliff guard below
+  // cleanly (0% of *eligible* gauges missing, since only 2 have started)
+  // while still being exactly the thin, unrepresentative extreme that
+  // guard exists to catch. The coverage-cliff guard is relative to
+  // already-launched gauges and was never meant to catch "very few gauges
+  // have launched at all yet" — this fixed 1990 floor is. Confirmed this
+  // doesn't change any already-ruled band threshold (every calibration
+  // script already excluded 1980-1989 by hand); it only brings the live
+  // trajectory chart and this function's other consumers in line with
+  // the data those thresholds were actually derived from.
   const allYears = inDimension
     .flatMap(({ data }) => data.countries.AUS?.series.map((p) => p.year) ?? [])
     .filter((y, i, arr) => arr.indexOf(y) === i)
+    .filter((y) => y >= 1990)
     .sort((a, b) => a - b);
 
   const gaugeStartYear = new Map(
@@ -732,4 +751,132 @@ export function assertCompositeDisclosure(
       );
     }
   }
+}
+
+/**
+ * The median absolute year-over-year change across a composite series —
+ * this dimension's own instrument resolution, in points per typical year.
+ * Always computed from the data (the same coverage-cliff-guarded series
+ * `computeHistoricalComposite` already produces), never hardcoded — a
+ * dimension whose gauges change lands differently than one whose gauges
+ * are volatile, and the two dimensions are not expected to share one
+ * number. See `computeBoundaryProximity` below, the only current
+ * consumer.
+ */
+export function medianAbsoluteAnnualMove(points: { year: number; composite: number }[]): number | null {
+  const diffs: number[] = [];
+  for (let i = 1; i < points.length; i++) diffs.push(Math.abs(points[i].composite - points[i - 1].composite));
+  if (diffs.length === 0) return null;
+  diffs.sort((a, b) => a - b);
+  return diffs[Math.floor(diffs.length / 2)];
+}
+
+export interface ProximityGroup {
+  /** The real decision boundary a band change happens at — each band's own `min` (not a cosmetic chart gridline), matching what `bandForScore` actually compares against. */
+  boundary: number;
+  lowerBandLabel: string;
+  upperBandLabel: string;
+  countries: { code: CountryCode; name: string; score: number }[];
+}
+
+/**
+ * Which countries currently sit close enough to a band boundary that this
+ * dimension's own instrument can't cleanly tell them apart from whatever
+ * is on the other side — "close" meaning within one typical year's
+ * movement (`medianAnnualMove`, always computed from the data, see
+ * above), never a fixed number. This is a statement about resolution, not
+ * about volatility: a country here isn't "at risk of changing," the
+ * composite simply doesn't discriminate at this margin. Ruled 2026-08-24
+ * after the first draft's copy ("a small change could shift the verdict")
+ * was found to imply the wrong claim.
+ *
+ * Countries are grouped by boundary, not reported individually — two or
+ * more countries straddling the *same* boundary is a real property of the
+ * peer distribution (confirmed on Quality of Life: 4 of 9 countries
+ * cluster around the Strengthening/Leading line), and reporting it as one
+ * finding about the pack is both more accurate and shorter than repeating
+ * near-identical sentences per country. Membership is computed fresh from
+ * `countryScores` every time — nothing here is a hardcoded country list.
+ */
+export function computeBoundaryProximity(
+  countryScores: CountryScorePoint[],
+  scoreBands: ScoreBand[],
+  medianAnnualMove: number
+): ProximityGroup[] {
+  const sorted = [...scoreBands].sort((a, b) => a.min - b.min);
+  // The real decision boundaries are each band's own min (score >= min &&
+  // score < nextBand.min, per bandForScore) — not AnchoredSparkline's
+  // cosmetic max+0.5 gridline, which exists for chart legibility only.
+  const boundaries = sorted.slice(1).map((b) => b.min);
+
+  const groups = new Map<number, ProximityGroup>();
+  for (const cs of countryScores) {
+    let nearestBoundary = boundaries[0];
+    let nearestDist = Math.abs(cs.score - boundaries[0]);
+    for (const b of boundaries) {
+      const d = Math.abs(cs.score - b);
+      if (d < nearestDist) {
+        nearestDist = d;
+        nearestBoundary = b;
+      }
+    }
+    if (nearestDist > medianAnnualMove) continue;
+
+    if (!groups.has(nearestBoundary)) {
+      const idx = boundaries.indexOf(nearestBoundary);
+      groups.set(nearestBoundary, {
+        boundary: nearestBoundary,
+        lowerBandLabel: sorted[idx].label,
+        upperBandLabel: sorted[idx + 1].label,
+        countries: [],
+      });
+    }
+    groups.get(nearestBoundary)!.countries.push({ code: cs.code, name: cs.name, score: cs.score });
+  }
+
+  return [...groups.values()].sort((a, b) => a.boundary - b.boundary);
+}
+
+/**
+ * The far side of a boundary from wherever a country currently sits — the
+ * band it can't be cleanly separated from, which is what the single-
+ * country proximity sentence actually names (never the country's own
+ * current band, which would be a different, useless claim to make).
+ */
+function farBandLabel(group: ProximityGroup, score: number): string {
+  return score < group.boundary ? group.upperBandLabel : group.lowerBandLabel;
+}
+
+function joinNames(names: string[]): string {
+  if (names.length === 1) return names[0];
+  if (names.length === 2) return `${names[0]} and ${names[1]}`;
+  return `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`;
+}
+
+/**
+ * The full-length proximity sentence — used for Australia's own note
+ * (solo or clustered) and for a peer cluster of 2+ shown beneath it. Never
+ * used for a lone peer, which gets the shorter `proximityCompact` instead.
+ */
+export function proximitySentence(group: ProximityGroup): string {
+  if (group.countries.length === 1) {
+    const c = group.countries[0];
+    return (
+      `${c.name}’s reading sits within a typical year’s movement of the ` +
+      `${farBandLabel(group, c.score)} boundary — close enough that the composite does not ` +
+      `cleanly separate it from countries on the other side.`
+    );
+  }
+  const names = joinNames(group.countries.map((c) => c.name));
+  return (
+    `${names} all sit within a typical year’s movement of the ${group.lowerBandLabel}/` +
+    `${group.upperBandLabel} boundary — on this measure the composite does not meaningfully ` +
+    `separate them.`
+  );
+}
+
+/** The short form for a single peer, listed beneath Australia's own note. */
+export function proximityCompact(group: ProximityGroup): string {
+  const c = group.countries[0];
+  return `${c.name}: too close to the ${farBandLabel(group, c.score)} boundary to separate cleanly.`;
 }

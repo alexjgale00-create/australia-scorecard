@@ -253,6 +253,26 @@ findings, not acted on:**
   watching whether 2024 ever changes to a distinct value on a later pull)
   before assuming rather than asserting it's provisional.
 
+**From the proximity-disclosure build (2026-08-24) — one design gap
+found, not acted on:**
+
+- **No surface on the site displays a country's per-dimension composite
+  un-blended.** Found while deciding where a peer proximity disclosure
+  should render: `/section/[n]`'s rank table (`SectionOverview.tsx`)
+  takes `countryScores[].power` and `.life` as real, computed numbers per
+  country, but only ever shows them blended through the reader's own
+  weighting slider (`w*power + (1-w)*life`, the "YOUR INDEX" equation) —
+  never each dimension's own raw composite individually. The homepage's
+  `DimensionRuler` shows a labelled score for Australia only; peers get
+  ticks with no number attached. A reader who wants to know how, say, the
+  Netherlands scores on Quality of Life specifically — not blended into
+  some weighting, just that dimension's own number — currently can't find
+  out anywhere on the site. Not built here: the proximity disclosure was
+  scoped to reuse `DimensionVerdict` rather than open a new page surface,
+  per the site owner's explicit instruction. Worth a real decision later
+  — whether that's a new per-country composite table, or extending
+  `/section/[n]`'s existing cells with a second, un-blended number.
+
 **The intern's four manual datasets.** `productivity`, `human-capital-depth`,
 and `inequality` have no real data yet (the first two: no data file at all;
 `inequality` likewise Awaiting Data); `work-life-balance` has real 1995-2019

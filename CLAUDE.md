@@ -165,6 +165,49 @@ the site and inspected `out/table/1.15.html` (Inequality) — confirms
 "DATA THROUGH 2020 · STALE" now renders, distinct from a "RETRIEVED
 2026-08-24" line that no longer implies currency.
 
+### `computeHistoricalComposite`'s missing 1990 floor — found building the proximity disclosure (2026-08-24)
+
+A second, distinct defect in the same function the tail-coverage fix
+above touched, caught before it corrupted the next feature built on top
+of it. This project has documented "exclude 1980-1989, only 2-4 gauges
+have data that far back — noisy, not representative" as the band
+calibration method since Phase D's very first pass (see METHODOLOGY.md),
+and every offline analysis script this whole Phase D review ran applied
+that floor by hand. **`computeHistoricalComposite` itself never did** —
+the live trajectory chart, and the median-annual-move figure the new
+proximity disclosure derives from it, silently included the noisy
+pre-1990 stretch the whole time.
+
+Found concretely, not by inspection: building the proximity disclosure
+surfaced New Zealand and the Netherlands as false Power triggers, and
+Australia as a false non-trigger, on numbers that didn't match this
+session's own established figures. Traced to the median annual move —
+2.50 in the live render against the 2.10 every prior check in this
+session had used — and from there to the series itself: 43 points
+starting 1980, not 33 starting 1990. Power's true 1980 point is New
+Zealand at 3.1, built from just 2 gauges (`demographic-momentum` and
+`economic-output`, the only two with data that far back) — passes the
+coverage-cliff guard cleanly (0% of *eligible* gauges missing, since only
+2 have launched yet) while being exactly the thin, unrepresentative
+extreme that guard exists to catch. The coverage-cliff guard is relative
+to already-launched gauges and was never meant to catch "very few gauges
+have launched at all" — a fixed 1990 floor is, and always has been, the
+tool for that, just never actually coded into this function.
+
+**Fixed alongside the coverage-cliff guard**, same function, same
+`computeHistoricalComposite`: `allYears` now excludes anything before
+1990 outright. Confirmed this changes no already-shipped number: Power's
+achievable range (27.1-72.2) and both dimensions' ruled band thresholds
+were always derived from analysis scripts that already excluded the
+1980s by hand, so this fix brings the live function in line with the
+data those decisions actually used — it doesn't move anything that was
+already decided. Verified live: rebuilt, extracted the actual rendered
+trajectory-chart data from `out/index.html`, confirmed Power's series is
+now 33 points (1990-2022, median move 2.10) and the proximity groups
+match this session's own hand-verified numbers exactly (Australia solo
+near the Slipping/Holding line, New Zealand solo near Falling
+Behind/Slipping, no false Canada/Netherlands triggers).
+
 ### Automated-gauge `staleAfterMonths` review (2026-08-24) — the per-gauge cadence review the AS-OF fix deferred
 
 The AS-OF fix above deliberately left automated gauges' STALE-flag

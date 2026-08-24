@@ -386,6 +386,33 @@ bands don't quietly depend on an arbitrary internal constant: three
 materially different cutoffs, same achievable ranges, same thresholds,
 same verdicts.
 
+### Proximity disclosure (2026-08-24)
+
+Every dimension page now states, for any country whose composite sits
+within one typical year's movement of a band boundary, that the composite
+does not cleanly separate it from whatever is on the other side. This
+exists to state the instrument's resolution honestly, not to warn that a
+verdict might change — the first drafted copy ("a small change could
+shift the verdict") was rejected for implying the wrong claim: the risk
+isn't volatility, it's that the gap between two countries here is smaller
+than this dimension's own year-to-year noise, so the composite genuinely
+cannot tell them apart at that margin. The threshold is one median
+annual move in that dimension's own composite — computed fresh from the
+data every time (`medianAbsoluteAnnualMove` in `lib/scoring.ts`), never a
+fixed number, since a dimension whose gauges move a lot and one whose
+gauges barely move have no reason to share one resolution figure. It was
+not adjusted when it turned out to fire on five of nine Quality of Life
+countries. Four of those five cluster on the same Strengthening/Leading
+boundary — a real, checked property of how tightly this peer set is
+packed in that range, not an artifact of where the threshold happened to
+be drawn. Loosening it to make that finding disappear would have been the
+same error this ruling had already refused once: moving a line because
+the result under it was uncomfortable, not because the line itself was
+wrong. Countries sharing one boundary are reported as a single finding
+about the pack (see `computeBoundaryProximity`), not as repeated
+near-identical sentences per country — both more accurate and more
+legible than the alternative.
+
 ### Phase D — rejected band-scheme approaches (2026-08-24)
 
 Recorded so none of this is re-litigated cold in a future session. Full

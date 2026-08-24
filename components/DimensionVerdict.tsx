@@ -2,10 +2,14 @@ import {
   assertCompositeDisclosure,
   bandForScore,
   buildCompositeDisclosure,
+  computeBoundaryProximity,
   computeComposite,
   computeCompositeForAllCountries,
   computeHistoricalComposite,
   computeLevelScoreDelta,
+  medianAbsoluteAnnualMove,
+  proximityCompact,
+  proximitySentence,
 } from "@/lib/scoring";
 import AnchoredSparkline from "@/components/AnchoredSparkline";
 import DimensionRuler from "@/components/DimensionRuler";
@@ -83,6 +87,21 @@ export default function DimensionVerdict({
     score: p.composite,
   }));
 
+  // Resolution disclosure, not a volatility warning (ruled 2026-08-24):
+  // states plainly when this dimension's own instrument can't cleanly
+  // separate a country from whatever sits just across a boundary from it
+  // — "close" meaning within one typical year's movement, always computed
+  // from this dimension's own historical series, never a fixed number.
+  // Grouped by boundary: two or more countries straddling the same line is
+  // a real property of the peer distribution (found on Quality of Life —
+  // 4 of 9 cluster around Strengthening/Leading), not something a looser
+  // threshold should hide. Australia's group (solo or clustered) renders
+  // with the ruler; every other group renders beneath it.
+  const medianAnnualMove = medianAbsoluteAnnualMove(historicalPoints);
+  const proximityGroups = medianAnnualMove !== null ? computeBoundaryProximity(allComposites, scoreBands, medianAnnualMove) : [];
+  const ausProximityGroup = proximityGroups.find((g) => g.countries.some((c) => c.code === "AUS"));
+  const peerProximityGroups = proximityGroups.filter((g) => g !== ausProximityGroup);
+
   const noFileCount = totalGaugeCount - inDimension.length;
 
   const deltas = inDimension
@@ -116,7 +135,18 @@ export default function DimensionVerdict({
           flat={flat}
           deteriorating={deteriorating}
         />
-      ) : (
+      ) : null}
+
+      {ausComposite !== null && band !== null && ausRank !== null && (ausProximityGroup || peerProximityGroups.length > 0) && (
+        <div className="font-martian-mono text-[9.5px] text-ink-3 mt-2 space-y-1">
+          {ausProximityGroup && <p>{proximitySentence(ausProximityGroup)}</p>}
+          {peerProximityGroups.map((g) => (
+            <p key={g.boundary}>{g.countries.length === 1 ? proximityCompact(g) : proximitySentence(g)}</p>
+          ))}
+        </div>
+      )}
+
+      {ausComposite === null && (
         <div className="font-public-sans text-ink">
           <h2 className="font-bold text-[21px] sm:text-[25px] leading-[1.15] tracking-[-.01em]">
             {dimension.name}
