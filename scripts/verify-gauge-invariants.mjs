@@ -217,3 +217,154 @@ console.log(
   `ℹ why-this-matters coverage: ${trackedGaugeIds.size} of ${totalGauges} gauges have a recorded ` +
     `writtenAgainst baseline (${[...trackedGaugeIds].sort().join(", ")})`
 );
+
+// ---------------------------------------------------------------------------
+// REGISTER_DRAFT_LINES structured-facts guard (2026-08-26, HANDOVER.md entry
+// 9). Three of this file's plain-language lines shipped wrong on the live
+// site — hand-typed numbers that drifted from real data refreshes after the
+// 2026-08-20 content review, wired to nothing that would notice.
+// content/register-draft-line-facts.json now stores {ausValue, peerMedian,
+// rank, of, displayDecimals} per gauge as data; content/register-draft-lines.ts
+// generates the actual sentence from it at build time. This check recomputes
+// the same four numbers live from data/processed/*.json and fails the build
+// if any of them, rounded to that gauge's own declared displayDecimals
+// (the precision its authored line was actually approved at — e.g.
+// debt-burden's "165"/"162" are hand-rounded to whole numbers even though
+// the live figures carry a decimal; see the JSON file's own field comment),
+// no longer matches what's stored.
+//
+// Mirrors lib/scoring.ts's latestSharedYear (already mirrored above, for R3)
+// and computeRank, plus lib/gauge-view.ts's median — a plain Node script,
+// no TS import boundary, same reason pipeline/index.mjs hand-mirrors lib/
+// logic (see CLAUDE.md's "pipeline mirrors lib/ deliberately" entry: name
+// what's mirrored, treat a change to either side as incomplete until the
+// other is checked).
+//
+// Deliberately covers ONLY the gauges listed in register-draft-line-facts.json
+// (20 of 23, as of this writing) — see CLAUDE.md's status-line rule next to
+// this guard for how that coverage must and must not be described. Fails
+// loud on any entry whose shape it doesn't recognise (a missing field, no
+// matching gauge, no data file, no AUS series, no computable
+// latestSharedYear) rather than silently skipping it — same discipline as
+// assertWrittenAgainst.
+// ---------------------------------------------------------------------------
+const draftLineFacts = JSON.parse(
+  readFileSync(path.join("content", "register-draft-line-facts.json"), "utf-8")
+);
+const REQUIRED_DRAFT_FACT_FIELDS = [
+  "titlePhrase",
+  "unitPhrase",
+  "ausValue",
+  "peerMedian",
+  "rank",
+  "of",
+  "displayDecimals",
+];
+const draftLineFailures = [];
+
+function computeRankMirror(data, polarity, code, year) {
+  const values = Object.entries(data.countries)
+    .map(([c, series]) => ({ code: c, value: series.series.find((p) => p.year === year)?.value }))
+    .filter((v) => v.value !== undefined);
+  if (values.length < 1) return null;
+  const sorted = [...values].sort((a, b) =>
+    polarity === "higher_is_better" ? b.value - a.value : a.value - b.value
+  );
+  const idx = sorted.findIndex((v) => v.code === code);
+  if (idx === -1) return null;
+  return { rank: idx + 1, of: sorted.length };
+}
+
+function medianMirror(values) {
+  if (values.length === 0) return null;
+  const sorted = [...values].sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
+  return sorted.length % 2 === 0 ? (sorted[mid - 1] + sorted[mid]) / 2 : sorted[mid];
+}
+
+for (const [id, facts] of Object.entries(draftLineFacts)) {
+  const missingFields = REQUIRED_DRAFT_FACT_FIELDS.filter((f) => !(f in facts));
+  if (missingFields.length > 0) {
+    draftLineFailures.push(
+      `  - ${id}: register-draft-line-facts.json entry is missing ${missingFields.join(", ")} — unrecognised shape, not silently skipped.`
+    );
+    continue;
+  }
+
+  const g = config.gauges.find((x) => x.id === id);
+  if (!g) {
+    draftLineFailures.push(`  - ${id}: no matching gauge in gauges.config.json — unrecognised shape.`);
+    continue;
+  }
+
+  const file = path.join("data", "processed", `${id}.json`);
+  if (!existsSync(file)) {
+    draftLineFailures.push(
+      `  - ${id}: has a drafted plain-language line but no data file at all — cannot verify a line describing data that doesn't exist.`
+    );
+    continue;
+  }
+
+  const data = JSON.parse(readFileSync(file, "utf-8"));
+  if (!data.countries?.AUS) {
+    draftLineFailures.push(`  - ${id}: data file has no AUS series — cannot verify.`);
+    continue;
+  }
+
+  const year = latestSharedYear(data);
+  if (year === null) {
+    draftLineFailures.push(`  - ${id}: no latestSharedYear could be computed — cannot verify.`);
+    continue;
+  }
+
+  const dp = facts.displayDecimals;
+  const round = (v) => Math.round(v * 10 ** dp) / 10 ** dp;
+
+  const liveAusValue = data.countries.AUS.series.find((p) => p.year === year)?.value;
+  const livePeerValues = Object.entries(data.countries)
+    .filter(([code]) => code !== "AUS")
+    .map(([, s]) => s.series.find((p) => p.year === year)?.value)
+    .filter((v) => v !== undefined && !Number.isNaN(v));
+  const livePeerMedian = medianMirror(livePeerValues);
+  const liveRankInfo = computeRankMirror(data, g.polarity, "AUS", year);
+
+  const mismatches = [];
+  if (liveAusValue === undefined || round(liveAusValue) !== round(facts.ausValue)) {
+    mismatches.push(
+      `AUS value stored=${facts.ausValue} live=${liveAusValue !== undefined ? round(liveAusValue) : "—"}`
+    );
+  }
+  if (livePeerMedian === null || round(livePeerMedian) !== round(facts.peerMedian)) {
+    mismatches.push(
+      `peer median stored=${facts.peerMedian} live=${livePeerMedian !== null ? round(livePeerMedian) : "—"}`
+    );
+  }
+  if (!liveRankInfo || liveRankInfo.rank !== facts.rank) {
+    mismatches.push(`rank stored=${facts.rank} live=${liveRankInfo?.rank ?? "—"}`);
+  }
+  if (!liveRankInfo || liveRankInfo.of !== facts.of) {
+    mismatches.push(`"of" stored=${facts.of} live=${liveRankInfo?.of ?? "—"}`);
+  }
+
+  if (mismatches.length > 0) {
+    draftLineFailures.push(
+      `  - ${id} (latestSharedYear=${year}): ${mismatches.join(" | ")} — content/register-draft-line-facts.json ` +
+        `is stale. Update it (and re-review the generated sentence for anything beyond a number swap, per ` +
+        `HANDOVER.md entry 9's work-life-balance case) before this ships again.`
+    );
+  }
+}
+
+if (draftLineFailures.length > 0) {
+  console.error(
+    "✖ verify-gauge-invariants: REGISTER_DRAFT_LINES facts no longer match live data\n" +
+      draftLineFailures.join("\n")
+  );
+  process.exit(1);
+}
+
+console.log(
+  `✓ verify-gauge-invariants: ${Object.keys(draftLineFacts).length} of ${Object.keys(draftLineFacts).length} ` +
+    `REGISTER_DRAFT_LINES entries verified against live-recomputed data (covers only gauges with a drafted line — ` +
+    `see CLAUDE.md's status-line rule next to this guard)`
+);

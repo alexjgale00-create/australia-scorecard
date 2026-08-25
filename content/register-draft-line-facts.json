@@ -1,0 +1,182 @@
+{
+  "living-standards": {
+    "titlePhrase": "living standards",
+    "unitPhrase": "GDP per capita",
+    "ausValue": 60194,
+    "peerMedian": 56843,
+    "rank": 4,
+    "of": 9,
+    "displayDecimals": 0
+  },
+  "productivity": {
+    "titlePhrase": "productivity",
+    "unitPhrase": "GDP per hour worked",
+    "ausValue": 68.17,
+    "peerMedian": 66.29,
+    "rank": 5,
+    "of": 9,
+    "displayDecimals": 2
+  },
+  "education": {
+    "titlePhrase": "education",
+    "unitPhrase": "PISA mean score",
+    "ausValue": 497,
+    "peerMedian": 495,
+    "rank": 4,
+    "of": 9,
+    "displayDecimals": 0
+  },
+  "innovation": {
+    "titlePhrase": "innovation",
+    "unitPhrase": "R&D expenditure",
+    "ausValue": 1.86,
+    "peerMedian": 2.99,
+    "rank": 8,
+    "of": 9,
+    "displayDecimals": 2
+  },
+  "external-position": {
+    "titlePhrase": "external position",
+    "unitPhrase": "Current account balance",
+    "ausValue": -2.68,
+    "peerMedian": -0.95,
+    "rank": 6,
+    "of": 8,
+    "displayDecimals": 2
+  },
+  "rule-of-law-corruption": {
+    "titlePhrase": "rule of law & corruption",
+    "unitPhrase": "WGI Rule of Law + Control of Corruption",
+    "ausValue": 1.66,
+    "peerMedian": 1.49,
+    "rank": 4,
+    "of": 9,
+    "displayDecimals": 2
+  },
+  "demographic-momentum": {
+    "titlePhrase": "demographic momentum",
+    "unitPhrase": "Working-age population",
+    "ausValue": 1.23,
+    "peerMedian": 0.12,
+    "rank": 1,
+    "of": 9,
+    "displayDecimals": 2
+  },
+  "trade": {
+    "titlePhrase": "trade",
+    "unitPhrase": "Share of world exports of goods & services",
+    "ausValue": 1.2,
+    "peerMedian": 3.08,
+    "rank": 6,
+    "of": 6,
+    "displayDecimals": 2
+  },
+  "economic-output": {
+    "titlePhrase": "economic output",
+    "unitPhrase": "Share of world GDP",
+    "ausValue": 0.95,
+    "peerMedian": 1.89,
+    "rank": 7,
+    "of": 9,
+    "displayDecimals": 2
+  },
+  "debt-burden": {
+    "titlePhrase": "debt burden",
+    "unitPhrase": "Household + government debt",
+    "ausValue": 165,
+    "peerMedian": 162,
+    "rank": 5,
+    "of": 8,
+    "displayDecimals": 0
+  },
+  "housing-pressure": {
+    "titlePhrase": "housing pressure",
+    "unitPhrase": "House price-to-income ratio",
+    "ausValue": 120,
+    "peerMedian": 121,
+    "rank": 4,
+    "of": 7,
+    "displayDecimals": 0
+  },
+  "military-capability": {
+    "titlePhrase": "military capability",
+    "unitPhrase": "Military expenditure",
+    "ausValue": 1.92,
+    "peerMedian": 2.23,
+    "rank": 6,
+    "of": 9,
+    "displayDecimals": 2
+  },
+  "economic-complexity": {
+    "titlePhrase": "economic complexity",
+    "unitPhrase": "Economic Complexity Index",
+    "ausValue": 0.1,
+    "peerMedian": 1.18,
+    "rank": 9,
+    "of": 9,
+    "displayDecimals": 2
+  },
+  "internal-cohesion": {
+    "titlePhrase": "internal cohesion",
+    "unitPhrase": "V-Dem political polarization score",
+    "ausValue": -1.16,
+    "peerMedian": -0.19,
+    "rank": 3,
+    "of": 9,
+    "displayDecimals": 2
+  },
+  "life-expectancy": {
+    "titlePhrase": "life expectancy",
+    "unitPhrase": "Life expectancy at birth",
+    "ausValue": 83.05,
+    "peerMedian": 81.99,
+    "rank": 3,
+    "of": 9,
+    "displayDecimals": 2
+  },
+  "life-satisfaction": {
+    "titlePhrase": "life satisfaction",
+    "unitPhrase": "Cantril ladder life evaluation",
+    "ausValue": 6.92,
+    "peerMedian": 6.78,
+    "rank": 3,
+    "of": 9,
+    "displayDecimals": 2
+  },
+  "personal-safety": {
+    "titlePhrase": "personal safety",
+    "unitPhrase": "Intentional homicide rate",
+    "ausValue": 0.85,
+    "peerMedian": 0.8,
+    "rank": 4,
+    "of": 7,
+    "displayDecimals": 2
+  },
+  "work-life-balance": {
+    "titlePhrase": "work-life balance",
+    "unitPhrase": "Average annual hours actually worked per worker",
+    "ausValue": 1633,
+    "peerMedian": 1642,
+    "rank": 5,
+    "of": 9,
+    "displayDecimals": 0
+  },
+  "air-quality": {
+    "titlePhrase": "air quality",
+    "unitPhrase": "PM2.5 air pollution",
+    "ausValue": 6.41,
+    "peerMedian": 8.7,
+    "rank": 1,
+    "of": 9,
+    "displayDecimals": 2
+  },
+  "cohesion-minority-experience": {
+    "titlePhrase": "cohesion — minority experience",
+    "unitPhrase": "V-Dem social group equality in civil liberties score",
+    "ausValue": 1.33,
+    "peerMedian": 1.7,
+    "rank": 6,
+    "of": 9,
+    "displayDecimals": 2
+  }
+}
