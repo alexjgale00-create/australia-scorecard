@@ -706,6 +706,35 @@ left at the unset default, since the USA has no data for that gauge's
 latest shared year — its robustness is structural, not merely
 tested-and-found-stable like the rest.
 
+**`life-expectancy` also carries a second, distinct concern that is
+*not* flagged here — ruled 2026-08-25, recorded so the distinction
+isn't lost.** This gauge's `dataPolicy` discloses a construction-mix
+finding: World Bank draws this series from national life tables, and at
+least Australia (ABS) and New Zealand (Stats NZ) publish an overlapping
+3-year rolling window rather than independent annual data, while South
+Korea (KOSTAT) is confirmed genuinely annual — a real reason to distrust
+this gauge's cross-country ranking, structurally, independent of the
+USA-outlier finding above. **Ruling: disclosed, not adjusted — this is
+not a `bandRobustness` entry, and the reason is worth stating plainly so
+it isn't read as an oversight.** `bandRobustness`'s own activation rule
+requires a human to have *seen the band move* and judged the *currently
+displayed* band overstated by a named, quantified mechanism (see "The
+test" above). The construction-mix concern doesn't clear that bar: a
+live cross-check was attempted (Australia's gap against UN World
+Population Prospects' independent estimate looked at first like
+confirmation of a smoothing-driven understatement, until South
+Korea — confirmed *not* smoothed — turned out to show a comparably
+large gap, and New Zealand — confirmed smoothed, same as Australia —
+showed a much smaller one) and it did not discriminate a direction or a
+magnitude. Marking this `bandRobustness` anyway would claim a precision
+the evidence doesn't support — the same reasoning that left `innovation`
+and `personal-safety`'s staleness cadence unset rather than guessed at
+(CLAUDE.md's 2026-08-24 review) is being applied here a third time. **A
+disclosed construction concern is not the same thing as a quantified band
+fragility.** This gauge carries the first; it does not yet carry the
+second. See HANDOVER.md for the open item on what a test that could
+actually discriminate would require.
+
 **Scope.** This section describes a presentation-layer disclosure only.
 The underlying question — whether min-max normalisation should be replaced
 with something robust to outliers (median/IQR-based, or rank-based) — is a

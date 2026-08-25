@@ -413,22 +413,78 @@ findings, not acted on:**
   new standing limitation rather than folding it into the existing one
   without checking whether the existing one still accurately describes
   what's actually happening.
-- **World Bank returns an identical life-expectancy value for Australia in
-  2023 and 2024** (`83.0512195121951`, confirmed via a direct query to the
-  World Bank API, not just the committed file). If that's a carried-forward
-  provisional figure — 2024 not yet independently estimated, silently
-  repeating 2023's number rather than being flagged as provisional or
-  omitted — the site is presenting a repeated observation as if it were a
-  new one. Concretely: it inserts a real flat segment into `life-expectancy`'s
-  trend/direction calculation and its year-over-year series that isn't a
-  genuine "no change" finding, it's an artifact of the source not having
-  updated yet. This is the same principle `pipeline/gauges/economic-output.mjs`
-  already enforces by name (excluding any year that could be an unflagged
-  forecast rather than risk presenting one as an achieved fact) — worth
-  the same treatment here if confirmed, but not confirmed yet: needs
-  checking against World Bank's own revision/vintage metadata (or simply
-  watching whether 2024 ever changes to a distinct value on a later pull)
-  before assuming rather than asserting it's provisional.
+- **`life-expectancy`'s repeated AUS 2023/2024 value reframed, 2026-08-25 —
+  the finding is construction-mix, not a carried-forward placeholder.**
+  Originally logged as "World Bank returns an identical life-expectancy
+  value for Australia in 2023 and 2024" with a carried-forward-forecast
+  hypothesis, same shape as `economic-output.mjs`'s forecast exclusion.
+  That hypothesis didn't survive investigation. Confirmed instead, against
+  ABS's own release: Australia's figure is an overlapping 3-year rolling
+  reference period (2021–2023, 2022–2024) tagged to a single terminal
+  year, not independent annual mortality data — ABS's own words are "no
+  change" between the two periods, which is why 2023 and 2024 match
+  exactly. **The real finding is bigger than the repeat**: this series is
+  not built the same way for every country in the peer set. New Zealand's
+  Stats NZ documents the identical rolling convention as its own standard
+  product; South Korea's KOSTAT is confirmed genuinely annual; the UK and
+  Canada publish both, and their data (a real, unsmoothed COVID-era dip)
+  suggests World Bank draws their single-year figures. Because this gauge
+  scores countries peer-relatively, a rolling window and an annual figure
+  measuring different things under the same visual grammar is a
+  between-country comparability question for the ranking itself, not just
+  a within-Australia trend artifact. **Disclosure text written 2026-08-25**
+  (`gauges.config.json`'s `life-expectancy.dataPolicy`) — does not touch
+  score or trend math.
+
+- **Ruled 2026-08-25: the construction mix is disclosed, not adjusted —
+  not a `bandRobustness` entry.** Raised explicitly, at the same weight
+  as the polarity decisions and the internal-cohesion variable switch, per
+  the site owner's instruction not to let this get absorbed into a text
+  field. `bandRobustness`'s activation rule requires a human to have seen
+  the band actually move and judged the *currently displayed* band
+  overstated by a named, quantified mechanism (§3.3 in METHODOLOGY.md).
+  The construction-mix concern doesn't clear that bar — see the cross-
+  check below, which was attempted and came back unable to discriminate a
+  direction or magnitude. Marking `bandRobustness` anyway would claim a
+  precision the evidence doesn't support, the same reasoning that already
+  left `innovation` and `personal-safety`'s staleness cadence unset rather
+  than guessed at (CLAUDE.md's 2026-08-24 review) — this is that same
+  move made a third time. Full ruling recorded next to `life-expectancy`'s
+  existing `bandRobustness` entry in METHODOLOGY.md §3.3, stated plainly
+  so a reader doesn't take the empty `bandRobustness` field as an
+  oversight: a disclosed construction concern is not the same thing as a
+  quantified band fragility, and this gauge carries the first but not the
+  second.
+
+- **Named open item: the WDI/WPP cross-check doesn't discriminate, and
+  four of nine peers remain unverified — one item, since both close the
+  same way.** Attempted a live test before the ruling above: UN World
+  Population Prospects' own independent 2023 estimate (via Our World in
+  Data) against each peer's WDI value, reasoning that a rolling-window
+  country should show a larger gap against an independent single-year-
+  equivalent source than an annual one does. Reported inconclusive, not
+  left unattempted — the distinction matters if someone picks this up.
+  Australia's gap (WPP 83.923 vs. WDI 83.051, +0.87) looked at first like
+  confirmation, but South Korea — confirmed genuinely annual — shows a
+  comparably large gap (+0.90), while New Zealand — confirmed rolling,
+  same as Australia — shows a much smaller one (+0.33). Something other
+  than the rolling/annual split dominates the WDI-vs-WPP gap, most likely
+  a data-vintage or revision difference between the two sources that
+  affects every country, not a construction-specific artifact — WPP is
+  the wrong comparator. **A test that could actually quantify smoothing
+  bias would need to compare each country's WDI series against that same
+  country's own single-year national life table, not against a third-
+  party model** — which requires knowing whether each country's own
+  statistical office even publishes one. That's the same open research
+  gap as the four unverified peers (the Netherlands/CBS, Germany/Destatis,
+  the USA/NCHS, Japan/MHLW — not yet checked against primary methodology,
+  named rather than rounded up from the data's shape, which is not the
+  standard this project holds elsewhere). **Closes when**: each of those
+  four agencies' own published life-table methodology is read directly,
+  the same way ABS, Stats NZ, ONS, StatCan, and KOSTAT already were — at
+  which point, for any peer confirmed to publish its own single-year
+  table, the real cross-check (WDI vs. that country's own annual figure,
+  not WPP) becomes possible for the first time.
 
 **From the proximity-disclosure build (2026-08-24) — one design gap
 found, not acted on:**
