@@ -198,6 +198,84 @@ tracking on its own.
    the card copy), not a wider class, but the underlying mechanism gap
    was real and is what's actually fixed now.
 
+9. **Three of `REGISTER_DRAFT_LINES`' 20 entries were wrong on the live
+   site — `work-life-balance`, `productivity`, `economic-complexity`.**
+   Found while characterising a different problem (a memo on whether
+   copy-accuracy checking is worth mechanising, not a check built for this
+   purpose) — the same accidental route as entries 7 and 8. **This is the
+   third consecutive defect this project has found this way, not the
+   first: entries 7, 8, and this one were all surfaced by someone looking
+   at something adjacent, never by a check designed to catch this class of
+   problem.** That pattern is itself worth naming, separately from any one
+   defect: nothing in this project's build pipeline goes looking for this
+   family of bug on its own.
+
+   **`work-life-balance`'s error ran in Australia's favour, and that
+   matters more than the other two.** The stored line read "Australia's
+   work-life balance is 1651 ...; the peer median is 1783. Australia
+   ranks 2nd of 4 (lower is better on this gauge)" — an outperformer among
+   a thin 4-country field. Live, recomputed data (all 9 peers now
+   reporting 2025, up from the 4 this line was written against) puts
+   Australia at 1633 against a peer median of 1642, **ranking 5th of
+   9 — below the median, not a top-2 performer.** Outperformer-among-four
+   to below-median-of-nine is the specific direction of error this site
+   exists to guard against: it is the flattering-not-damning misstatement,
+   and it was live. Fixed by a real rewrite, not a number swap — the old
+   sentence described a 4-country comparison that no longer exists, so
+   every clause changes, not just the digits (see
+   `content/register-draft-lines.ts`'s inline note on the fix).
+   `productivity` (61.21/57.01/4th of 9 → 68.17/66.29/5th of 9) and
+   `economic-complexity` (0.12 → 0.1, rank unchanged at 9th of 9) were
+   plain magnitude drift — real, live-wrong numbers, but no structural
+   claim inversion the way work-life-balance's rank was.
+
+   **All three, plus entries 5 and 8, are the same mechanism wearing
+   different clothes: a number hand-copied from a computed fact at one
+   moment, then wired to nothing that would notice the fact changing
+   underneath it.** That is now four entries carrying this exact shape —
+   entry 5 (hardcoded gauge/status counts), entry 8 (a hardcoded data-age
+   string), and the two distinct instances inside this one:
+   work-life-balance's claim inversion, and the productivity/
+   economic-complexity pair's plain magnitude drift. `REGISTER_DRAFT_LINES`
+   was reviewed and approved 2026-08-20; all three wrong numbers drifted
+   from pipeline refreshes that happened afterward (`productivity` and
+   `living-standards` refreshed 2026-08-24, `economic-complexity` and
+   `debt-burden` 2026-08-25) — the review was honest at the time, nothing
+   caught what happened after it.
+
+   **Correction verified against the site's own rendering, not just the
+   underlying data**, per the site owner's explicit check before this
+   landed: `economic-complexity`'s corrected value (`0.1`) was cross-checked
+   against every surface that renders a gauge's raw value —
+   `components/Gauge.tsx`'s `fmtValue` (the canonical `/table/[plate]`
+   page, used for the visible AUS figure, the peer median, peer marks, and
+   the dense-layer table), `components/SectionOverview.tsx`'s separately-
+   defined `fmt`, and `components/TrajectoryChart.tsx`'s separately-defined
+   `fmtValue` — all three are byte-identical implementations (a real,
+   uninvestigated reuse smell — three copies of one function — but not
+   this defect) and all three render the live 0.09973 as **"0.1"**, not
+   "0.10" and not the raw float. The draft line was set to match that
+   rendering rather than an independent rounding choice, per the standing
+   principle that a number quoted in prose should never carry a precision
+   the number's own live display doesn't.
+
+   **Four gauges' sub-1% differences were assessed and deliberately not
+   counted as defects**: `debt-burden` (165→164.7, 162→162.4),
+   `housing-pressure` (median 121→120.7), `education` (497→497.3,
+   495→494.5), `living-standards` (60194→60194.06). Each gauge's data
+   `retrievedAt`/`sourcePulledAt` predates the 2026-08-20 content review,
+   so these read as hand-rounding at authoring time, not drift — the
+   person who wrote the line rounded a precise figure to a whole number or
+   two decimals, which is not the same failure as a number that was
+   accurate when written and became wrong later. Recorded here explicitly
+   so that if the build-time guard being built next flags any of these
+   four, the answer is "already assessed, not a regression" rather than a
+   fresh investigation. Fixed 2026-08-26: `content/register-draft-lines.ts`
+   (the three lines above) — see that file's own inline note for the
+   correction record, and CLAUDE.md/this entry for why the file is being
+   restructured next so these numbers are data rather than hand-typed
+   prose.
+
 ---
 
 ## 2. Outstanding — tracked, not launch blockers

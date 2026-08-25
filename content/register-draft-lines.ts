@@ -7,10 +7,17 @@
  *
  * Reviewed and approved by the site owner, 2026-08-20 — see HANDOVER.md's
  * merge-readiness section for the review record.
+ *
+ * Three entries (work-life-balance, productivity, economic-complexity)
+ * corrected 2026-08-26 against live-recomputed values — the numbers above
+ * had silently drifted from data refreshes since the 2026-08-20 review.
+ * See HANDOVER.md's defect record (entry 9) for the diff, the magnitude,
+ * and why this whole file is being restructured next so numbers are data
+ * rather than hand-typed prose.
  */
 export const REGISTER_DRAFT_LINES: Record<string, string> = {
   "living-standards": "Australia's living standards is 60194 (GDP per capita); the peer median is 56843. Australia ranks 4th of 9.",
-  "productivity": "Australia's productivity is 61.21 (GDP per hour worked); the peer median is 57.01. Australia ranks 4th of 9.",
+  "productivity": "Australia's productivity is 68.17 (GDP per hour worked); the peer median is 66.29. Australia ranks 5th of 9.",
   "education": "Australia's education is 497 (PISA mean score); the peer median is 495. Australia ranks 4th of 9.",
   "innovation": "Australia's innovation is 1.86 (R&D expenditure); the peer median is 2.99. Australia ranks 8th of 9.",
   "external-position": "Australia's external position is -2.68 (Current account balance); the peer median is -0.95. Australia ranks 6th of 8.",
@@ -21,12 +28,12 @@ export const REGISTER_DRAFT_LINES: Record<string, string> = {
   "debt-burden": "Australia's debt burden is 165 (Household + government debt); the peer median is 162. Australia ranks 5th of 8 (lower is better on this gauge).",
   "housing-pressure": "Australia's housing pressure is 120 (House price-to-income ratio); the peer median is 121. Australia ranks 4th of 7 (lower is better on this gauge).",
   "military-capability": "Australia's military capability is 1.92 (Military expenditure); the peer median is 2.23. Australia ranks 6th of 9.",
-  "economic-complexity": "Australia's economic complexity is 0.12 (Economic Complexity Index); the peer median is 1.18. Australia ranks 9th of 9.",
+  "economic-complexity": "Australia's economic complexity is 0.1 (Economic Complexity Index); the peer median is 1.18. Australia ranks 9th of 9.",
   "internal-cohesion": "Australia's internal cohesion is -1.16 (V-Dem political polarization score); the peer median is -0.19. Australia ranks 3rd of 9 (lower is better on this gauge).",
   "life-expectancy": "Australia's life expectancy is 83.05 (Life expectancy at birth); the peer median is 81.99. Australia ranks 3rd of 9.",
   "life-satisfaction": "Australia's life satisfaction is 6.92 (Cantril ladder life evaluation); the peer median is 6.78. Australia ranks 3rd of 9.",
   "personal-safety": "Australia's personal safety is 0.85 (Intentional homicide rate); the peer median is 0.8. Australia ranks 4th of 7 (lower is better on this gauge).",
-  "work-life-balance": "Australia's work-life balance is 1651 (Average annual hours actually worked per worker); the peer median is 1783. Australia ranks 2nd of 4 (lower is better on this gauge).",
+  "work-life-balance": "Australia's work-life balance is 1633 (Average annual hours actually worked per worker); the peer median is 1642. Australia ranks 5th of 9 (lower is better on this gauge).",
   "air-quality": "Australia's air quality is 6.41 (PM2.5 air pollution); the peer median is 8.7. Australia ranks 1st of 9 (lower is better on this gauge).",
   "cohesion-minority-experience": "Australia's cohesion — minority experience is 1.33 (V-Dem social group equality in civil liberties score); the peer median is 1.7. Australia ranks 6th of 9."
 };
