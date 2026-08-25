@@ -6,7 +6,7 @@
     "seriesId": "VC.IHR.PSRC.P5",
     "seriesName": "Intentional homicides (per 100,000 people)",
     "url": "https://data.worldbank.org/indicator/VC.IHR.PSRC.P5",
-    "retrievedAt": "2026-08-08T23:59:25.577Z",
+    "retrievedAt": "2026-08-25T06:18:49.819Z",
     "note": "Live data from UNODC, via World Bank, all 9 peer countries.",
     "missingCountries": [],
     "scheduledRefreshCount": 0,

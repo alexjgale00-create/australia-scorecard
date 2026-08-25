@@ -1,10 +1,12 @@
 // Phase B: fetches every API-accessible gauge that's been wired up so far.
 // Each gauge is isolated — one source failing does not stop the others from
-// being attempted — but the run overall exits non-zero if any source
-// failed, so this should never be mistaken for a clean run.
+// being attempted — but the run overall exits non-zero if any source failed
+// OR any api gauge has gone stale (see the unified staleness loop below),
+// so this should never be mistaken for a clean run.
 //
-// Gauges not yet in GAUGE_IDS (later groups, plus the manual-source lane)
-// aren't touched by this run — their existing data files are left as-is.
+// A gauge not yet in GAUGE_IDS is never fetched by this run — its existing
+// data file is left as-is — but every gauge, api or manual, in or out of
+// GAUGE_IDS, is still checked for staleness every run (below).
 import { existsSync, readFileSync } from "fs";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
@@ -196,50 +198,101 @@ for (const gaugeId of GAUGE_IDS) {
   }
 }
 
-// Manual-lane gauges (accessType: "manual") are never fetched by this run
-// — there's no API to call — but their freshness is still checked and
-// disclosed every run, per-gauge cadence, so a gauge going stale is never
-// silently invisible just because it sits outside GAUGE_IDS.
-const DEFAULT_STALE_AFTER_MONTHS = 15;
-
-for (const config of gaugesConfig.gauges) {
-  if (config.accessType !== "manual") continue;
-
-  const existing = describeExistingData(config.id);
-  const staleAfterMonths = config.staleAfterMonths ?? DEFAULT_STALE_AFTER_MONTHS;
-
-  if (!existing?.retrievedAt) {
-    report.manualAwaiting(
-      config.id,
-      `No entry yet — see data/manual/README.md for the download template and instructions.`
-    );
-    continue;
-  }
-
-  // Staleness is measured from the latest OBSERVATION year, not from when
-  // this file was last pulled — see lib/maturity.ts's dataStaleness for
-  // the full ruling (2026-08-24). Re-downloading and re-confirming an old
-  // number doesn't make that number any less old.
-  const dataYear = latestAusYear(config.id);
-  if (dataYear === null) {
-    report.manualAwaiting(
-      config.id,
-      `Entry exists but no Australia series found — check data/processed/${config.id}.json.`
-    );
-    continue;
-  }
-
+/**
+ * Staleness arithmetic — a deliberate mirror of lib/maturity.ts's
+ * dataStaleness, not a shared import (pipeline/ is plain Node, dataStaleness
+ * lives in the TypeScript/Next.js build — see CLAUDE.md's "pipeline/lib/
+ * mirrors" note; latestAusYear above is the first instance of this same
+ * pattern). Keep both sides in sync if either changes.
+ */
+function describeAge(dataYear) {
   const ageMonths = (Date.now() - new Date(`${dataYear}-12-31`).getTime()) / (30.44 * 86_400_000);
-  const ageDescription = `data through ${dataYear} (~${Math.round(ageMonths)} month${Math.round(ageMonths) === 1 ? "" : "s"} old)`;
+  const roundedMonths = Math.round(ageMonths);
+  const ageDescription = `data through ${dataYear} (~${roundedMonths} month${roundedMonths === 1 ? "" : "s"} old)`;
+  return { ageMonths, ageDescription };
+}
 
-  if (ageMonths > staleAfterMonths) {
-    report.manualStale(
+const DEFAULT_MANUAL_STALE_AFTER_MONTHS = 15;
+
+// Every gauge's freshness is checked here, every run, regardless of
+// accessType — this is the thing that actually runs on a schedule; the
+// site's own equivalent (lib/maturity.ts's dataStaleness) only evaluates
+// when Next.js happens to rebuild, which is backwards for a source that
+// could go stale between pushes. Ruled 2026-08-25 (see HANDOVER.md's
+// "staleness report covers the wrong gauges" finding).
+//
+// Manual-lane gauges are never fetched by this run — there's no API to
+// call — so this is their ONLY check. Api gauges were already attempted
+// above (GAUGE_IDS); this is a second, independent question for them —
+// did the fetch succeed today, separate from whether the source itself
+// has actually published anything newer than staleAfterMonths allows —
+// so an api gauge can legitimately get two results this run: its fetch
+// outcome, then its staleness verdict.
+for (const config of gaugesConfig.gauges) {
+  const existing = describeExistingData(config.id);
+
+  if (config.accessType === "manual") {
+    const staleAfterMonths = config.staleAfterMonths ?? DEFAULT_MANUAL_STALE_AFTER_MONTHS;
+
+    if (!existing?.retrievedAt) {
+      report.manualAwaiting(
+        config.id,
+        `No entry yet — see data/manual/README.md for the download template and instructions.`
+      );
+      continue;
+    }
+
+    // Staleness is measured from the latest OBSERVATION year, not from when
+    // this file was last pulled — see lib/maturity.ts's dataStaleness for
+    // the full ruling (2026-08-24). Re-downloading and re-confirming an old
+    // number doesn't make that number any less old.
+    const dataYear = latestAusYear(config.id);
+    if (dataYear === null) {
+      report.manualAwaiting(
+        config.id,
+        `Entry exists but no Australia series found — check data/processed/${config.id}.json.`
+      );
+      continue;
+    }
+
+    const { ageMonths, ageDescription } = describeAge(dataYear);
+
+    if (ageMonths > staleAfterMonths) {
+      report.manualStale(
+        config.id,
+        `Due for a refresh: ${ageDescription}, past this gauge's ${staleAfterMonths}-month cadence. ` +
+          `See data/manual/README.md to re-download and hand the update to Claude Code.`
+      );
+    } else {
+      report.manualFresh(config.id, `Current: ${ageDescription}, within this gauge's ${staleAfterMonths}-month cadence.`);
+    }
+    continue;
+  }
+
+  // accessType === "api": deliberately NO fallback threshold, unlike the
+  // manual branch above — a gauge with no reviewed staleAfterMonths
+  // (innovation, personal-safety, per CLAUDE.md's 2026-08-24 cadence
+  // review) is left unchecked here entirely, exactly as dataStaleness does,
+  // rather than guessing a cadence that would misrepresent a structurally
+  // slow source as overdue.
+  if (config.staleAfterMonths === undefined) continue;
+  if (existing?.status !== "LIVE") continue; // nothing real to measure yet — SAMPLE_DATA/awaiting-data gauges are already visible via their own fetch result above
+
+  const dataYear = latestAusYear(config.id);
+  if (dataYear === null) continue;
+
+  const { ageMonths, ageDescription } = describeAge(dataYear);
+
+  if (ageMonths > config.staleAfterMonths) {
+    report.apiStale(
       config.id,
-      `Due for a refresh: ${ageDescription}, past this gauge's ${staleAfterMonths}-month cadence. ` +
-        `See data/manual/README.md to re-download and hand the update to Claude Code.`
+      `Source has not published newer data: ${ageDescription}, past this gauge's ${config.staleAfterMonths}-month ` +
+        `cadence. This gauge's own fetch may still be succeeding — the source itself has stopped updating, which is ` +
+        `usually a broken fetcher (wrong series/dimension pin) or a changed upstream, not a transient blip. Check ` +
+        `${config.source.url} directly before assuming the next run will clear it.`
     );
   } else {
-    report.manualFresh(config.id, `Current: ${ageDescription}, within this gauge's ${staleAfterMonths}-month cadence.`);
+    report.apiFresh(config.id, `Current: ${ageDescription}, within this gauge's ${config.staleAfterMonths}-month cadence.`);
   }
 }
 

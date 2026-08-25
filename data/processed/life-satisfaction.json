@@ -6,7 +6,7 @@
     "seriesId": "LI (Life evaluation, Average 3-year, mean)",
     "seriesName": "Life evaluation (Cantril ladder), 3-year average",
     "url": "https://data.worldhappiness.report/api/data",
-    "retrievedAt": "2026-08-09T05:15:50.368Z",
+    "retrievedAt": "2026-08-25T06:19:08.045Z",
     "note": "Live data from the World Happiness Report's own dashboard (data.worldhappiness.report), Life evaluation (Cantril ladder), 3-year rolling average — fetched via the dashboard's own backend API (not a documented public endpoint; see pipeline/lib/whr.mjs), the same route the official frontend uses.",
     "missingCountries": [],
     "scheduledRefreshCount": 0,

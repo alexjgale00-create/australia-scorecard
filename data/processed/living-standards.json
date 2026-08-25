@@ -6,7 +6,7 @@
     "seriesId": "NY.GDP.PCAP.PP.KD",
     "seriesName": "GDP per capita, PPP (constant 2021 international $)",
     "url": "https://data.worldbank.org/indicator/NY.GDP.PCAP.PP.KD",
-    "retrievedAt": "2026-08-09T04:25:31.564Z",
+    "retrievedAt": "2026-08-25T06:18:14.262Z",
     "note": "Live data from World Bank, all 9 peer countries.",
     "missingCountries": [],
     "scheduledRefreshCount": 0,

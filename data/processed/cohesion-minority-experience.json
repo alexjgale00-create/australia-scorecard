@@ -6,7 +6,7 @@
     "seriesId": "v2clsocgrp",
     "seriesName": "Social group equality in respect for civil liberties",
     "url": "https://ourworldindata.org/grapher/equality-of-civil-liberties-across-social-groups-score",
-    "retrievedAt": "2026-08-09T04:26:42.184Z",
+    "retrievedAt": "2026-08-25T06:19:06.732Z",
     "note": "Full source chain: V-Dem (2026) – processed by Our World in Data. “Equality of civil liberties across social groups – V-Dem” [dataset]. V-Dem, “Democracy report v16” [original data]. — fetched via OWID's grapher CSV export (https://ourworldindata.org/grapher/equality-of-civil-liberties-across-social-groups-score), not directly from V-Dem (V-Dem's own dataset download is registration-gated; see CLAUDE.md). OWID last updated this indicator 2026-03-17. OWID's next scheduled refresh of this indicator is due 2027-03-17.",
     "missingCountries": [],
     "scheduledRefreshCount": 0,

@@ -6,7 +6,7 @@
     "seriesId": "EN.ATM.PM25.MC.M3",
     "seriesName": "PM2.5 air pollution, mean annual exposure (micrograms per cubic meter)",
     "url": "https://data.worldbank.org/indicator/EN.ATM.PM25.MC.M3",
-    "retrievedAt": "2026-08-09T04:26:29.095Z",
+    "retrievedAt": "2026-08-25T06:18:50.252Z",
     "note": "Live data from World Bank (IHME Global Burden of Disease), all 9 peer countries.",
     "missingCountries": [],
     "scheduledRefreshCount": 0,

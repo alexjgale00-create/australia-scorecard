@@ -283,6 +283,35 @@ through unchanged, so it's safe to call on every gauge's
 `staleReason` (feeds the canonical `/table/[plate]` gauge page). See
 HANDOVER.md's defect record (entry 8) for how this was found.
 
+### `pipeline/` mirrors `lib/` logic deliberately, in specific named places (2026-08-25)
+
+`pipeline/index.mjs` is plain Node (`.mjs`), not part of the Next.js/
+TypeScript build — it cannot `import` anything from `lib/`. Where the
+pipeline needs the exact same fact or arithmetic `lib/` already computes
+for the site, the answer has been to **hand-write a small mirror in
+`pipeline/index.mjs`**, not to duplicate the logic loosely or let the two
+drift apart unremarked. **Two mirrors exist today:**
+
+1. `latestAusYear` (`pipeline/index.mjs`) mirrors `lib/maturity.ts`'s
+   `latestDataYear` — the latest year Australia's own series has a point
+   for. Built alongside the AS-OF fix, 2026-08-24.
+2. The staleness-loop arithmetic (`describeAge` and the unified
+   accessType-branching loop, `pipeline/index.mjs`) mirrors
+   `lib/maturity.ts`'s `dataStaleness` — same month-threshold math, same
+   `accessType`-dependent fallback rule (manual defaults to 15 months;
+   `api` gets no fallback and is skipped entirely when `staleAfterMonths`
+   is unset). Built 2026-08-25 to close the gap recorded in HANDOVER.md
+   ("the pipeline's staleness report covers the wrong gauges").
+
+**Standing rule for whoever adds a third:** if pipeline code needs to
+reproduce a fact `lib/` already computes, mirror it explicitly, name the
+`lib/` function it mirrors in a comment (same pattern both entries above
+use), and treat a change to either side as incomplete until the other is
+checked. A mirror that arrives without this note is exactly how these two
+drift out of agreement with each other — the entire reason `latestAusYear`
+and `dataStaleness`'s pipeline mirror both exist is so `/status` and the
+monthly pipeline report never disagree about the same fact.
+
 ## Phase E: Quality of Life dimension — Step 1 ruled, Step 2 checkpoint landed (2026-08)
 
 A second, independently-scored composite alongside Power: does Australia

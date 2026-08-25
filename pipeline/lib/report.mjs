@@ -45,6 +45,25 @@ export function createReport() {
     manualAwaiting(gaugeId, message) {
       results.push({ gaugeId, status: "manualAwaiting", message });
     },
+    /**
+     * The accessType:"api" equivalent of manualFresh/manualStale — but
+     * deliberately NOT the same statuses. Ruled 2026-08-25: a manual gauge
+     * being overdue is expected and routine (nobody re-downloads PISA every
+     * month); an api gauge going stale means a source that fetched
+     * successfully is nonetheless no longer publishing new data, which
+     * usually means a broken fetcher or a changed upstream — a genuinely
+     * different signal, so apiStale DOES count toward the CLEAN/NOT CLEAN
+     * verdict (see print() below) where manualStale never has. Only ever
+     * checked for a gauge with a reviewed staleAfterMonths (see
+     * pipeline/index.mjs's staleness loop) — a gauge left unset on purpose
+     * (innovation, personal-safety) never reaches either of these.
+     */
+    apiFresh(gaugeId, message) {
+      results.push({ gaugeId, status: "apiFresh", message });
+    },
+    apiStale(gaugeId, message) {
+      results.push({ gaugeId, status: "apiStale", message });
+    },
     /** Prints the report and returns true if clean (no unexpected failures). */
     print() {
       const now = new Date();
@@ -64,6 +83,8 @@ export function createReport() {
         manualFresh: "🔵",
         manualStale: "🟠",
         manualAwaiting: "⚪",
+        apiFresh: "🟢",
+        apiStale: "🛑",
       };
       for (const r of results) {
         console.log(`${icons[r.status]} ${r.gaugeId}`);
@@ -79,18 +100,29 @@ export function createReport() {
       const manualStale = results.filter((r) => r.status === "manualStale").length;
       const manualAwaiting = results.filter((r) => r.status === "manualAwaiting").length;
       const manualTotal = results.filter((r) => r.status.startsWith("manual")).length;
-      // Manual-lane gauges aren't fetched by this run at all, so they never
-      // count toward "updated" — only toward their own tally below.
-      const succeeded = results.length - failures - knownLimitations - manualTotal;
+      // The staleness check (pipeline/index.mjs's unified loop, both
+      // accessTypes) runs as a SECOND pass over every gauge, independent of
+      // whether GAUGE_IDS attempted a fetch for it this run — so an api
+      // gauge can appear twice in `results` (its fetch outcome, then its
+      // staleness verdict). Both apiFresh/apiStale are carved out of the
+      // "automated gauges updated" tally below for the same reason
+      // manualTotal already is, so neither double-counts a gauge.
+      const apiStale = results.filter((r) => r.status === "apiStale").length;
+      const apiStalenessTotal = results.filter((r) => r.status.startsWith("api")).length;
+      const succeeded = results.length - failures - knownLimitations - manualTotal - apiStalenessTotal;
 
       console.log(divider);
       console.log(
-        ` Summary: ${succeeded} of ${results.length - manualTotal} automated gauges updated` +
+        ` Summary: ${succeeded} of ${results.length - manualTotal - apiStalenessTotal} automated gauges updated` +
           (warnings > 0 ? ` (${warnings} with a data gap)` : "") +
           `, ${failures} failed` +
           (knownLimitations > 0
             ? `, ${knownLimitations} known standing limitation${knownLimitations === 1 ? "" : "s"} (not counted against the verdict — see below).`
             : ".") +
+          (apiStalenessTotal > 0
+            ? ` ${apiStale} automated gauge${apiStale === 1 ? "" : "s"} gone stale — source hasn't published newer data ` +
+              `past its own cadence (counts against the verdict — see below).`
+            : "") +
           (manualTotal > 0
             ? ` ${manualTotal} gauge${manualTotal === 1 ? "" : "s"} in the manual lane` +
               (manualStale > 0 || manualAwaiting > 0
@@ -103,18 +135,20 @@ export function createReport() {
                 : ` — all current.`)
             : "")
       );
-      const automatedTotal = results.length - manualTotal;
+      const automatedTotal = results.length - manualTotal - apiStalenessTotal;
+      const clean = failures === 0 && apiStale === 0;
       console.log(
-        failures === 0
-          ? ` VERDICT: CLEAN — all reachable sources succeeded` +
+        clean
+          ? ` VERDICT: CLEAN — all reachable sources succeeded, none gone stale` +
               (knownLimitations > 0
                 ? ` (${knownLimitations} known standing limitation${knownLimitations === 1 ? "" : "s"}, disclosed above)`
                 : ` (all ${automatedTotal} automated source${automatedTotal === 1 ? "" : "s"})`)
-          : ` VERDICT: NOT CLEAN — ${failures} of ${automatedTotal} failed`
+          : ` VERDICT: NOT CLEAN — ${failures} of ${automatedTotal} failed` +
+              (apiStale > 0 ? `, ${apiStale} gone stale` : "")
       );
       console.log(divider);
 
-      return failures === 0;
+      return clean;
     },
   };
 }

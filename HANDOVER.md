@@ -348,22 +348,71 @@ follow-ups:**
 **From the automated-gauge staleness review (2026-08-24) — two tracked
 findings, not acted on:**
 
-- **The pipeline's staleness report covers the wrong 6 gauges.**
-  `pipeline/index.mjs`'s manual-staleness loop (`report.manualStale`/
-  `manualFresh`) only ever checks `accessType === "manual"` gauges — the 6
-  manual-lane ones. But `lib/maturity.ts`'s `dataStaleness` was extended
-  this same day to cover all 15 automated (`accessType: "api"`) gauges too,
-  now that each has a real, reviewed `staleAfterMonths`. Those 15 are
-  currently only checked at **site build time** (`computeMaturity`/
-  `dataStaleness`, evaluated when Next.js renders each gauge page) — never
-  by the pipeline itself. That's backwards: the pipeline is the thing that
-  actually runs on a schedule (the monthly cron); the site only rebuilds
-  when someone pushes. A source that's gone quietly stale between pushes
-  produces no signal anywhere until the next deploy happens to notice it.
-  Fix would be straightforward (mirror the manual loop's shape, call
-  `dataStaleness`-equivalent logic against every gauge regardless of
-  `accessType`, report `manualStale`/`manualFresh` for both) — not done
-  here because it wasn't part of what this pass was asked to touch.
+- **The pipeline's staleness report covers the wrong 6 gauges — fixed
+  2026-08-25.** Was: `pipeline/index.mjs`'s manual-staleness loop
+  (`report.manualStale`/`manualFresh`) only ever checked
+  `accessType === "manual"` gauges, while `lib/maturity.ts`'s
+  `dataStaleness` covered all `api` gauges too but only ever ran at site
+  build time — backwards, since the pipeline is the thing that actually
+  runs on a schedule. Fixed by extending the same loop to every gauge,
+  branching on `accessType` (manual keeps its 15-month fallback default;
+  `api` gets no fallback, checked only where `staleAfterMonths` is
+  explicitly reviewed and set — see CLAUDE.md's "`pipeline/` mirrors
+  `lib/` logic" entry for the arithmetic mirror this required). **A ruling
+  landed alongside the fix, not just a mechanical extension**: an `api`
+  gauge going stale now counts toward the pipeline's CLEAN/NOT CLEAN
+  verdict (new `apiStale`/`apiFresh` statuses, distinct from
+  `manualStale`/`manualFresh` rather than overloading them) — a manual
+  gauge being overdue is expected and routine, but an `api` gauge that's
+  stopped updating usually means a broken fetcher or a changed upstream,
+  which this project already treats as a genuine failure everywhere else.
+  Confirmed live before pushing: ran the full pipeline against all 23
+  gauges. The new mechanism itself came back clean — 0 `apiStale` across
+  all 15 gauges with a reviewed cadence, `innovation`/`personal-safety`
+  correctly skipped. **The run's overall verdict was NOT CLEAN, but for
+  two pre-existing reasons unrelated to this fix** — a genuine
+  `economic-output` fetch failure (see the new finding below) and the
+  already-documented intermittent `housing-pressure` OECD Cloudflare
+  block — confirmed by diff that the fetch loop these two failed in is
+  byte-identical to before this change, and that the new staleness loop
+  runs entirely after it. Committed and pushed anyway, per the site
+  owner's ruling: a NOT CLEAN run from unrelated causes is this project's
+  normal, documented behaviour (the Actions workflow already commits
+  successful gauges when others fail), not a reason to withhold this fix.
+
+- **The fix above buys evaluation cadence, not alerting — logged as an
+  open question, not a to-do.** A gauge that's gone stale now gets
+  *checked* on a guaranteed monthly schedule instead of only whenever the
+  site happens to rebuild, but it still only ever surfaces in that run's
+  console log (visible in the GitHub Actions run history) — no email, no
+  red X, nothing pushed to anyone. Noticing a stale source still requires
+  someone opening Actions and reading the log, same as before, just now on
+  a predictable monthly cadence rather than an unpredictable rebuild-
+  triggered one. Whether that gap is worth closing with active alerting
+  (an Actions annotation, a notification, something else) is a real
+  question for the site owner to decide separately — not pre-answered or
+  scoped here.
+- **`economic-output` (IMF) returned HTTP 403 from a local run, 2026-08-25
+  — logged as a new observation, not the documented known limitation.**
+  CLAUDE.md's standing record (`pipeline/lib/imf.mjs`'s `knownLimitation`
+  gate) is specifically "works locally, blocks GitHub Actions" — a WAF
+  rule against cloud/datacenter IP ranges. This run executed on a local
+  machine and was blocked anyway: backwards from the documented pattern,
+  which is why the failure correctly surfaced as a genuine red `failure`
+  rather than the suppressed `knownLimitation` — the gate only fires on
+  the exact Actions-specific shape, on purpose, and this isn't that shape.
+  **Not retried**, per this project's standing no-blind-retries rule (a
+  retry succeeding wouldn't distinguish a transient blip from a real
+  change in IMF's blocking behaviour, and would risk masking the latter).
+  **Left unresolved, on one observation, deliberately**: either IMF's
+  blocking has broadened to include this network too, or this was
+  transient — a single data point can't tell those apart. **If this
+  recurs on a future local run, the `knownLimitation` gate's
+  Actions-specific shape is wrong and needs revisiting** — either
+  widening what counts as known, or treating this as a second, genuinely
+  new standing limitation rather than folding it into the existing one
+  without checking whether the existing one still accurately describes
+  what's actually happening.
 - **World Bank returns an identical life-expectancy value for Australia in
   2023 and 2024** (`83.0512195121951`, confirmed via a direct query to the
   World Bank API, not just the committed file). If that's a carried-forward
