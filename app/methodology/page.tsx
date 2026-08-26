@@ -16,6 +16,19 @@ export default function MethodologyPage() {
   const powerLiveCount = powerGauges.filter((g) => getGaugeData(g.id)?.provenance.status === "LIVE").length;
   const qolLiveCount = qolGauges.filter((g) => getGaugeData(g.id)?.provenance.status === "LIVE").length;
 
+  // Every "N-country"/"N peers" reference on this page must read from here, never
+  // a bare number — the peer set has already changed once (see DESIGN.md's
+  // superseded 8-peer mockup note), and a second change would otherwise leave
+  // every hardcoded instance silently wrong at once.
+  const peerCount = gaugesConfig.peerCountries.length;
+
+  // A frozen finding from the 2026-08-24 correlation check that also set
+  // Power's score bands (METHODOLOGY.md, "Phase D, Item 1") — not derivable
+  // from config, since it names which specific gauges move together, not a
+  // count that changes with the gauge roster. The fractions built from it
+  // below (out of powerGauges.length) do still need to stay live.
+  const correlatedClusterGaugeCount = 4;
+
   // Same rule as above: the gauge's age is derived from its own data at
   // render time, never hardcoded — a static "seven years old" would itself
   // go stale the moment this page is rebuilt in a later calendar year.
@@ -40,7 +53,7 @@ export default function MethodologyPage() {
         <h2 className="text-lg font-semibold">How the level score is calculated</h2>
         <p className="mt-2 text-[var(--text-secondary)]">
           For each gauge, every peer country&rsquo;s latest available value is compared
-          using min-max normalisation across the 9-country peer set: the best-performing
+          using min-max normalisation across the {peerCount}-country peer set: the best-performing
           country in the set scores 100, the worst scores 0, and Australia is placed
           linearly between them. Whether &ldquo;best&rdquo; means highest or lowest is
           the gauge&rsquo;s <strong>polarity</strong>, set explicitly below — never
@@ -53,7 +66,7 @@ export default function MethodologyPage() {
         <p className="mt-2 text-[var(--text-secondary)]">
           The direction shown everywhere on this site (gauge cards, dot strips, the
           What&rsquo;s Moving callout) is <strong>peer-relative</strong>: it classifies the
-          trend in Australia&rsquo;s <em>level score</em>{" "}— its position within the 9-country
+          trend in Australia&rsquo;s <em>level score</em>{" "}— its position within the {peerCount}-country
           peer set — not the trend in the raw published number. Australia&rsquo;s level
           score is compared between its latest year and roughly 10 years earlier (or the
           earliest available point, if the series is shorter). The annualised score-point
@@ -104,7 +117,7 @@ export default function MethodologyPage() {
       <section className="mt-4 rounded-lg border border-[var(--gridline)] bg-[var(--surface-1)] p-5">
         <h2 className="text-lg font-semibold">Alternate scoring basis: latest-wave-per-country</h2>
         <p className="mt-2 text-[var(--text-secondary)]">
-          Every gauge on this site compares all 9 countries&rsquo; values from the{" "}
+          Every gauge on this site compares all {peerCount} countries&rsquo; values from the{" "}
           <strong>same shared year</strong> &mdash; except gauges explicitly marked below, which use{" "}
           <strong>latest-wave-per-country</strong> instead: each country contributes its own most
           recent available value, even though that value comes from a different calendar year per
@@ -142,7 +155,7 @@ export default function MethodologyPage() {
           <strong>Both dimensions are ruled, final, and on the same derivation rule</strong> as
           of 2026-08-24: each dimension&rsquo;s bands divide{" "}
           <em>that dimension&rsquo;s own achievable range</em> &mdash; the true minimum and
-          maximum any of the 9 peers has actually reached, any year from 1990 to present &mdash;
+          maximum any of the {peerCount} peers has actually reached, any year from 1990 to present &mdash;
           into five equal parts. One rule, run twice. The two tables below show different
           numbers because the two dimensions&rsquo; real ranges are different shapes (Power:
           27.1&ndash;72.2; Quality of Life: 9.8&ndash;83.8, well over half again as wide) &mdash;
@@ -212,14 +225,16 @@ export default function MethodologyPage() {
         <p className="mt-2 text-[var(--text-secondary)]">
           Power&rsquo;s {powerGauges.length} gauges are weighted equally (1/{powerGauges.length} each) by design &mdash; see
           &ldquo;How the composite verdict is calculated&rdquo; above. A correlation check across
-          each gauge&rsquo;s 36-year Australia level-score series found that four of them (
+          each gauge&rsquo;s 36-year Australia level-score series (run 2026-08-24, the same check
+          that set Power&rsquo;s score bands above) found that four of them (
           <strong>Living standards</strong>, <strong>Productivity</strong>,{" "}
           <strong>Economic output</strong>, and <strong>Trade</strong>) move together strongly
           (r&nbsp;=&nbsp;0.65&ndash;0.85): different measurements of the same underlying thing,
-          how large and productive the economy is. Because each still carries its own full 1/16,
-          this cluster&rsquo;s shared concept currently accounts for roughly a quarter of the
-          Power composite, while a conceptually distinct, single-indicator concern like rule of
-          law and corruption carries a sixteenth. We checked for this rather than assuming it
+          how large and productive the economy is. Because each still carries its own full
+          1/{powerGauges.length}, this cluster&rsquo;s shared concept currently accounts for
+          roughly {correlatedClusterGaugeCount}/{powerGauges.length} of the Power composite,
+          while a conceptually distinct, single-indicator concern like rule of law and corruption
+          carries 1/{powerGauges.length}. We checked for this rather than assuming it
           away, and chose not to build correction machinery for it (a sub-index grouping, or a
           statistical re-weighting) &mdash; doing so would trade one transparent, easily-stated
           judgment (every gauge counts the same) for a less transparent one (which correlations
@@ -395,7 +410,7 @@ export default function MethodologyPage() {
         <h2 className="text-xl font-semibold">Quality of Life dimension (Phase E, 2026-08)</h2>
         <p className="mt-2 text-[var(--text-secondary)]">
           A second, independently-scored composite: does Australia remain a good place to live?
-          Same 9 peers, same min-max peer-relative scoring, same peer-relative direction basis,
+          Same {peerCount} peers, same min-max peer-relative scoring, same peer-relative direction basis,
           same maturity tiers, same provenance and loud-failure rules as Power &mdash;{" "}
           <strong>never folded into Power&rsquo;s composite</strong>. The interesting output is the
           tension between the two verdicts, shown with equal prominence side by side on the
@@ -440,7 +455,7 @@ export default function MethodologyPage() {
           gauges — as of 2026-08-11, only minority experience is actually scored (1/7 weight within
           Quality of Life&rsquo;s 7 scored gauges). Majority acceptance turned out to be{" "}
           <strong>unscored</strong>: fetching its real source revealed the 2019 wave publishes only a
-          global top-10 list, 4 of the 9 peers, and precisely the 4 highest scorers — any score
+          global top-10 list, 4 of the {peerCount} peers, and precisely the 4 highest scorers — any score
           computed from that subset would be structurally biased upward, not just incomplete. Ruling:
           show the real data (both waves, honestly labelled) without pretending it supports a
           peer-relative score. See &ldquo;Unscored gauges&rdquo; below and this gauge&rsquo;s own
@@ -500,12 +515,12 @@ export default function MethodologyPage() {
           <li>
             <strong>Pew Research Global Attitudes</strong> &mdash; no systematic recurring
             &ldquo;same battery, same countries, every wave&rdquo; product on immigration/diversity
-            across all 9 peers; country selection changes survey to survey.
+            across all {peerCount} peers; country selection changes survey to survey.
           </li>
           <li>
             <strong>Ipsos Global Views on Immigration</strong> &mdash; the closest real
             alternative: a genuinely recurring tracker (~3-yearly, most recently feeding a 2026
-            Ipsos/UNHCR report), confirmed live covering 8 of our 9 peers (Australia, Canada,
+            Ipsos/UNHCR report), confirmed live covering 8 of our {peerCount} peers (Australia, Canada,
             Germany, UK, Japan, South Korea, New Zealand, USA) &mdash;{" "}
             <strong>missing the Netherlands</strong>.
           </li>
@@ -525,17 +540,17 @@ export default function MethodologyPage() {
           A ruling session re-checked four real candidates live against their own sources rather
           than relying on desk research, and found two corrections worth recording. ISSP&rsquo;s
           2023 National Identity &amp; Citizenship module (GESIS, <code>ZA10010_v1.0.0</code>,
-          released 13 March 2026) covers 7 of the 9 peers cleanly — Great Britain was fielded but
+          released 13 March 2026) covers 7 of the {peerCount} peers cleanly — Great Britain was fielded but
           published separately as <code>ZA9132</code> for methodological reasons (GB and Scotland
           were surveyed as two distinct studies), and Japan does not appear in this release at all.
           The World Values Survey&rsquo;s Wave 7 (2017&ndash;2022) is the only source confirmed
-          covering all 9 peers — but whether its own Online Data Analysis tool publishes
+          covering all {peerCount} peers — but whether its own Online Data Analysis tool publishes
           country-level statistics directly, rather than requiring this Scorecard to compute a
           country statistic from microdata itself for the first time, is not yet confirmed (see the
           follow-up below). Ipsos/UNHCR&rsquo;s World Refugee Day survey now covers the Netherlands,
           confirmed in both the 2025 and 2026 editions — but the earlier finding that
           &ldquo;New Zealand is absent from every wave&rdquo; does not hold: New Zealand appears in
-          Ipsos&rsquo;s larger periodic edition (52 countries, including all 9 peers, in 2024) and
+          Ipsos&rsquo;s larger periodic edition (52 countries, including all {peerCount} peers, in 2024) and
           is only absent from the smaller ~29-country annual edition used in 2025 and 2026. The
           accurate statement is that Ipsos <strong>rotates</strong> its country set rather than
           structurally excluding any one peer — the source fails on repeatability, not on a fixed
@@ -604,12 +619,12 @@ export default function MethodologyPage() {
 
         <h3 className="mt-5 text-base font-semibold">Non-peer-complete context: Scanlon and Eurobarometer</h3>
         <p className="mt-2 text-[var(--text-secondary)]">
-          Two excellent sources don&rsquo;t cover all 9 peers and can&rsquo;t score, but are
+          Two excellent sources don&rsquo;t cover all {peerCount} peers and can&rsquo;t score, but are
           planned as labelled, non-scored time-series context blocks on the Cohesion &mdash;
           majority acceptance gauge page, same pattern as the WID wealth-share box on Inequality:
           the <strong>Scanlon Foundation</strong>&rsquo;s Mapping Social Cohesion report
           (Australia-only, annual since 2007) and <strong>Eurobarometer</strong> (EU-only; among
-          our 9 peers, only the Netherlands and Germany are current members &mdash; the UK dropped
+          our {peerCount} peers, only the Netherlands and Germany are current members &mdash; the UK dropped
           out post-Brexit). Blocked on sequencing, not decided against: the gauge&rsquo;s own base
           Gallup MAI data has to be entered by hand first before a context block has anything to
           attach to &mdash; deferred to the manual-entry phase along with the gauge&rsquo;s first

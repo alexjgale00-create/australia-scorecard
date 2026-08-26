@@ -61,13 +61,16 @@ naming a gap without pre-deciding its fix.
 Each is a distinct failure mode. The first four are why the verification
 record and the `writtenAgainst` guard exist — read this section if you're
 ever tempted to think either of those is bureaucratic overhead. Entries 5
-through 8 are later additions from subsequent sessions, kept in this same
+through 10 are later additions from subsequent sessions, kept in this same
 record rather than scattered across dated log sections, because they're
 the same class of finding: something false or misleading reached a
 reader, undetected, until someone happened to look. Entry 7 names a
 pattern across 5 and 6 rather than reporting a third incident; entry 8 is
 a fourth incident in that same family, with one distinction worth
-tracking on its own.
+tracking on its own; entry 9 is a fifth and sixth (two numbers wrong inside
+one entry); entry 10 is a narrower case still — not a missed instance of
+the pattern, but a fix for one instance that stopped one sentence short of
+an adjacent instance in the same paragraph.
 
 1. **innovation.md cited "the 2024 Strategic Examination of R&D."** The
    review was *commissioned* December 2024; its actual final report
@@ -319,6 +322,33 @@ tracking on its own.
    correction record, and CLAUDE.md/this entry for why the file is being
    restructured next so these numbers are data rather than hand-typed
    prose.
+
+10. **`app/methodology/page.tsx`'s "sixteenth"/"quarter" fractions sat one
+    sentence past a fix already applied to the same paragraph.** `fd62833`
+    derived Power's gauge count where it appeared as a bare `16` and as
+    `1/16` (the paragraph's first sentence); the very next sentence, same
+    paragraph, still hardcoded the two fractions built from that identical
+    count as literal words — "carries its own full 1/16," "roughly a
+    quarter," "carries a sixteenth." Found by: the site owner's own
+    design-token migration scope report on this page, not a scan — the same
+    accidental-adjacency route as entries 7, 8, and 9. **Worth naming on its
+    own, distinct from just another missed instance**: the scoping that
+    makes a commit reviewable — fix the literal you were pointed at, nothing
+    else — is the same scoping that leaves its neighbor standing. `fd62833`
+    was correct and narrowly right for what it targeted; the bug survived
+    because "fix this hardcoded count" and "fix every hardcoded value
+    derived from this count in the same paragraph" are different
+    instructions, and only the first was given. Fixed in the commit
+    alongside this entry: both fractions now read
+    `{correlatedClusterGaugeCount}/{powerGauges.length}` and
+    `1/{powerGauges.length}`, alongside 13 separate "N-country"/"N peers"
+    literals elsewhere on the same page, finally derived from
+    `gaugesConfig.peerCountries.length` — the pattern already existed for
+    the Peer benchmark set section (`374-377` at the time) and was simply
+    never extended to the other ~13 places the same fact appears in prose.
+    No structural guard added — a future prose edit on this page can
+    reintroduce a bare peer count or fraction the same way; this is a fix,
+    not a scan.
 
 ---
 
