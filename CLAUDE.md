@@ -283,6 +283,43 @@ through unchanged, so it's safe to call on every gauge's
 `staleReason` (feeds the canonical `/table/[plate]` gauge page). See
 HANDOVER.md's defect record (entry 8) for how this was found.
 
+### The status-line rule: what the REGISTER_DRAFT_LINES guard's output does and does not mean (2026-08-26)
+
+Written after the fact — `scripts/verify-gauge-invariants.mjs` and
+`content/register-draft-lines.ts` have both cited "CLAUDE.md's status-line
+rule" since the 2026-08-26 restructure (HANDOVER.md entry 9) without this
+entry existing to point to. Code shipped referencing documentation that
+was never written; this is that documentation, written now rather than
+left dangling further.
+
+**The rule**: any status line this guard prints — build output or
+elsewhere — must state exactly what it checked: **"N of M known
+claim-bearing strings verified against live data."** It must never be
+worded, or read, as "copy accuracy is checked" or any paraphrase implying
+site-wide coverage. The guard verifies `REGISTER_DRAFT_LINES_FACTS`'
+{ausValue, peerMedian, rank, of} against live-recomputed
+`data/processed/*.json` for the 20 gauges that currently have a drafted
+plain-language line — a real, mechanical, build-enforced check, and the
+only one of its kind on this site. But it covers roughly 60 of this
+site's ~150 claim-bearing strings (the why-this-matters prose, CAUSE
+drafts, methodology copy, staleness disclosures, and every other piece of
+prose that asserts a fact) — and only the subset of those 60 that are
+*mechanically derivable* from a gauge's own value/median/rank arithmetic,
+which plain-language lines are and most other claims aren't (a citation,
+a methodological judgment, an "OECD's own commentary reads this the same
+way" claim have no computed ground truth to check against).
+
+**Why this needs saying at all**: HANDOVER.md's entries 5 through 9 are a
+running record of exactly this failure shape — a true sentence, sitting
+next to correct code, going false as the underlying data moved, caught
+each time by someone reading the page for an unrelated reason, never by a
+check. This guard genuinely closes that gap for one narrow, mechanical
+slice of the site's claims. Describing it as more than that — as "copy
+accuracy" generally — would itself become exactly the kind of
+overstated, undated claim this project has now caught four separate
+times. A green build-guard line reads as authoritative; it must say only
+what it actually verified.
+
 ### `pipeline/` mirrors `lib/` logic deliberately, in specific named places (2026-08-25)
 
 `pipeline/index.mjs` is plain Node (`.mjs`), not part of the Next.js/

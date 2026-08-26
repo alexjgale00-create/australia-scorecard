@@ -241,8 +241,11 @@ console.log(
 // other is checked).
 //
 // Deliberately covers ONLY the gauges listed in register-draft-line-facts.json
-// (20 of 23, as of this writing) — see CLAUDE.md's status-line rule next to
-// this guard for how that coverage must and must not be described. Fails
+// (20 of 23, as of this writing) — see CLAUDE.md's "The status-line rule:
+// what the REGISTER_DRAFT_LINES guard's output does and does not mean" entry
+// for how that coverage must and must not be described (mechanically-checked
+// claim-bearing strings, not "copy accuracy" generally — this guard covers a
+// narrow slice, not the site's ~150 claim-bearing strings as a whole). Fails
 // loud on any entry whose shape it doesn't recognise (a missing field, no
 // matching gauge, no data file, no AUS series, no computable
 // latestSharedYear) rather than silently skipping it — same discipline as
@@ -365,6 +368,6 @@ if (draftLineFailures.length > 0) {
 
 console.log(
   `✓ verify-gauge-invariants: ${Object.keys(draftLineFacts).length} of ${Object.keys(draftLineFacts).length} ` +
-    `REGISTER_DRAFT_LINES entries verified against live-recomputed data (covers only gauges with a drafted line — ` +
-    `see CLAUDE.md's status-line rule next to this guard)`
+    `known claim-bearing strings verified against live data (the drafted REGISTER_DRAFT_LINES entries only — ` +
+    `not a copy-accuracy check of the site generally; see CLAUDE.md's status-line rule)`
 );
