@@ -210,7 +210,7 @@ export default function MethodologyPage() {
       <section className="mt-4 rounded-lg border border-[var(--gridline)] bg-[var(--surface-1)] p-5">
         <h2 className="text-lg font-semibold">A disclosed limitation of equal weighting</h2>
         <p className="mt-2 text-[var(--text-secondary)]">
-          Power&rsquo;s 16 gauges are weighted equally (1/16 each) by design &mdash; see
+          Power&rsquo;s {powerGauges.length} gauges are weighted equally (1/{powerGauges.length} each) by design &mdash; see
           &ldquo;How the composite verdict is calculated&rdquo; above. A correlation check across
           each gauge&rsquo;s 36-year Australia level-score series found that four of them (
           <strong>Living standards</strong>, <strong>Productivity</strong>,{" "}
