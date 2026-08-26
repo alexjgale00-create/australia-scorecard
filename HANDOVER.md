@@ -884,6 +884,52 @@ templates are in `docs/manual-lane-checklist.md` and `data/manual/README.md`
     adding a third baseline and breaking the spec everywhere else to solve
     one edge case.
 
+- **Constitutional follow-up opened, not started (2026-08-26): the WVS
+  Online Analysis result for `cohesion-majority-acceptance`.** A
+  verification-only session confirmed the WVS Online Analysis tool
+  publishes a real, exportable, no-login per-country percentage table for
+  Q21 (Germany 2018 example run live; full method in METHODOLOGY.md's
+  "WVS Online Analysis tool eligibility check: resolved"). **Resolving
+  that eligibility trigger opened this follow-up, it did not close the
+  gauge's story** — three questions, deliberately scoped to be answered
+  together, not separately or as a side effect of any one of them:
+  1. **May the Scorecard compute or republish a statistic obtained this
+     way?** Every other manual-lane gauge on this site hand-enters a
+     number a provider already computed and published as such; this
+     number was obtained by reverse-engineering an undocumented internal
+     API chain rather than reading a published table or downloading a
+     provider-issued export file through its normal UI. Whether that
+     distinction matters to this project's sourcing standard — and
+     whether it matters differently for the on-screen table versus the
+     confirmed-working `.xls` export — is not decided anywhere in this
+     repo.
+  2. **Must the weighting question be resolved before any use?** The
+     verification session deliberately did not guess: no weight toggle in
+     the tool's UI, six standard WVS weight variables documented in its
+     FAQ, nothing stating whether Online Analysis applies one by default.
+     Every other survey-based gauge on this site (Gallup MAI included)
+     uses provider-published, presumptively-weighted figures without this
+     project having had to establish the weighting itself — whether that
+     precedent means this gauge can't be used until weighting is
+     confirmed, or whether it can ship flagged as unconfirmed the way
+     other disclosed gaps on this site do, is exactly the kind of
+     judgment call this project's standing rule reserves for a site-owner
+     ruling, not an implementation session.
+  3. **Does the gauge stay Gallup-shaped, or get renamed to a
+     WVS-scoped construct?** Recorded in METHODOLOGY.md since the
+     2026-08-25 ruling and still genuinely unresolved there: Q21 (a
+     single rejection-framed neighbours item) doesn't match the
+     three-item Gallup average this gauge is currently specified as.
+     Clearing the tool-eligibility bar makes this question live for the
+     first time rather than answering it.
+
+  **Not started deliberately** — per the site owner's own framing when
+  this was commissioned, this is "a constitutional question about the
+  Scorecard computing versus republishing," paired with the concept
+  question above, and gets its own dedicated session with both on the
+  table together. No config, gauge copy, or scoring change accompanies
+  this entry.
+
 ---
 
 ## 3. Unexercised in the code — real branches, no real gauge triggers them yet

@@ -1412,7 +1412,10 @@ trigger** (which is now resolved, per above):
 4. **The WVS Online Analysis tool eligibility check** (see the named
    follow-up below) — not tied to an external publication date, and the
    fastest-resolving of the four since it depends on this project's own
-   next session, not on an outside body's release schedule.
+   next session, not on an outside body's release schedule. **Resolved
+   2026-08-26 — see "WVS Online Analysis tool eligibility check: resolved"
+   below.** The other three triggers (ISSP, WVS Wave 8, a third Gallup
+   administration) are unaffected and still stand as dated.
 
 **Retirement, raised and answered, recorded so it is not re-litigated
 cold.** A prior review reportedly flagged this gauge as the only real
@@ -1431,24 +1434,115 @@ a new source appears" would be. **Ruling: do not retire.** Keep the gauge
 unscored with the sharper disclosure above, carry the four dated
 triggers, and revisit at whichever fires first.
 
-**Named follow-up, logged but not started**: confirm whether the WVS
-Online Analysis tool publishes exportable per-country statistics for the
-Q21 neighbours item or the Q121-Q130 migration battery. This is the
-fastest-resolving of the four triggers above, and it gates a second,
-separate question: if WVS does clear the bar, "majority acceptance of
-migrants" as currently specified is a Gallup-shaped construct (a
-three-item average — neighbours, living in the country, marrying into the
-family) that neither of WVS's candidate items matches exactly (Q21 is a
-single rejection-framed neighbours item; Q121-130 asks about perceived
-*impact* of immigrants, not personal acceptance). Whether to keep
-insisting on the original construct (leaving the gauge unscored
-indefinitely if WVS is the only 9-of-9 source) or to name a
-deliberately WVS-scoped version of this gauge is a concept decision, not
-an implementation detail — argued both ways in the ruling session's
-record, not resolved there, and not to be resolved as a side effect of
-answering the tool-eligibility question. Both questions are logged
-together as one follow-up precisely because the second is only live if
-the first resolves in WVS's favor.
+**Named follow-up — was "logged but not started"; the tool-eligibility
+half is now resolved, see immediately below.** The gated second question
+(Gallup-shaped construct vs. a WVS-scoped rename) was never in scope for
+that check and is not resolved by it: if WVS does clear the bar,
+"majority acceptance of migrants" as currently specified is a
+Gallup-shaped construct (a three-item average — neighbours, living in the
+country, marrying into the family) that neither of WVS's candidate items
+matches exactly (Q21 is a single rejection-framed neighbours item;
+Q121-130 asks about perceived *impact* of immigrants, not personal
+acceptance). Whether to keep insisting on the original construct (leaving
+the gauge unscored indefinitely if WVS is the only 9-of-9 source) or to
+name a deliberately WVS-scoped version of this gauge is a concept
+decision, not an implementation detail — argued both ways in the ruling
+session's record, not resolved there, and not to be resolved as a side
+effect of answering the tool-eligibility question.
+
+### WVS Online Analysis tool eligibility check: resolved (2026-08-26)
+
+**The tool clears the bar.** A verification-only session actually drove
+it live — not read its interface documentation and inferred what it
+would emit, which is what stalled the prior attempt — and confirmed: the
+WVS Online Analysis tool publishes a real, exportable per-country
+percentage table for Q21 without downloading microdata, with no login or
+paywall anywhere in the request chain, and the question wording it
+returns is an exact match to this gauge's spec. This places WVS in the
+same category as every other manual-lane source this site uses (a
+provider-computed statistic, hand-entered) — the microdata-computation
+fallback this project explicitly reserved as a separate constitutional
+decision (see "Named follow-up" above, original wording) is **not**
+triggered by this finding; it doesn't need to be.
+
+**What was actually returned, live, for Germany 2018 (Wave 7):**
+
+| | Number of cases | % of Total |
+|---|---|---|
+| Mentioned | 60 | 3.9% |
+| Not mentioned | 1,463 | 95.7% |
+| Don't know | 4 | 0.3% |
+| No answer | 1 | 0.1% |
+| **(N)** | **(1,528)** | **100%** |
+
+Question wording returned by the tool, verbatim: *"On this list are
+various groups of people. Could you please mention any that you would
+not like to have as neighbors? … Immigrants/foreign workers."* Exact
+match to Q21 as specified for this gauge.
+
+**Export confirmed real, not merely offered.** The tool's "Export to
+Excel" control was exercised directly: it returns a genuine Composite
+Document File `.xls` binary (`Content-Disposition: attachment`),
+confirmed to actually contain the table's own text ("Mentioned",
+"Immigrant", "Neighbor", "1528") rather than a stub. No authentication,
+registration, or paywall was encountered at any point in the entire
+request chain, on a fresh anonymous session.
+
+**Method, recorded in reproducible detail because nothing about it is
+documented publicly and it was expensive to find.** `worldvaluessurvey.org`'s
+top-level pages are a client-side JS app (`SetContent()`/form-POST
+navigation) — this is genuinely why the prior attempt, and every
+plain GET/WebFetch attempt in this session, only ever returned the same
+navigation shell regardless of query params: nothing executes the JS
+that drives it. The route through was reading the site's own
+client-side JS (`js/jds.js`, inline `<script>` blocks) to find what it
+actually does, then replicating that exact request sequence as raw HTTP
+POSTs — no JS execution or browser needed, just reproducing the calls a
+browser would make:
+
+1. The "Online Analysis" page embeds a real app in an iframe:
+   `AJOnline.jsp` — not linked or documented anywhere findable by
+   searching, only visible by reading the page's raw HTML source.
+2. Its wave buttons call `ShowWave(1562)` for 2017-2022 (Wave 7), which
+   POSTs to `AJOnlineCountries.jsp` and returns the real country/study
+   checklist. Germany 2018's checkbox value is `276:3310`.
+3. **The field-mapping is not the raw checkbox value.** The parent
+   form's `SAIDS`/`AMIDS` fields are the *split* halves of that value —
+   `SAIDS=3310`, `AMIDS=276` — found by reading `SetSamplesSel()` in the
+   page's own JS (`JDSTokenRemove`/`JDSToken` split each `"country:study"`
+   pair on the colon). Posting the raw unsplit value produces a
+   silently truncated, tableless response that looks like another thin
+   wall but isn't one — this was the actual blocker, not a login or rate
+   limit.
+4. POST `SAIDS`/`AMIDS`/`WAVE=1562` to `AJOnlineIndex.jsp` → returns the
+   full Wave 7 question index. Confirmed `MAIDX=B_Q021` = "Neighbors:
+   Immigrants/foreign workers."
+5. POST the same fields plus `MAIDX=B_Q021` to `AJOnlineQtn.jsp` → the
+   real, live-rendered table above.
+6. POST the same fields to `AJExportXLS.jsp` → the real `.xls` export.
+
+**A dead end worth recording so it isn't retried.** `jdsurvey.net`
+(ASEP/JDS, the WVS Data Archive's original host, referenced in old WVS
+contact information) has its own, separate "Values Surveys" analysis
+portal, driven by the same technique above. **It does not carry Wave 7
+at all** — only Wave 5 (2005-2008) and the pooled 1981-2004 file. The
+real Wave 7 tool lives on `worldvaluessurvey.org` itself via the
+`AJOnline*.jsp` chain above, not on jdsurvey.net.
+
+**Left open, deliberately not guessed at: whether the displayed
+percentages are weighted.** Checked, not assumed either way: no weight
+toggle or weight variable appears anywhere in the tool's own UI (its
+"Cross by" variable list has none); WVS's own FAQ documents six standard
+weight variables (S017, S017a, S018, S018a, S019, S019a) but states
+nothing about whether Online Analysis applies one by default; no other
+WVS documentation found states it either way. **N=1,528 was deliberately
+not treated as evidence of either answer** — a plausible-looking
+unweighted sample size is not confirmation, and treating it as such
+would be exactly the kind of inference-from-shape this project has
+refused every other time a real number was needed instead. This
+question, and the still-open Gallup-vs-WVS-construct question above, are
+now handed to a dedicated session — see HANDOVER.md's constitutional
+follow-up entry.
 
 ### Non-peer-complete context: Scanlon and Eurobarometer
 
