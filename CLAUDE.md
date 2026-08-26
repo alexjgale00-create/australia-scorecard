@@ -349,6 +349,60 @@ drift out of agreement with each other — the entire reason `latestAusYear`
 and `dataStaleness`'s pipeline mirror both exist is so `/status` and the
 monthly pipeline report never disagree about the same fact.
 
+### Intern brief retired; collection-log provenance fixed; two manual-lane refreshes attempted (2026-08-26)
+
+The site owner asked whether the manual lane needs a dedicated intern role.
+Assessed and ruled: no — `docs/intern-data-collection-brief.md` is retired,
+replaced by the much shorter `docs/manual-lane-checklist.md` (schedule and
+download steps only, no role framing). The one time the brief's task
+genuinely came due (2026-08-24's four-gauge landing), it was done directly
+by a Claude Code session, never sent to anyone — the real workload is two
+lightweight OECD refreshes a year plus one dated Gallup-wave trigger-check
+(`cohesion-majority-acceptance`), already absorbed by this project's normal
+session-by-session work. Full reasoning in HANDOVER.md §5.
+
+**A real provenance defect found and fixed in the same pass**:
+`data/manual/collection-log.csv` recorded `collected_by: intern` on all
+four of that same 2026-08-24 landing, even though CLAUDE.md's and
+METHODOLOGY.md's own "Current build status" entries, dated the same day,
+already say a Claude Code session did it directly. Corrected to "Claude
+Code session" on all four rows — see HANDOVER.md entry 11 for the full
+defect record (same class as entries 5-10: an unverified claim reaching a
+file meant to be trustworthy, this time a provenance record rather than
+prose).
+
+**Also fixed while touching this: a dead filter instruction.** OECD
+retired the 2015-PPP base for its Productivity Database entirely on
+2026-06-04 (see "Productivity — 2020 base year ruling" in METHODOLOGY.md);
+`data/manual/README.md`'s Productivity download instructions still named
+"2015 PPPs" as the filter to select — a dead end for anyone following it,
+since the option no longer exists. Corrected to 2020 PPPs there and in the
+new checklist.
+
+**Documented, not previously collector-facing: the REGISTER_DRAFT_LINES
+pairing requirement.** Refreshing Productivity, Education, or Work-life
+balance data without also updating the matching entry in
+`content/register-draft-line-facts.json` fails the build (see
+`scripts/verify-gauge-invariants.mjs`'s REGISTER_DRAFT_LINES guard,
+2026-08-26 entry above) — a safe failure, but one that read as unrelated to
+whoever just refreshed a gauge, since nothing collector-facing said the two
+files were paired. Now spelled out in `data/manual/README.md`'s step 4.
+
+**Two manual-lane gauges genuinely past due were attempted**: Inequality
+(OECD Gini) confirmed no-change — Cloudflare-blocked from direct access
+again, but cross-checked via DBnomics' independent mirror of the same
+dataflow (crawled 2026-06-10, after this file's own 2026-08-24 entry),
+which shows every other peer with data past 2020 while Australia still
+caps at exactly 2020 — real evidence this is OECD's actual publication
+ceiling, not a gap, recorded as a confirmed no-change per the site owner's
+own expectation going in. Productivity stayed blocked: same Cloudflare
+block, and the one lead found (OECD's June-2026 Compendium confirms real
+2024 Australian data exists) is reported in a different unit
+(current-price PPP, not this gauge's constant-price 2020-PPP series) —
+entering it would mean guessing a variant is close enough, which this
+project has refused every other time it's come up. Left documented and
+due, not guessed — see HANDOVER.md §5 for the full record of both attempts.
+
 ## Phase E: Quality of Life dimension — Step 1 ruled, Step 2 checkpoint landed (2026-08)
 
 A second, independently-scored composite alongside Power: does Australia

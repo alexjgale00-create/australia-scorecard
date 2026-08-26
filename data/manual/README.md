@@ -60,6 +60,23 @@ filters, the template's columns, and the target file differ:
    never just silently absent. `scripts/verify-gauge-invariants.mjs` fails
    the build if any manual gauge has an undeclared gap, so this step isn't
    optional.
+
+   **REGISTER_DRAFT_LINES pairing — check this before you build.** Three
+   gauges have a drafted plain-language line whose numbers
+   (`content/register-draft-line-facts.json`) are checked against live data
+   on every build: **Productivity, Education, and Work-life balance** — the
+   only manual-lane gauges that also appear as a key in that JSON file
+   (`grep` its top-level keys if you're unsure a gauge is covered — this
+   set can grow). Refreshing one of these three without also updating its
+   matching `ausValue`/`peerMedian`/`rank`/`of` entry in
+   `content/register-draft-line-facts.json` makes the build fail: the
+   `REGISTER_DRAFT_LINES` guard in `scripts/verify-gauge-invariants.mjs`
+   recomputes those numbers from the refreshed `data/processed/*.json` and
+   refuses to pass if they no longer match what's stored. This is a safe
+   failure (nothing wrong ships), but the error can look unrelated to
+   whatever you just did if you don't know this pairing exists — Claude
+   Code should update both files in the same pass when converting a CSV for
+   any of these three gauges.
 5. **Revisit on the gauge's own cadence** — these sources aren't fetched
    by the monthly Actions run, but it does check each manual gauge's age
    against its own cadence and flags it as "due for a refresh" (not a
@@ -125,7 +142,12 @@ rather than entering 2022 data now.
 
 ## Productivity
 
-**Measures:** GDP per hour worked (USD, constant prices, 2015 PPPs).
+**Measures:** GDP per hour worked (USD, constant prices, 2020 PPPs).
+**Not 2015 PPPs** — OECD retired the 2015-PPP base entirely on 2026-06-04
+as part of a broader Productivity Database methodology revamp; there is no
+2015-base filter to find any more, retired not merely relabelled. See
+"Productivity — 2020 base year ruling" in METHODOLOGY.md for the full
+ruling (levels aren't comparable to any pre-2026-06-04 2015-base figure).
 
 **Why manual:** the raw OECD SDMX API for this series
 (`OECD.SDD.TPS,DSD_PDB@DF_PDB_LV,1.0`) carries OECD's own
@@ -141,8 +163,8 @@ it's only automated API calls that hit the broken path.
 1. Go to **https://data-explorer.oecd.org/** and search **"Productivity
    levels"** (dataflow `DSD_PDB@DF_PDB_LV`, agency `OECD.SDD.TPS`).
 2. Filter to: **Measure** = GDP per hour worked ("GDPHRS"); **Unit** = USD,
-   constant prices, 2015 PPPs; **Frequency** = Annual; **Reference area**
-   = the 9 countries above.
+   constant prices, **2020 PPPs** (not 2015 — see above); **Frequency** =
+   Annual; **Reference area** = the 9 countries above.
 3. **Download → CSV**, then fill in `productivity-template.csv`.
 
 ## Human capital depth

@@ -70,7 +70,10 @@ a fourth incident in that same family, with one distinction worth
 tracking on its own; entry 9 is a fifth and sixth (two numbers wrong inside
 one entry); entry 10 is a narrower case still — not a missed instance of
 the pattern, but a fix for one instance that stopped one sentence short of
-an adjacent instance in the same paragraph.
+an adjacent instance in the same paragraph. Entry 11 is the same defect
+class in a different kind of file: not prose describing data, but a
+provenance record — `collection-log.csv`'s `collected_by` field — stating
+who did the work, when that statement wasn't true.
 
 1. **innovation.md cited "the 2024 Strategic Examination of R&D."** The
    review was *commissioned* December 2024; its actual final report
@@ -349,6 +352,33 @@ an adjacent instance in the same paragraph.
     No structural guard added — a future prose edit on this page can
     reintroduce a bare peer count or fraction the same way; this is a fix,
     not a scan.
+
+11. **`data/manual/collection-log.csv`'s `collected_by` field read
+    "intern" for all four 2026-08-24 manual-lane entries
+    (human-capital-depth, inequality, work-life-balance, productivity), but
+    no intern ever touched this data — a Claude Code session fetched and
+    converted all four directly, per CLAUDE.md's and METHODOLOGY.md's own
+    "Current build status" entries dated the same day ("Real data entered
+    2026-08-24 from a raw SDMX CSV export"). Same defect class as 5 through
+    10 — an unverified statement reached a file and stayed there — but a
+    different kind of file: `collection-log.csv`'s entire purpose is
+    accurate provenance (who pulled what, from where, when), so a false
+    `collected_by` isn't a copy inaccuracy, it's the provenance record
+    itself being wrong about the one thing it exists to record. Found by:
+    the 2026-08-26 session retiring `docs/intern-data-collection-brief.md`
+    (see below) cross-checking the log against CLAUDE.md/METHODOLOGY.md's
+    own dated entries for the same four gauges, prompted by the site owner
+    naming this exact defect. Checked the schema for other placeholder
+    values that were never real: `collection-log.csv` has exactly these
+    four rows (plus two added 2026-08-26 for this session's own refresh
+    checks — see below); `pulled_date` and `extract_note` are both
+    concretely accurate for all four, "intern" was the only false field, no
+    other placeholder value found. Fixed: all four rows' `collected_by`
+    corrected to "Claude Code session." No structural guard added —
+    nothing currently checks `collected_by` against who or what actually
+    ran the conversion; the fix is procedural (see the new
+    `docs/manual-lane-checklist.md`'s instruction to log the real
+    collector), same as every other unenforced standing rule in §4 below.
 
 ---
 
@@ -712,13 +742,22 @@ found, not acted on:**
   — whether that's a new per-country composite table, or extending
   `/section/[n]`'s existing cells with a second, un-blended number.
 
-**The intern's four manual datasets.** `productivity`, `human-capital-depth`,
-and `inequality` have no real data yet (the first two: no data file at all;
-`inequality` likewise Awaiting Data); `work-life-balance` has real 1995-2019
-data but is missing 2019 for 5 of 8 peers (see below). Full instructions,
-per-dataset download steps, and templates are in
-`docs/intern-data-collection-brief.md` — not re-summarized here so it can't
-drift out of sync with that file.
+**The intern's four manual datasets — superseded, kept for history only.**
+This bullet is stale: as of this writing it still describes
+`productivity`/`human-capital-depth`/`inequality` as having no real data at
+all, but all four (plus `work-life-balance`'s 2020+ gap) landed real data
+2026-08-24 — see CLAUDE.md's/METHODOLOGY.md's "Current build status" and §5
+above. It also pointed at `docs/intern-data-collection-brief.md`, retired
+2026-08-26 and replaced by `docs/manual-lane-checklist.md` (§5) — the
+reference below is corrected to the new file so it isn't left dangling, but
+the substance of this bullet is otherwise obsolete. Left as-is rather than
+rewritten, so the original point-in-time record isn't lost: `productivity`,
+`human-capital-depth`, and `inequality` have no real data yet (the first
+two: no data file at all; `inequality` likewise Awaiting Data);
+`work-life-balance` has real 1995-2019 data but is missing 2019 for 5 of 8
+peers (see below). Full instructions, per-dataset download steps, and
+templates are in `docs/manual-lane-checklist.md` and `data/manual/README.md`
+— not re-summarized here so it can't drift out of sync with those files.
 
 - **work-life-balance's 5-country 2019 gap — declared, not yet closed.**
   `provenance.missingCountries` for CAN, GBR, KOR, NLD, DEU was populated
@@ -924,6 +963,69 @@ build failure:**
   Next.js/git have no notion of "this identifier was once live."
 - **The economic-complexity/trade duplicate-fact class of collision** (§1,
   defect 4) — no detector exists across the verification record's claims.
+
+---
+
+## 5. Intern brief retired; two due manual-lane refreshes attempted (2026-08-26)
+
+**`docs/intern-data-collection-brief.md` retired, replaced by
+`docs/manual-lane-checklist.md`.** Assessed at the site owner's request and
+found obsolete: the brief was written as a role description for a person
+who would periodically be handed four datasets to collect. In practice,
+the one time this task genuinely came due (the 2026-08-24 landing of
+productivity, human-capital-depth, inequality, and work-life-balance — see
+entry 11 above and CLAUDE.md's "Current build status"), it was completed
+directly by a Claude Code session, not sent to anyone. The manual lane's
+real shape turned out to be: two lightweight OECD refreshes a year
+(roughly — see the cadence table in `docs/manual-lane-checklist.md`) plus
+one dated trigger-check (`cohesion-majority-acceptance`'s Gallup-wave
+watch, METHODOLOGY.md), all of which this project's own normal
+session-by-session workflow already absorbs without a dedicated role. The
+new checklist keeps the schedule and the *what/where/when* — what an
+intern brief would have needed anyway — and drops the role framing that
+never matched how the work actually got done. A dangling reference to the
+retired file in §2's older "Outstanding" entry below is corrected in the
+same commit.
+
+**Two of the manual-lane gauges genuinely due for a refresh were
+attempted this session, with different outcomes:**
+
+- **Inequality — confirmed no-change, not a miss.** Direct access
+  (`sdmx.oecd.org`, `data-explorer.oecd.org`, `oecd.org`) returned
+  Cloudflare 403 to both a raw fetch and WebFetch, same block this project
+  has hit before. Cross-checked instead via DBnomics' independent mirror
+  of the exact same OECD dataflow (`DSD_WISE_IDD@DF_IDD`), crawled
+  2026-06-10 — well after the current file's own 2026-08-24 entry. That
+  crawl shows CAN/GBR/USA/JPN/KOR/NZL/DEU/NLD all with data past 2020, and
+  Australia still capped at exactly 2020 (0.319, exact match). Australia
+  having nothing newer in the same crawl that plainly has newer data for
+  every other peer is strong evidence 2020 is genuinely still OECD's
+  publication ceiling for this country, not a gap in this collection —
+  recorded as a confirmed no-change, per the site owner's own explicit
+  expectation going into this task. `data/processed/inequality.json`'s
+  `retrievedAt`/`sourcePulledAt` and provenance note updated to record the
+  check; `data/manual/collection-log.csv` carries a matching row.
+- **Productivity — blocked, documented, not guessed.** Same Cloudflare
+  block on all three OECD hosts. DBnomics' mirror of this dataflow caps at
+  2023 for Australia too, but is inconclusive here (unlike Inequality): in
+  the very same crawl, 4 of the 9 peers (CAN, GBR, NLD, DEU) already show
+  2024 while AUS/NZL/KOR/USA/JPN cap at 2023 — a plausible genuine
+  per-country publication lag, not proof Australia has nothing newer. A
+  web search surfaced real evidence that 2024 Australian data does exist
+  (OECD's own June-2026 Compendium of Productivity Indicators), but only
+  reported in current-price PPP terms — a different unit from this gauge's
+  constant-price/2020-PPP series — so entering it would mean guessing a
+  variant is "close enough," exactly the discipline this project has
+  refused every other time it's come up (housing-pressure, work-life-balance,
+  the Inequality/WID split). Site owner's explicit call, asked mid-session:
+  leave it blocked and documented rather than chase a browser-based
+  workaround or guess. `data/manual/collection-log.csv` carries a row
+  recording the attempt and the exact blocker; the gauge's own `Productivity`
+  row in `docs/manual-lane-checklist.md` still shows it due. **Still open
+  for whoever picks this up next** — either a session with a network path
+  that isn't Cloudflare-blocked, or the site owner doing the
+  data-explorer.oecd.org download by hand per `data/manual/README.md` and
+  handing the CSV over.
 
 ---
 
