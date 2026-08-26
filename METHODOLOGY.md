@@ -742,6 +742,60 @@ scoring-methodology change with knock-on effects on every historical score
 and every band on the site, logged for the Phase D checkpoint alongside
 band-threshold recalibration (§3.1), not decided or implemented here.
 
+### §3.4 — Annual prose review: a review discipline, not a build gate (ruled 2026-08-26)
+
+Distinct from the cohesion-majority-acceptance upgrade trigger dated
+**2027-08-25** two sections up ("Gallup publishing a third Migrant
+Acceptance Index administration... standing annual check, starting
+2027-08-25") — that date is coincidental, not this ruling reused. That
+trigger is about one gauge's source availability; this is a site-wide
+review of prose, for all 23 gauges, ruled separately and recorded here so
+the two dated 2027-08-25 items in this file are never conflated as one.
+
+**The ruling**: a fixed annual review of all 23 gauges' claim-bearing
+prose — why-this-matters files, drafted plain-language lines, CAUSE and
+CONTESTED text, every staleness and data-policy disclosure — reads
+against the gauge's *current* config and data, the same discipline
+`assertWrittenAgainst` already applies mechanically to the narrow set of
+fields it tracks (seriesId, institution, polarity, unit, scoringBasis,
+evidenceStrength), extended here to a human reading the *prose itself*
+against current reality, not just those six fields. **First pass:
+2027-08-25.** Annual thereafter.
+
+**Why this is a review discipline and explicitly not a build gate.**
+HANDOVER.md's entries 5 through 9 are five real instances of the same
+failure shape: true prose, sitting next to correct code, going false as
+data moved underneath it — caught every time by someone reading the page
+for an unrelated reason, never by anything mechanical. CLAUDE.md's
+status-line rule (2026-08-26) names the reason a code-level fix can't
+close this gap generally: the REGISTER_DRAFT_LINES guard mechanically
+verifies roughly 60 of this site's ~150 claim-bearing strings, and only
+the subset of those that are *derivable* from a gauge's own
+value/median/rank arithmetic — a citation, a methodological judgment, an
+"OECD's own commentary reads this the same way" claim has no computed
+ground truth for a guard to check against. There is no way to build a
+gate that verifies whether a sentence still accurately describes the
+world; someone has to read it and decide.
+
+**Considered and rejected: a marker-presence gate** (e.g. a build check
+that every gauge's why-this-matters file was touched, or its
+`copyApprovedAt` field bumped, within the last 12 months). Rejected
+because it would look like verification while providing none — a file
+edited for an unrelated reason, or a date field bumped without the prose
+actually being re-read against current reality, would pass such a gate
+exactly as readily as a genuine review would, and a green check next to
+"reviewed" reads as authoritative whether or not a human actually
+verified anything. That's the same failure this project has now named
+twice — HANDOVER.md's entry 7 ("none of this site's existing machinery
+checks whether a sentence or a heading still matches what the code next
+to it actually does, because none of it was built to") and the
+status-line rule above
+("a green build-guard line reads as authoritative; it must say only what
+it actually verified") — a mechanism that can't tell a real review from
+a cosmetic touch is worse than no mechanism, because it stops looking
+like an open question. **This stays a dated human commitment, recorded
+here, not code.**
+
 ## Data maturity tiers
 
 Separate from the score bands above (which grade Australia's *performance*
