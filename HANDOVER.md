@@ -12,6 +12,50 @@ what this specific build session learned and left open.
 
 ---
 
+## 0. Process note (2026-08-26): a verified fix sat unpushed while production stayed wrong
+
+Not a defect — recorded per the site owner's explicit instruction to treat
+it as a process observation, not a correctness fault, and to name the risk
+plainly rather than let it pass unremarked.
+
+Entry 9 below's fix (`work-life-balance`/`productivity`/`economic-complexity`)
+was written, verified against live-recomputed data, and confirmed passing
+the build guard on 2026-08-26 — but on `fix/register-draft-lines-drift`, a
+branch, not `main`. Vercel deploys from `main` only. For the span between
+that verification and the branch actually being merged and pushed, the fix
+was **complete and correct on disk and genuinely unreachable by any
+reader** — the live site kept serving `work-life-balance`'s flattering-not-
+damning wrong numbers (1651/1783/2nd of 4) the entire time, exactly as
+wrong as before any of this session's work happened. A reader loading the
+live page during that window would have seen no trace that the defect had
+already been found and fixed.
+
+**Every prior session on this project committed directly to `main`** — no
+prior HANDOVER.md or CLAUDE.md entry mentions a feature branch, and the
+Merge Readiness section below is written in exactly that register (four
+blockers, cleared, "merged to main"). Nobody made a decision to start
+using branches instead; it happened mid-session, and what actually
+surfaced it was this session being interrupted and resumed cold — the
+resuming session had to ask "what's real" and discovered the fix sitting
+on an unpushed branch, rather than any check in the normal workflow
+noticing on its own. Merged and pushed the same session, once found (see
+git log: `e100f70` fast-forwarded onto `main` and pushed 2026-08-26).
+
+**The risk worth naming, independent of this one instance resolving
+cleanly**: correct, verified work can sit invisible to production
+indefinitely if it lands somewhere other than the branch that deploys,
+and nothing in this project's existing machinery — the build guard, the
+verification record, any of it — checks *where* a fix landed, only
+*whether* it's correct once someone looks. A verified fix and a deployed
+fix are different claims, and this session conflated them until an
+unrelated interruption forced the distinction to the surface. Whether
+that's worth a standing rule (always confirm the working branch is `main`
+before treating a fix as "done"; a CI check that flags when
+`origin/main`'s HEAD has diverged from a long-lived local branch;
+something else) is a real question for whoever reads this next — not
+resolved here, per the same discipline HANDOVER.md's entry 7 applied to
+naming a gap without pre-deciding its fix.
+
 ## 1. Production accuracy defects — the original four, plus later additions
 
 Each is a distinct failure mode. The first four are why the verification
