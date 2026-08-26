@@ -5,8 +5,8 @@
     "body": "This slot is hand-edited by the site owner ahead of each release — a single striking, sourced fact about Australia's trajectory. Replace this placeholder before publishing. Example shape: 'Australia's productivity growth has averaged X% a year over the past decade, ranking Nth of 9 peer countries.'"
   },
   "about": {
-    "mission": "[PLACEHOLDER] Write the mission statement here — why this Scorecard exists, who it's for, and what it is trying to make legible that isn't already.",
-    "independence": "[PLACEHOLDER] Write the independence statement here — funding, affiliations (or lack thereof), and how methodology decisions are made and disclosed.",
+    "mission": "The Australia Scorecard tracks whether Australia is gaining or losing ground against nine comparable peer countries, on measures chosen for real, verifiable data rather than convenience. It reports two independent verdicts — Power and Quality of Life — side by side, deliberately never blended into one score. See Methodology for how each is built and Data status for how current each figure actually is.",
+    "independence": "No funding, sponsorship, or institutional affiliation sits behind this project — it isn't run by a government body, think tank, media outlet, or advocacy group. Every methodology choice (what to measure, how to weight it, which direction counts as \"better\") is a disclosed, dated decision recorded on the Methodology page, not presented as neutral or inevitable.",
     "evolving": "This scorecard is built in the open and stays honest about its own gaps — the Data status page is the receipt: which measures are fully established, which are live but young or incomplete, and which are still waiting on their first real data.",
     "contact": "[PLACEHOLDER] contact@example.com"
   }
