@@ -70,6 +70,37 @@ information not fine print. Stale and unavailable data are declared, never hidde
 and the `NOT ESTABLISHED` notation. Data age and declared absence are structural
 metadata, not performance. `--stamp` must never touch a value, a band, or a rank.
 
+> **EXTENDED (implementation ruling, 2026-08-26): a fifth carve-out —
+> editorial caveats that qualify what a gauge's data can support, covering
+> both `dataPolicy` and `staleDisclosure`.** Migrating
+> `app/methodology/page.tsx` onto REGISTER surfaced two caveats R5's
+> original four didn't name: a gauge's own recorded `dataPolicy` note (a
+> real, disclosed limitation in its source — e.g.
+> `cohesion-majority-acceptance`'s thin-source caveat) and a
+> `staleDisclosure` explaining why no numeric staleness threshold could be
+> set at all (`innovation`, `personal-safety`). Both need to read as
+> visually distinct from the fact they caveat, for the same reason recency
+> and absence do — a caveat typeset identically to ordinary body text is one
+> a reader skims past. Ruled once for both together, not piecemeal: a
+> declared-absence caveat is the same shape whether the absence is a data
+> limitation or a staleness limitation, and stamping one but not the other
+> would be arbitrary. **A `dataPolicy` or `staleDisclosure` label is this
+> fifth `--stamp` use.** "Label," not the whole disclosure, on purpose —
+> this matches every existing carve-out's own implementation, not a new
+> pattern: `NOT ESTABLISHED`/`CONTESTED`'s label word is `--stamp` while the
+> attribution body that follows it reads `--ink-2`
+> (`components/Gauge.tsx`'s `ApparatusLine`), and S7's `NOT SCORED` label is
+> `--stamp` while its `unscoredReason` body is likewise `--ink-2`
+> (`UnscoredDeclaration`). Both new disclosures follow the identical shape:
+> the `⚠ DATA POLICY` / `STALENESS` marker in `--stamp`, the disclosure's
+> own explanatory prose in `--ink-2`. `--stamp` still never touches a value,
+> a band, or a rank (R5's own restriction is unchanged) — these notes sit
+> beside a gauge's facts, they never replace one. Named explicitly here, not
+> left implicit in the code: a future reader of this rule who sees four
+> categories listed and two more in the wild (`app/methodology/page.tsx`)
+> would reasonably read the unlisted two as violations rather than a
+> deliberate extension.
+
 **R6 — Tabular figures everywhere a number appears.** `font-variant-numeric: tabular-nums`
 on every numeric cell. Numerals must align across country columns; misalignment is the
 fastest way this reads as amateur.

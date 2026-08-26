@@ -375,6 +375,14 @@ none of it reads as a launch blocker — see "Merge readiness" below for what
   Methodology is rebuilt (or at minimum de-coloured), grep the repo
   again and remove the field for good, plus its now-obsolete
   `@deprecated` comment.
+  **Resolved 2026-08-26** — see the dedicated entry below ("Methodology
+  migrated onto REGISTER"): the swatch is now the same tick glyph every
+  other band rendering on the site uses, `ScoreBand.color` and its
+  `@deprecated` comment are deleted from `lib/types.ts`, and the now-dead
+  `"color"` values are stripped from both dimensions' `scoreBands` in
+  `gauges.config.json`. Left in place above rather than deleted, per this
+  file's own convention of recording what changed rather than erasing the
+  entry that predicted it.
 - **Header and Footer remain on the old, dark-capable token set,
   sitewide.** Deliberate — the same precedent `/table/[plate]` and
   `/section/[n]` already set, and the homepage rebuild followed it
@@ -396,6 +404,52 @@ none of it reads as a launch blocker — see "Merge readiness" below for what
   headline + body (a single striking, sourced fact about Australia's
   trajectory); the section reappears automatically the moment that
   field is real.
+
+**Methodology migrated onto REGISTER (2026-08-26)** — the pass this file's
+own `ScoreBand.color` entry above named as needed. Full ruling record and
+the design-token scope report that preceded it live in the session
+transcript, not repeated here; this is the durable record.
+
+- **Ruled and shipped**: card-per-section boxes replaced with rule-separated
+  sections (`border-t border-ink`, matching `/table/[plate]`'s own
+  separator convention — DESIGN.md's geometry rules, not a new pattern);
+  the band-threshold legend's colour swatch replaced with the same tick
+  glyph every other band rendering on the site already uses
+  (`aria-label="Band: {label}"`, glyph `aria-hidden`); R5 extended with a
+  fifth carve-out for `dataPolicy` disclosure labels (DESIGN.md, dated
+  amendment — labels only, matching how `NOT ESTABLISHED`/`CONTESTED`/`NOT
+  SCORED` already keep their explanatory body text at `--ink-2`, not a new
+  shape); the per-gauge fact list in "Every gauge, in full" restyled with
+  the dense layer's own label typography (mono, bold, tracked, uppercase)
+  reused in place, kept in a 2-column grid rather than the dense layer's
+  fully-stacked single column — a modest density adaptation of the existing
+  pattern, not a new one, and the fact list was never flagged as not
+  fitting so no return trip was needed.
+- **The root-level ink-inheritance fix was verified by real rendering, not
+  reasoned about**: a Playwright check (light + forced-dark, 830 leaf text
+  nodes inside `.register`, same detection method DESIGN.md's own
+  dark-mode audits use) confirmed zero fall-through to the old
+  dark-switching `--text-primary` token — the exact bug class that hit
+  WHAT'S MOVING. The detector was validated against a deliberately
+  reintroduced bad case (removing `text-ink` from the root) before the
+  clean result was trusted, same discipline as every other checker this
+  project has built. Not run against `/table/[plate]` or `/section/[n]`
+  again — those were already confirmed clean in the trajectory-chart pass
+  (see above) and this pass didn't touch either file.
+- **Not ruled — logged as an open editorial question, deliberately not
+  answered as a side effect of this pass**: the Quality of Life section's
+  majority-attitude narrative (the original 5-candidate source search plus
+  the full 2026-08-25 re-verification, quotes and four dated triggers
+  included) reads as a research memo inline in an otherwise
+  generated-from-config reference page — no other gauge on this page gets
+  that depth. Named specifically because it's asymmetric, not because
+  depth is wrong: `work-life-balance`'s three-round OECD dimension-pin saga
+  and `life-expectancy`'s `CONTESTED`-cause reasoning are comparably
+  dramatic and live only in CLAUDE.md/METHODOLOGY.md, never surfaced here.
+  The real question for whoever picks this up is which standard this page
+  is actually holding itself to — **depth for all gauges with a real
+  story, or depth for none, with the story pointed at METHODOLOGY.md
+  instead** — not whether this one section should be trimmed in isolation.
 
 **From the card-trend pass (`design/register-card-trend`) — one cleared bug,
 one confirmed-clean audit, one unexercised branch:**

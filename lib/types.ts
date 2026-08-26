@@ -256,18 +256,6 @@ export interface ScoreBand {
   min: number;
   max: number;
   /**
-   * @deprecated Under the REGISTER design system (2026), no colour may ever
-   * encode a band, value, or rank (R1 — see DESIGN.md). This field is kept,
-   * unremoved, only because the pre-REGISTER components (GaugeCard, DotStrip,
-   * RankChart, TimeSeriesChart) still read it and are not yet retired — see
-   * DESIGN.md's implementation addendum on staged rollout. No REGISTER
-   * component (`components/Gauge.tsx` and anything built alongside it) may
-   * import or render this field. Remove it, and this comment, only once
-   * every pre-REGISTER component that reads it has actually been retired —
-   * not before.
-   */
-  color: string;
-  /**
    * The severity tick glyph for this band (e.g. "∙∙∙∙∙"), tertiary channel
    * only per R2 — position and the glyph itself carry the meaning, weight
    * and rule thickness never do alone. Human-set per band, most ticks on

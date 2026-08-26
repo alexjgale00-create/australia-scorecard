@@ -51,11 +51,11 @@
       "description": "The original 16-gauge composite: economic weight, institutional strength, and strategic position, scored peer-relative against the same 9-country set. Never combined with Quality of Life — the tension between the two verdicts is itself the point. See METHODOLOGY.md.",
       "_scoreBandsRuling": "RULED 2026-08-24 (Phase D, constitutional, not provisional): thresholds set against this dimension's own true achievable range (any of the 9 peers, any year 1990-2025: 27.1-72.2), divided into 5 equal ~9-point bands. Retired the old shared 0-24/25-44/45-59/60-79/80-100 placeholder for Power specifically. See METHODOLOGY.md's 'Phase D, Item 1' for the full options memo (three candidate schemes tested, run-length/churn decomposition, hard-constraint and proximity checks) and 'Phase D — rejected band-scheme approaches' for what was tried and rejected.",
       "scoreBands": [
-        { "id": "falling-behind", "label": "Falling Behind", "min": 0, "max": 35, "color": "#d03b3b", "ticks": "∙∙∙∙∙" },
-        { "id": "slipping", "label": "Slipping", "min": 36, "max": 44, "color": "#ec835a", "ticks": "∙∙∙∙" },
-        { "id": "holding", "label": "Holding", "min": 45, "max": 53, "color": "#898781", "ticks": "∙∙∙" },
-        { "id": "strengthening", "label": "Strengthening", "min": 54, "max": 62, "color": "#0ca30c", "ticks": "∙∙" },
-        { "id": "leading", "label": "Leading", "min": 63, "max": 100, "color": "#008300", "ticks": "∙" }
+        { "id": "falling-behind", "label": "Falling Behind", "min": 0, "max": 35, "ticks": "∙∙∙∙∙" },
+        { "id": "slipping", "label": "Slipping", "min": 36, "max": 44, "ticks": "∙∙∙∙" },
+        { "id": "holding", "label": "Holding", "min": 45, "max": 53, "ticks": "∙∙∙" },
+        { "id": "strengthening", "label": "Strengthening", "min": 54, "max": 62, "ticks": "∙∙" },
+        { "id": "leading", "label": "Leading", "min": 63, "max": 100, "ticks": "∙" }
       ]
     },
     {
@@ -66,11 +66,11 @@
       "description": "Launched Phase E (2026): a second, independently-scored composite covering health, safety, housing, work-life balance, and social cohesion. Same peer set, same min-max scoring, same maturity and provenance rules as Power — see 'Quality of Life dimension' in METHODOLOGY.md for the full gauge-by-gauge rationale and every ruling behind it.",
       "_scoreBandsRuling": "RULED 2026-08-24 (Phase D, constitutional, not provisional): thresholds set against this dimension's own true achievable range (any of the 9 peers, any year 1990-present, after the trajectory-series coverage-cliff fix: 9.8-83.8), divided into 5 equal ~14.8-point bands — the same derivation rule as Power, producing different numbers because the two dimensions have different real shapes. Retired the old shared 0-24/25-44/45-59/60-79/80-100 placeholder for Quality of Life. Scheme 3 (42/54/68/82, hand-centered on the pooled median) was the standing provisional preference through most of this review but was rejected at ruling time: its outer boundaries had no principled answer to 'why 42 and not 40,' and adopting a different derivation method per dimension was judged worse than the metrics difference between the two schemes. See METHODOLOGY.md's 'Phase D, Item 1' for the full options memo and the QoL ruling record.",
       "scoreBands": [
-        { "id": "falling-behind", "label": "Falling Behind", "min": 0, "max": 24, "color": "#d03b3b", "ticks": "∙∙∙∙∙" },
-        { "id": "slipping", "label": "Slipping", "min": 25, "max": 38, "color": "#ec835a", "ticks": "∙∙∙∙" },
-        { "id": "holding", "label": "Holding", "min": 39, "max": 53, "color": "#898781", "ticks": "∙∙∙" },
-        { "id": "strengthening", "label": "Strengthening", "min": 54, "max": 68, "color": "#0ca30c", "ticks": "∙∙" },
-        { "id": "leading", "label": "Leading", "min": 69, "max": 100, "color": "#008300", "ticks": "∙" }
+        { "id": "falling-behind", "label": "Falling Behind", "min": 0, "max": 24, "ticks": "∙∙∙∙∙" },
+        { "id": "slipping", "label": "Slipping", "min": 25, "max": 38, "ticks": "∙∙∙∙" },
+        { "id": "holding", "label": "Holding", "min": 39, "max": 53, "ticks": "∙∙∙" },
+        { "id": "strengthening", "label": "Strengthening", "min": 54, "max": 68, "ticks": "∙∙" },
+        { "id": "leading", "label": "Leading", "min": 69, "max": 100, "ticks": "∙" }
       ]
     }
   ],
