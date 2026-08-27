@@ -403,6 +403,91 @@ entering it would mean guessing a variant is close enough, which this
 project has refused every other time it's come up. Left documented and
 due, not guessed — see HANDOVER.md §5 for the full record of both attempts.
 
+### Majority-acceptance gauge scored from WVS Q21; two latent scoring defects fixed (2026-08-27)
+
+The constitutional session ruled: score the gauge, rename it, one clean
+item. Full reasoning in METHODOLOGY.md's four dated 2026-08-27 entries —
+this is the short, action-oriented pointer.
+
+**The gauge is now `Cohesion — acceptance of migrant neighbours`**, scored from
+World Values Survey Wave 7 Q21 on the `latest-wave-per-country` basis,
+at 1/8 weight in Quality of Life (all eight renormalised from 0.142857).
+The gauge id, plate 2.7 and URL are unchanged on purpose. Polarity is
+`lower_is_better` — Q21 is rejection-framed.
+
+**Weighting was established by inference, not documentation.** Do not
+re-open this expecting to find a WVS statement; there isn't one. The
+evidence is the tool's own arithmetic (cells summing above their marginal,
+which raw integer counts cannot do) plus a three-country control. See
+METHODOLOGY.md for the table and the residual.
+
+**Standing rule confirmed by the site owner, 2026-08-27: do not accept
+WVS's data licence.** Every download on that site — microdata, codebooks,
+technical reports, even the published Results-By-Country PDF — sits behind
+a registration form wanting a real name, institution and e-mail plus a
+conditions-of-use agreement. The Online Analysis tool is the only ungated
+route and the only one this project uses. A future session must not submit
+that form to "settle" the weighting question.
+
+**`staleAfterMonths` stays at 24 and the gauge reads STALE. That is
+correct, not an oversight.** The data is genuinely eight years old, and
+the source switch made it one year *older* than the Gallup data it
+replaced (Australia's Gallup wave was 2019; its WVS fieldwork was 2018).
+What the switch bought is peer-completeness — nine of nine against four of
+nine — not currency. Raising the threshold to suppress the flag would be
+arithmetic built to stop a true statement from displaying. Explicit site
+owner ruling.
+
+**Two real defects, latent since `scoringBasis` was built on 2026-08-11,
+found by this gauge becoming its first live user:**
+
+1. **`computeCompositeForAllCountries` ignored `scoringBasis` entirely** —
+   it drives the displayed composite, Australia's rank, the peer median
+   and the proximity groups, so all four were wrong for a latest-wave
+   gauge. It fed 72.4 into the composite while the gauge page showed 80.9.
+   Caught by reading the rendered HTML against a hand-computed figure
+   (68.4 rendered vs 69.5 expected), not by any guard.
+2. **`computeHistoricalComposite` had no notion that a latest-wave gauge has
+   no history** — such gauges are now excluded structurally. Consequence,
+   disclosed rather than hidden: the trajectory chart and the
+   median-annual-move derived from it cover same-year gauges only, and can
+   therefore differ from the headline composite.
+
+**Standing lesson**: a mechanism built ahead of its first user is written,
+not tested. HANDOVER.md §3's "unexercised branches" list should be read as
+a list of *suspected defects*, not merely untriggered code.
+
+**New disclosure mechanisms, both reusable:**
+
+- **`CompositeResult.noTrend`** — a fourth term in the movement tally, so
+  the counts always sum to `includedGaugeIds.length`. Before it, eight scored
+  gauges with one on `insufficient-history` displayed "3 · 2 · 2" and silently
+  failed to account for the eighth. No guard caught this; the three counts
+  were independent filters never asserted to be exhaustive.
+- **`content/site.json`'s `compositionNotes`** — a dated, hand-written,
+  deletable per-dimension slot rendered under the verdict, for when a
+  gauge is added, removed or reweighted. Deliberately not computed: the
+  site holds no record of its own previous composite to diff against, and
+  inventing one would be a fact the page couldn't stand behind. **Delete
+  the note once it stops being the most recent thing a returning reader
+  needs explaining** — it is not permanent copy.
+
+**What the composite actually did**: 67.9 → 69.5, Strengthening →
+Leading, rank 4th → 3rd, peer median 63.7 → 61.9. The site owner ruled the
+band flip is not a reason for caution (it fails §3.3's bounds-exclusion
+test, while the rank change survives every treatment) but that the copy
+must say so at the point it appears — hence `compositionNotes`. The
+proximity disclosure also recomputed itself: Australia is now named
+**alone** at the Strengthening boundary, where it previously sat in a
+four-country cluster with New Zealand, the Netherlands and Japan.
+
+**Still open, deliberately not built: the compute-vs-republish rule.** The
+site owner adopted it and asked for a retroactive audit against every live
+gauge first. **Five gauges fail the test as written** — see HANDOVER.md's
+entry. The rule is not recorded in METHODOLOGY.md until that is resolved,
+because writing it as-is would put a claim in the durable record that five
+live gauges contradict.
+
 ## Phase E: Quality of Life dimension — Step 1 ruled, Step 2 checkpoint landed (2026-08)
 
 A second, independently-scored composite alongside Power: does Australia

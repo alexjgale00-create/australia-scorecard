@@ -435,6 +435,17 @@ none of it reads as a launch blocker — see "Merge readiness" below for what
   trajectory); the section reappears automatically the moment that
   field is real.
 
+- **`/about`'s Contact section is intentionally suppressed, not broken
+  (logged 2026-08-26).** `content/site.json`'s `about.contact` is still
+  the scaffold value `"[PLACEHOLDER] contact@example.com"`, and
+  `app/about/page.tsx`'s `isPlaceholder` guard correctly hides the whole
+  section rather than rendering scaffolding to a reader — the guard
+  working as designed, same pattern as `factOfRelease` above. The site
+  owner has explicitly deferred standing up a form endpoint; the section
+  reappears on its own the moment a real endpoint exists. **Known-open
+  cosmetic item, not a defect — do not "fix" the guard or invent an
+  address.**
+
 **Methodology migrated onto REGISTER (2026-08-26)** — the pass this file's
 own `ScoreBand.color` entry above named as needed. Full ruling record and
 the design-token scope report that preceded it live in the session
@@ -884,51 +895,77 @@ templates are in `docs/manual-lane-checklist.md` and `data/manual/README.md`
     adding a third baseline and breaking the spec everywhere else to solve
     one edge case.
 
-- **Constitutional follow-up opened, not started (2026-08-26): the WVS
-  Online Analysis result for `cohesion-majority-acceptance`.** A
-  verification-only session confirmed the WVS Online Analysis tool
-  publishes a real, exportable, no-login per-country percentage table for
-  Q21 (Germany 2018 example run live; full method in METHODOLOGY.md's
-  "WVS Online Analysis tool eligibility check: resolved"). **Resolving
-  that eligibility trigger opened this follow-up, it did not close the
-  gauge's story** — three questions, deliberately scoped to be answered
-  together, not separately or as a side effect of any one of them:
-  1. **May the Scorecard compute or republish a statistic obtained this
-     way?** Every other manual-lane gauge on this site hand-enters a
-     number a provider already computed and published as such; this
-     number was obtained by reverse-engineering an undocumented internal
-     API chain rather than reading a published table or downloading a
-     provider-issued export file through its normal UI. Whether that
-     distinction matters to this project's sourcing standard — and
-     whether it matters differently for the on-screen table versus the
-     confirmed-working `.xls` export — is not decided anywhere in this
-     repo.
-  2. **Must the weighting question be resolved before any use?** The
-     verification session deliberately did not guess: no weight toggle in
-     the tool's UI, six standard WVS weight variables documented in its
-     FAQ, nothing stating whether Online Analysis applies one by default.
-     Every other survey-based gauge on this site (Gallup MAI included)
-     uses provider-published, presumptively-weighted figures without this
-     project having had to establish the weighting itself — whether that
-     precedent means this gauge can't be used until weighting is
-     confirmed, or whether it can ship flagged as unconfirmed the way
-     other disclosed gaps on this site do, is exactly the kind of
-     judgment call this project's standing rule reserves for a site-owner
-     ruling, not an implementation session.
-  3. **Does the gauge stay Gallup-shaped, or get renamed to a
-     WVS-scoped construct?** Recorded in METHODOLOGY.md since the
-     2026-08-25 ruling and still genuinely unresolved there: Q21 (a
-     single rejection-framed neighbours item) doesn't match the
-     three-item Gallup average this gauge is currently specified as.
-     Clearing the tool-eligibility bar makes this question live for the
-     first time rather than answering it.
+- **Constitutional follow-up: RULED AND IMPLEMENTED 2026-08-27, except for
+  one part.** The three questions opened on 2026-08-26 were all ruled on
+  and built: the gauge is scored from WVS Wave 7 Q21, renamed to
+  "Cohesion — acceptance of migrant neighbours", single item, valid base,
+  Q121-Q130 rejected. The weighting gate cleared on derived evidence. Full
+  record in METHODOLOGY.md's four dated 2026-08-27 entries and CLAUDE.md.
+  **The one part not built is the compute-vs-republish rule itself — see
+  the next entry, which is the open item.**
 
-  **Not started deliberately** — per the site owner's own framing when
-  this was commissioned, this is "a constitutional question about the
-  Scorecard computing versus republishing," paired with the concept
-  question above, and gets its own dedicated session with both on the
-  table together. No config, gauge copy, or scoring change accompanies
-  this entry.
+- **OPEN — NEEDS A RULING: the compute-vs-republish test catches five live
+  gauges (2026-08-27).** The site owner adopted the test as written in the
+  constitutional memo and asked for it to be run retroactively against
+  every gauge already live, before the rule was recorded. It was. **Five
+  of the 22 live gauges perform a statistical step the provider did not**,
+  and would fail the rule as adopted:
+
+  | Gauge | What it does | Clause it fails |
+  |---|---|---|
+  | `rule-of-law-corruption` | Averages two World Bank WGI estimates (Rule of Law, Control of Corruption) into an index the Bank does not publish | "averaging items into an index the provider does not publish" |
+  | `education` | Averages three PISA domain scores; its own `dataPolicy` states OECD "never publishes a pre-blended figure" | same clause |
+  | `debt-burden` | Sums two BIS Total Credit series (household + government) | "combining series" |
+  | `trade` | Divides each country's exports by the World Bank WLD aggregate to derive a share | "deriving a denominator" |
+  | `demographic-momentum` | Converts a working-age population *level* series into a year-over-year growth rate | a transformation the provider did not perform |
+
+  **This is not a discovery that those gauges are dishonest.** All five
+  disclose the derivation prominently in `provenance.note`, and three say so
+  in their `unit` string on every page that renders them
+  (`"…averaged"`, `"Household + government debt"`, `"Share of world exports"`).
+  Two of the fetchers open with a comment in capitals saying the gauge is
+  DERIVED. Nothing is being passed off as a provider figure.
+
+  **What it means is that the rule as adopted has a scope problem**, and
+  recording it unamended would put a claim in METHODOLOGY.md that five live
+  gauges contradict — exactly the failure shape entries 5-11 of this file
+  are a running record of. So the rule is deliberately **not written into
+  METHODOLOGY.md yet**. Everything else from the ruling shipped.
+
+  **Two candidate resolutions, not chosen here:**
+
+  1. **A second limb distinguishing free-parameter aggregation from
+     determinate arithmetic.** Permit derivation that has exactly one
+     correct answer and no choices in it — a ratio to a published total, a
+     growth rate from a level, a sum of two quantities in the same unit —
+     provided it is disclosed at the point of use. Forbid constructing an
+     index across conceptually distinct items, which requires choosing
+     weights. This clears `trade`, `demographic-momentum` and
+     `debt-burden` cleanly, and still forbids a self-assembled Q121-Q130
+     composite. **It does not cleanly clear `rule-of-law-corruption` or
+     `education`** — both are equal-weight averages across distinct items,
+     and "equal weights" is itself a choice. Those two would need either an
+     explicit named exemption (each is a signed-off gauge definition, not
+     an ad-hoc construct) or a decision to re-source them.
+  2. **Scope the rule to provenance claims rather than to arithmetic.** A
+     figure may be derived, but must never be *presented as* the
+     provider's published statistic, and the derivation must be disclosed
+     wherever the figure appears. This clears all five, but it also stops
+     forbidding a self-assembled Q121-Q130 composite — which was the
+     rule's second stated reason for rejecting that battery.
+
+  **Note that the Q121-Q130 rejection survives either way**: its primary
+  ground was construct mismatch (perceived consequences of immigration and
+  a policy stance, not personal acceptance), which is independent of this
+  rule entirely. That ruling is already recorded and does not need
+  revisiting.
+
+  **Also worth ruling on explicitly**: whether the test governs the input
+  figure only, or also the site's own scoring layer. Min-max
+  normalisation, the level scores and both composites are all statistical
+  steps no provider performed. They are manifestly the site's own,
+  disclosed, and the entire point of the Scorecard — but the rule as
+  written does not say so, and a literal reading condemns them too.
 
 ---
 
