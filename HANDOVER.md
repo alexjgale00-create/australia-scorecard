@@ -949,6 +949,33 @@ templates are in `docs/manual-lane-checklist.md` and `data/manual/README.md`
   **The one part not built is the compute-vs-republish rule itself — see
   the next entry, which is the open item.**
 
+- **`docs/q21-constitutional-memo.pdf` — the first tracked binary in
+  this repo, committed deliberately (2026-08-27).** It is the decision
+  record behind the WVS Q21 ruling: the weighting finding, the three
+  constitutional questions, and the impact analysis for a change that moved
+  Australia's Quality of Life band from Strengthening to Leading. It sits
+  in the repo because reasoning that produced a live gauge and a permanent
+  rule belongs next to them, not in someone's downloads folder.
+
+  **Read it with one correction in hand: argument 3 no longer holds in the
+  form it was adopted** — see the next entry, and METHODOLOGY.md's
+  "Movement tally" and proximity records. The four-country cluster sentence
+  the argument leaned on was recomputed away by the very commit the ruling
+  authorised. **The PDF is a snapshot of the reasoning at the moment it was
+  ruled on and is deliberately not edited to reflect what changed after**;
+  this record is where the correction lives. Anyone reading the PDF alone,
+  outside the repo, will not see this — that is the known cost of keeping
+  the snapshot intact.
+
+  **This is an exception, not a precedent that has been set.** The repo's
+  documentation is plain text on purpose: diffable, greppable, reviewable
+  in a PR. A PDF is none of those. The exception was granted because this
+  is a *decision record for a constitutional ruling* — a fixed artefact of
+  a moment, which is exactly what should not be edited in place — rather
+  than documentation, which should be. **If more PDFs are ever committed,
+  make that a deliberate decision rather than drifting into it on this
+  file's precedent.** See §4.
+
 - **The constitutional memo's argument 3 no longer holds in the form it was
   adopted (recorded 2026-08-27).** The memo argued that the Quality of Life
   band flip should carry no weight partly because *"the site already tells
@@ -1153,6 +1180,15 @@ build failure:**
   housing-pressure bug this session fixed by hand. No runtime assertion
   checks `Object.keys(plates).length === 1`. Worth adding if this branch
   continues.
+- **Binaries in the repo are an exception, not the norm.**
+  `docs/q21-constitutional-memo.pdf` is the only tracked binary and was
+  committed as a deliberate exception (see §2): a decision record for a
+  constitutional ruling, which is a fixed artefact rather than
+  documentation. Documentation stays plain text — diffable, greppable,
+  reviewable. Nothing enforces this; a second PDF would pass review
+  silently on the first one's precedent, which is exactly the drift this
+  rule exists to make visible.
+
 - **Plates are permanent once public** — a process rule (don't reuse a
   retired gauge's number), not something code can enforce at all, since
   Next.js/git have no notion of "this identifier was once live."
