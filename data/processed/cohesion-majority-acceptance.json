@@ -2,12 +2,13 @@
   "gaugeId": "cohesion-majority-acceptance",
   "provenance": {
     "status": "LIVE",
-    "institution": "Gallup (news releases, not a data product)",
-    "seriesId": "MIGRANT_ACCEPTANCE_INDEX",
-    "seriesName": "Migrant Acceptance Index",
-    "url": "https://news.gallup.com/poll/320678/world-grows-less-accepting-migrants.aspx",
-    "retrievedAt": "2026-08-11T00:00:00.000Z",
-    "note": "NOT SCORED — see gauges.config.json's unscoredReason and this gauge's own page for why. Entered by hand from the two Gallup news-release articles that publish this index's country tables (no data product exists): (1) news.gallup.com/poll/216377/new-index-shows-least-accepting-countries-migrants.aspx, the 2016/17 wave's full ranked table (138 countries surveyed in 2016; the U.S. surveyed in 2017 specifically, per the article's own footnote) — 8 of 9 peers present (Canada absent: the article states 'Canada will be surveyed later in 2017', never entered this wave's table). (2) news.gallup.com/poll/320678/world-grows-less-accepting-migrants.aspx, the 2019 update — NOT a full table, only a global top-10 list, so only 4 of 9 peers appear (Canada, New Zealand, Australia, United States). The other 5 peers (UK, Germany, Japan, Netherlands, South Korea) are not published in either article — confirmed by reading both in full, not inferred from a gap. Every value below is transcribed verbatim from the cited article's own table; none estimated or interpolated.",
+    "institution": "World Values Survey Association",
+    "seriesId": "WVS7_Q021",
+    "seriesName": "Q21 — Neighbors: Immigrants/foreign workers (would not like)",
+    "url": "https://www.worldvaluessurvey.org/WVSOnline.jsp",
+    "retrievedAt": "2026-08-27T00:00:00.000Z",
+    "sourcePulledAt": "2026-08-27T00:00:00.000Z",
+    "note": "SOURCE SWITCHED 2026-08-27 from Gallup's Migrant Acceptance Index to World Values Survey Wave 7, Q21. Gallup covered 8 of 9 peers in 2016/17 and only 4 of 9 in 2019 (and precisely the 4 highest scorers), which is why this gauge sat unscored; WVS Wave 7 is the only source confirmed to cover all 9. Every value is the WVS Online Analysis tool's own \"Show Column % (excluding DK/NA)\" figure — the share of valid answers who would not like immigrants/foreign workers as neighbours — read directly from the provider's own screen, not computed here. The valid base is used deliberately: the tool's default \"% of Total\" view puts don't-knows and refusals in the denominator, and DK/NA rates range from 0% to 6.2% across these nine, which makes that view systematically non-comparable. Each country contributes its own fieldwork year (2017-2022), scored on the latest-wave-per-country basis. Valid N per country: AUS 1,813 (2018), CAN 4,018 (2020), GBR 2,585 (2022), NZL 1,057 (2020), KOR 1,245 (2018), NLD 2,057 (2022), USA 2,436 (2017), DEU 1,523 (2018), JPN 1,311 (2019). PERCENTAGES ARE WEIGHTED. WVS documents this nowhere; it was established by inference from the tool's own arithmetic — see METHODOLOGY.md's \"Are the Online Analysis percentages weighted?\" for the evidence and the residual. Great Britain only: WVS fields Northern Ireland as a separate study (9.5%, N=446), and combining the two would be computing rather than republishing. The exclusion cannot move Australia's score — Germany and Japan set the min-max bounds, not Great Britain.",
     "missingCountries": [],
     "scheduledRefreshCount": 0,
     "lastScheduledRefreshAt": null
@@ -16,58 +17,82 @@
     "AUS": {
       "name": "Australia",
       "series": [
-        { "year": 2016, "value": 7.98 },
-        { "year": 2019, "value": 8.28 }
+        {
+          "year": 2018,
+          "value": 8.9
+        }
       ]
     },
     "CAN": {
       "name": "Canada",
       "series": [
-        { "year": 2019, "value": 8.46 }
+        {
+          "year": 2020,
+          "value": 8.8
+        }
       ]
     },
     "GBR": {
       "name": "United Kingdom",
       "series": [
-        { "year": 2016, "value": 6.61 }
+        {
+          "year": 2022,
+          "value": 4.7
+        }
       ]
     },
     "NZL": {
       "name": "New Zealand",
       "series": [
-        { "year": 2016, "value": 8.25 },
-        { "year": 2019, "value": 8.32 }
+        {
+          "year": 2020,
+          "value": 4.7
+        }
       ]
     },
     "KOR": {
       "name": "South Korea",
       "series": [
-        { "year": 2016, "value": 6.49 }
+        {
+          "year": 2018,
+          "value": 22
+        }
       ]
     },
     "NLD": {
       "name": "Netherlands",
       "series": [
-        { "year": 2016, "value": 7.46 }
+        {
+          "year": 2022,
+          "value": 20.9
+        }
       ]
     },
     "USA": {
       "name": "United States",
       "series": [
-        { "year": 2017, "value": 7.27 },
-        { "year": 2019, "value": 7.95 }
+        {
+          "year": 2017,
+          "value": 8.5
+        }
       ]
     },
     "DEU": {
       "name": "Germany",
       "series": [
-        { "year": 2016, "value": 7.09 }
+        {
+          "year": 2018,
+          "value": 3.9
+        }
       ]
     },
     "JPN": {
       "name": "Japan",
       "series": [
-        { "year": 2016, "value": 6.42 }
+        {
+          "year": 2019,
+          "value": 30.1
+        }
       ]
     }
   }
