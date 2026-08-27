@@ -73,7 +73,10 @@ the pattern, but a fix for one instance that stopped one sentence short of
 an adjacent instance in the same paragraph. Entry 11 is the same defect
 class in a different kind of file: not prose describing data, but a
 provenance record — `collection-log.csv`'s `collected_by` field — stating
-who did the work, when that statement wasn't true.
+who did the work, when that statement wasn't true. Entries 12 and 13 are
+a different shape from 5-11 and worth reading as a pair: not false prose,
+but wrong *numbers* produced by correct-looking code, from one
+cross-cutting concept added without auditing its call sites.
 
 1. **innovation.md cited "the 2024 Strategic Examination of R&D."** The
    review was *commissioned* December 2024; its actual final report
@@ -379,6 +382,48 @@ who did the work, when that statement wasn't true.
     ran the conversion; the fix is procedural (see the new
     `docs/manual-lane-checklist.md`'s instruction to log the real
     collector), same as every other unenforced standing rule in §4 below.
+
+12. **`computeCompositeForAllCountries` ignored `scoringBasis` entirely — it
+    would have shipped a wrong headline number.** Found 2026-08-27. This
+    function drives the displayed composite, Australia's rank, the peer
+    median and the boundary-proximity groups; `computeGaugeScore` branched
+    on `scoringBasis` correctly, and this one never did. It was invisible
+    for sixteen months because no live gauge used the latest-wave basis.
+    The moment one did, the two functions disagreed about the same gauge on
+    the same page: the gauge detail page showed Australia at **80.9** on
+    the latest-wave basis while the composite was fed **72.4**, scored
+    against only the three peers that happen to share Australia's own 2018
+    fieldwork year. **Quality of Life would have published 68.4 as
+    Australia's composite instead of 69.5** — a wrong headline number, on
+    the live site, with a wrong band and a wrong rank behind it.
+
+    **The detection route is the point, and it belongs on the record beside
+    the others.** No guard caught this. No test caught it. It was caught
+    because the build was being checked against a hand computation done
+    earlier in the same session, and the rendered HTML came out 1.1 points
+    below the expected figure. Had the memo not carried an independently
+    computed number to check against, 68.4 would have looked entirely
+    plausible and would have shipped. Entries 5 through 11 are all
+    "something false reached a reader, caught by someone happening to
+    look"; this one is the same class, caught one step earlier only by
+    luck of having a prior number in hand.
+
+13. **`computeHistoricalComposite` had no notion that a latest-wave gauge
+    has no history — the same root cause, second instance.** Found in the
+    same pass. It builds a same-year time series, and a latest-wave gauge
+    has by definition no shared year. Including one puts a score in the
+    trajectory that is not the gauge's real score, and makes the gauge
+    count as "eligible" from its first year onward, inflating the
+    coverage-cliff fraction for every later year against a gauge that can
+    never fill it. Latest-wave gauges are now excluded structurally, with
+    the resulting divergence between the trajectory chart and the headline
+    composite disclosed in the function's own comment rather than hidden.
+
+    **Recorded as a separate entry rather than folded into 12** because the
+    shared root cause is what matters: one mechanism was added in 2026-08
+    and *two* separate functions were never taught about it. The defect was
+    not "a function had a bug" but "a cross-cutting concept was added
+    without auditing its call sites."
 
 ---
 
@@ -904,103 +949,140 @@ templates are in `docs/manual-lane-checklist.md` and `data/manual/README.md`
   **The one part not built is the compute-vs-republish rule itself — see
   the next entry, which is the open item.**
 
-- **OPEN — NEEDS A RULING: the compute-vs-republish test catches five live
-  gauges (2026-08-27).** The site owner adopted the test as written in the
-  constitutional memo and asked for it to be run retroactively against
-  every gauge already live, before the rule was recorded. It was. **Five
-  of the 22 live gauges perform a statistical step the provider did not**,
-  and would fail the rule as adopted:
+- **The constitutional memo's argument 3 no longer holds in the form it was
+  adopted (recorded 2026-08-27).** The memo argued that the Quality of Life
+  band flip should carry no weight partly because *"the site already tells
+  readers this"* — quoting a homepage proximity disclosure that read
+  "Australia, New Zealand, Netherlands and Japan all sit within a typical
+  year's movement of the Strengthening/Leading boundary — on this measure
+  the composite does not meaningfully separate them."
 
-  | Gauge | What it does | Clause it fails |
-  |---|---|---|
-  | `rule-of-law-corruption` | Averages two World Bank WGI estimates (Rule of Law, Control of Corruption) into an index the Bank does not publish | "averaging items into an index the provider does not publish" |
-  | `education` | Averages three PISA domain scores; its own `dataPolicy` states OECD "never publishes a pre-blended figure" | same clause |
-  | `debt-burden` | Sums two BIS Total Credit series (household + government) | "combining series" |
-  | `trade` | Divides each country's exports by the World Bank WLD aggregate to derive a share | "deriving a denominator" |
-  | `demographic-momentum` | Converts a working-age population *level* series into a year-over-year growth rate | a transformation the provider did not perform |
+  **That sentence no longer exists.** Adding an eighth gauge recomputed the
+  proximity groups: Australia is now named **alone** ("Australia's reading
+  sits within a typical year's movement of the Strengthening boundary —
+  close enough that the composite does not cleanly separate it from
+  countries on the other side"), with South Korea and the United States
+  forming a separate group and Canada flagged solo.
 
-  **This is not a discovery that those gauges are dishonest.** All five
-  disclose the derivation prominently in `provenance.note`, and three say so
-  in their `unit` string on every page that renders them
-  (`"…averaged"`, `"Household + government debt"`, `"Share of world exports"`).
-  Two of the fetchers open with a comment in capitals saying the gauge is
-  DERIVED. Nothing is being passed off as a provider figure.
+  **The substance survives**: the page still tells readers that boundary
+  does not separate Australia cleanly, which is what the argument needed.
+  But the ruling was adopted from a specific sentence, and that sentence
+  was changed by the very commit the ruling authorised. Recorded so the
+  ruling record does not point at copy that cannot be found — the same
+  discipline as entry 7's family, applied to a decision record rather than
+  to page copy.
+- **RESOLVED 2026-08-27: the compute-vs-republish rule is ruled and
+  recorded.** The audit found five live gauges that failed the first
+  draft's wording — trade, demographic-momentum, debt-burden, education and
+  rule-of-law-corruption. **None was dishonest; the wording was
+  mis-scoped**, and the site owner redrafted it rather than change the
+  gauges. The failure was traced to a wording accident: the first draft
+  qualified averages with "over a provider-defined set" but left sums
+  unqualified, so debt-burden (2 of BIS's 5 borrower sectors, summed) and
+  rule-of-law-corruption (2 of WGI's 6 dimensions, averaged) made
+  structurally identical choices and landed on opposite sides. Both sector
+  lists were verified live against the providers' own APIs.
 
-  **What it means is that the rule as adopted has a scope problem**, and
-  recording it unamended would put a claim in METHODOLOGY.md that five live
-  gauges contradict — exactly the failure shape entries 5-11 of this file
-  are a running record of. So the rule is deliberately **not written into
-  METHODOLOGY.md yet**. Everything else from the ruling shipped.
+  The adopted rule is three tiers — republished, derived, constructed —
+  with derived turning on whether **the unit declaration is the complete
+  method** and a reader can reproduce the figure. Under it: **zero live
+  gauges are constructed**, five are derived, eighteen are republished. The
+  Q121-Q130 rejection stands under both drafts. Scope is input figures
+  only; the site's own scoring layer is exempt because it is **attributed
+  to the site** rather than to a provider.
 
-  **Two candidate resolutions, not chosen here:**
-
-  1. **A second limb distinguishing free-parameter aggregation from
-     determinate arithmetic.** Permit derivation that has exactly one
-     correct answer and no choices in it — a ratio to a published total, a
-     growth rate from a level, a sum of two quantities in the same unit —
-     provided it is disclosed at the point of use. Forbid constructing an
-     index across conceptually distinct items, which requires choosing
-     weights. This clears `trade`, `demographic-momentum` and
-     `debt-burden` cleanly, and still forbids a self-assembled Q121-Q130
-     composite. **It does not cleanly clear `rule-of-law-corruption` or
-     `education`** — both are equal-weight averages across distinct items,
-     and "equal weights" is itself a choice. Those two would need either an
-     explicit named exemption (each is a signed-off gauge definition, not
-     an ad-hoc construct) or a decision to re-source them.
-  2. **Scope the rule to provenance claims rather than to arithmetic.** A
-     figure may be derived, but must never be *presented as* the
-     provider's published statistic, and the derivation must be disclosed
-     wherever the figure appears. This clears all five, but it also stops
-     forbidding a self-assembled Q121-Q130 composite — which was the
-     rule's second stated reason for rejecting that battery.
-
-  **Note that the Q121-Q130 rejection survives either way**: its primary
-  ground was construct mismatch (perceived consequences of immigration and
-  a policy stance, not personal acceptance), which is independent of this
-  rule entirely. That ruling is already recorded and does not need
-  revisiting.
-
-  **Also worth ruling on explicitly**: whether the test governs the input
-  figure only, or also the site's own scoring layer. Min-max
-  normalisation, the level scores and both composites are all statistical
-  steps no provider performed. They are manifestly the site's own,
-  disclosed, and the entire point of the Scorecard — but the rule as
-  written does not say so, and a literal reading condemns them too.
+  Recorded in METHODOLOGY.md as "Republished, derived, constructed: what
+  this site may publish", including the audit table naming all five derived
+  gauges explicitly, and the redraft history — a durable policy that had to
+  be corrected before adoption carries that correction, so a future reader
+  knows the wording was tested against live gauges rather than assumed
+  sound.
 
 ---
 
-## 3. Unexercised in the code — real branches, no real gauge triggers them yet
+## 3. Unexercised in the code — read this as a list of suspected defects
 
-Distinguish these from untested-full-stop. Each below was verified against
-real data during the build (via a temporary, deleted preview harness) for
-its *structural* behaviour — the branch renders correctly — but none is
-currently exercised by a real gauge's *content* in production.
+**Standing lesson, adopted 2026-08-27: a branch never exercised by live
+data is better read as a suspected defect than as untriggered code.**
+`scoringBasis` sat unexercised from 2026-08-11 until something finally
+used it, and when something did, **two separate functions turned out never
+to have been taught about it** — one of which would have shipped a wrong
+headline number (see entries 12 and 13). Nothing in this list should be
+assumed correct because it type-checks.
 
-- **S1 (fully established — both CAUSE and PRECEDENT) has never been
-  triggered.** Five gauges (innovation, economic-output, debt-burden,
-  housing-pressure, demographic-momentum) have an established *CAUSE*, but
-  **no gauge has an established PRECEDENT** — that drafting was explicitly
-  deferred (see below). So even those five render a hybrid state, not
-  textbook S1.
-- **PRECEDENT is unexercised across every state, entirely.** The site owner
-  held this back on purpose: the Korea-rise story recurs across five
-  gauges' real trajectory data, and drafting it once before seeing how it
-  reads — rather than writing it five times blind — was the explicit
-  instruction. `computePeerTrajectory` and the zero-crossing/near-zero guard
-  (`resolveTrendFraming`, `lib/gauge-view.ts`) are built and ready for
-  whenever that drafting happens, but nothing calls them yet.
-- **S2's CHALLENGER label and relabeling logic are real and verified**
-  (`demographic-momentum`, `air-quality` both correctly show `leads: true`
-  and the CHALLENGER label) — but the CHALLENGER-specific *content* (naming
-  the nearest peer, its trajectory, its closing rate) has never been
-  written, since that's PRECEDENT content under a different label.
-- **S5 (stale) is real, tested code with no live trigger.** No gauge is
-  currently overdue on its own cadence — every manual-lane gauge was
-  recently entered. The `stale`/`staleReason` branch will render correctly
-  whenever one next goes overdue, but hasn't been proven against a real
-  stale gauge.
+Each item below was verified against real data during its build for
+*structural* behaviour, but none is currently exercised by live content.
+The inventory was re-run against live data on 2026-08-27 rather than
+carried forward on trust.
 
----
+### Load-bearing — a defect here reaches a reader as a wrong number or a false claim
+
+- **The composite-exclusion disclosure has never fired on a real
+  exclusion.** `buildCompositeDisclosure` / `assertCompositeDisclosure`
+  exist because a gauge once dropped silently out of a composite and the
+  headline verdict was quietly wrong (2026-07-14). Checked live: both
+  dimensions currently have **zero** excluded gauges, so the disclosure
+  string is always empty and the assertion always passes trivially. It was
+  proven once via a temporary harness (wiping a gauge's data by hand), but
+  never by a real event. **This is the closest structural analogue to the
+  `scoringBasis` defect on the site**: a guard whose correctness is only
+  tested when something finally trips it.
+
+- **The latest-wave trend computation for 3+ waves does not exist.**
+  `computeGaugeScoreLatestWave` returns `direction: null` once a gauge has
+  3+ waves spanning 6+ years, with a comment saying the real computation
+  "isn't built yet." Today the only latest-wave gauge has one wave per
+  country, so it correctly reports `insufficient-history`. **The moment a
+  second wave lands it silently degrades to "no trend data" rather than
+  computing one** — no throw, no warning. **This is dated, not
+  hypothetical: WVS Wave 8 fieldwork closes December 2026**, and the whole
+  point of the remaining upgrade triggers is to add a second wave to this
+  gauge. Build it before that lands, or make it throw.
+
+- **The `awaiting-data` maturity tier and the `SAMPLE_DATA` badge have no
+  live trigger.** All 23 gauges are LIVE with a data file. Both are display
+  states whose failure would be visible immediately, so the risk is lower
+  than the two above — but neither has been seen in production.
+
+### Not load-bearing — dormant display paths
+
+- **The unscored-gauge mechanism is now dormant again.**
+  `UnscoredTag`, `UnscoredGaugeCard` and the `UnscoredGaugeDetail` branch
+  were exercised by `cohesion-majority-acceptance` from 2026-08-11 until
+  2026-08-27, when it became scored. **No gauge sets `unscoredDimensions`
+  today.** Kept deliberately — the failure mode it exists for is real and
+  will recur.
+- **`contextSeries` renders for no gauge.** The WID wealth-share box on
+  Inequality is still the only planned use and its data has never landed.
+- **`revisions` renders for no gauge** — no data file carries one.
+- **`bandRobustness.direction: "understates"` is set by no gauge**, and by
+  design renders nothing even when set (the site declines to tell readers
+  Australia might be doing better than shown). Unexercised and inert.
+- **PRECEDENT is unexercised across every state**, and **S1 (both CAUSE and
+  PRECEDENT established) has never been triggered** — five gauges have an
+  established CAUSE but no gauge has an established PRECEDENT, so even
+  those render a hybrid state. **S2's CHALLENGER content** is unwritten for
+  the same reason. All three remain held back on purpose (the Korea-rise
+  story recurs across five gauges and was to be drafted once, not five
+  times blind).
+
+### Newly exercised since this list was last written — three items closed
+
+Recorded rather than deleted, because "it finally got a live trigger" is
+the event this list exists to anticipate.
+
+- **S5 (stale) is now live**, on three gauges: `productivity` (~32 months
+  against a 15-month threshold), `inequality` (~68 against 24) and
+  `cohesion-majority-acceptance` (~92 against 24). This list previously
+  claimed "no gauge is currently overdue," which had itself gone stale.
+- **`insufficient-history` is now live**, on
+  `cohesion-majority-acceptance` — the first real use of the direction
+  state built for it in 2026-08.
+- **The gauge card's "no ghost mark" branch (`deltaStartScore: null`) is now
+  live**, on the same gauge: with one observation per country there is no
+  delta window, so the card correctly renders no ghost mark and no delta
+  line. Verified in the deployed HTML, not assumed. This list previously
+  said all 20 scored cards had a value at their window start.
 
 ## 4. Standing rules — and which ones are actually code-enforced
 

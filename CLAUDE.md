@@ -481,12 +481,24 @@ proximity disclosure also recomputed itself: Australia is now named
 **alone** at the Strengthening boundary, where it previously sat in a
 four-country cluster with New Zealand, the Netherlands and Japan.
 
-**Still open, deliberately not built: the compute-vs-republish rule.** The
-site owner adopted it and asked for a retroactive audit against every live
-gauge first. **Five gauges fail the test as written** — see HANDOVER.md's
-entry. The rule is not recorded in METHODOLOGY.md until that is resolved,
-because writing it as-is would put a claim in the durable record that five
-live gauges contradict.
+**The compute-vs-republish rule is ruled and recorded (2026-08-27).** Three
+tiers — republished, derived, constructed — with *derived* turning on
+whether the unit declaration is the complete method and a reader can
+reproduce the figure. **Constructed figures may not be published.** Zero
+live gauges are constructed; five are derived (`trade`,
+`demographic-momentum`, `debt-burden`, `education`,
+`rule-of-law-corruption`); eighteen are republished. Scope is **input
+figures only** — the site's own scoring layer is exempt because it is
+attributed to the site, not to a provider. Both halves reduce to one
+requirement: say who did the arithmetic. Full ruling, the audit table and
+the redraft history are in METHODOLOGY.md.
+
+**The rule was redrafted once before adoption**, because the first version
+condemned five honest, disclosed gauges — a wording accident (averages
+qualified by "provider-defined set", sums left unqualified), not a
+disagreement about principle. That history is deliberately kept in the
+ruling: a durable policy that had to be corrected should show it was tested
+against live gauges rather than assumed sound.
 
 ## Phase E: Quality of Life dimension — Step 1 ruled, Step 2 checkpoint landed (2026-08)
 
