@@ -154,6 +154,15 @@ interface GaugeViewBase {
   dataThroughYear: number | null;
   stale: boolean;
   staleReason?: string;
+  /**
+   * Rendered in the default layer, not only the dense one. The scoring
+   * fork is a property of how the number was computed, so it belongs with
+   * its siblings (staleReason, the maturity tag) rather than behind the
+   * dense-layer toggle a reader has to know to open — see METHODOLOGY.md's
+   * "Alternate scoring basis", whose own requirement is that the fork be
+   * visible on every page that touches it.
+   */
+  scoringBasisNoteTop?: string | null;
   refreshNote: string;
   observation: string;
   /** Tier 1, --stamp, never behind the dense-layer toggle (Ruling D). */
@@ -467,6 +476,7 @@ export function buildGaugeView(args: BuildGaugeViewArgs): GaugeView {
     dataThroughYear: latestDataYear(data),
     stale: staleness?.stale ?? false,
     staleReason: resolveStaleDisclosure(config, data),
+    scoringBasisNoteTop: describeScoringBasis(config),
     refreshNote:
       config.accessType === "manual"
         ? "manual lane · no unattended refresh"

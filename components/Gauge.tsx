@@ -80,6 +80,13 @@ export default function Gauge({ view, density = "page" }: { view: GaugeView; den
               at all (no authoritative cadence could be confirmed), so their
               only caveat is this text. See lib/maturity.ts's dataStaleness. */}
           {view.staleReason && <div className="text-stamp">{view.staleReason}</div>}
+          {/* Unconditional, same reasoning as staleReason above: this is a
+              disclosure about how the score was produced, and the ruling
+              that created the mechanism requires it be visible without a
+              reader opening the dense layer. */}
+          {view.scoringBasisNoteTop && (
+            <div className="text-stamp">ALTERNATE SCORING BASIS — {view.scoringBasisNoteTop}</div>
+          )}
         </div>
       </div>
 
