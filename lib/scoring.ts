@@ -482,10 +482,41 @@ function computeGaugeScoreLatestWave(
 
   let direction: Direction | null = null;
   if (levelScore !== null) {
-    direction =
-      countryPoints.length < MIN_WAVES_FOR_TREND || span < MIN_SPAN_YEARS_FOR_TREND
-        ? "insufficient-history"
-        : null; // see comment above — a real computation for 3+ waves isn't built yet
+    if (countryPoints.length < MIN_WAVES_FOR_TREND || span < MIN_SPAN_YEARS_FOR_TREND) {
+      direction = "insufficient-history";
+    } else {
+      // Deliberate scaffolding with a known trigger date — not a bug, and
+      // not an oversight. See HANDOVER.md §3.
+      //
+      // A real trend computation on this basis has never been built,
+      // because no gauge has ever had enough waves to compute one from.
+      // This branch used to return `direction: null`, which renders as
+      // "no trend data" — meaning the gauge would silently claim it had
+      // no trend at the exact moment it finally acquired one, with
+      // nothing anywhere announcing the change. That is the same failure
+      // shape as HANDOVER entries 12 and 13: an unexercised path that
+      // degrades quietly instead of loudly.
+      //
+      // It has a delivery date. WVS Wave 8's fieldwork closes December
+      // 2026, and the upgrade triggers on cohesion-majority-acceptance
+      // exist specifically to add a second wave to it; a third follows.
+      // So this throws instead, failing `next build` while someone is
+      // looking at it rather than shipping a wrong answer nobody checks.
+      throw new Error(
+        `Trend computation on the latest-wave-per-country basis is not built, and "${config.id}" ` +
+          `now needs it: ${code} has ${countryPoints.length} waves spanning ${span} years ` +
+          `(${Math.min(...years)}–${Math.max(...years)}), which clears both gates ` +
+          `(MIN_WAVES_FOR_TREND=${MIN_WAVES_FOR_TREND}, MIN_SPAN_YEARS_FOR_TREND=${MIN_SPAN_YEARS_FOR_TREND}).\n\n` +
+          `This is a planned boundary, not a defect you have found. Build the real computation in ` +
+          `computeGaugeScoreLatestWave (lib/scoring.ts): a peer-relative trend across waves whose ` +
+          `spacing differs by country, which is why it was deferred rather than copied from ` +
+          `computePeerRelativeTrend — that function assumes an annual, evenly-spaced series and ` +
+          `cannot simply be reused here.\n\n` +
+          `Do not silence this by widening the gates or restoring "insufficient-history": the gauge ` +
+          `would then assert it has too little history to trust while holding enough to compute from. ` +
+          `See METHODOLOGY.md's "Alternate scoring basis" and HANDOVER.md §3.`
+      );
+    }
   }
 
   return {

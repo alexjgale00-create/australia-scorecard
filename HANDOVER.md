@@ -1017,27 +1017,57 @@ carried forward on trust.
 
 ### Load-bearing — a defect here reaches a reader as a wrong number or a false claim
 
-- **The composite-exclusion disclosure has never fired on a real
-  exclusion.** `buildCompositeDisclosure` / `assertCompositeDisclosure`
-  exist because a gauge once dropped silently out of a composite and the
-  headline verdict was quietly wrong (2026-07-14). Checked live: both
-  dimensions currently have **zero** excluded gauges, so the disclosure
-  string is always empty and the assertion always passes trivially. It was
-  proven once via a temporary harness (wiping a gauge's data by hand), but
-  never by a real event. **This is the closest structural analogue to the
-  `scoringBasis` defect on the site**: a guard whose correctness is only
-  tested when something finally trips it.
+- **STANDING OPEN ITEM: the composite-exclusion disclosure has never fired
+  on a real exclusion.** `buildCompositeDisclosure` /
+  `assertCompositeDisclosure` exist because a gauge once dropped silently
+  out of a composite and the headline verdict was quietly wrong
+  (2026-07-14). Checked live 2026-08-27: **both dimensions have zero
+  excluded gauges**, so the disclosure string is always empty and the
+  assertion always passes trivially. It was proven once via a temporary
+  harness — wiping a gauge's data by hand and forcing a mismatched string,
+  both of which correctly failed the build — but never by a real event.
 
-- **The latest-wave trend computation for 3+ waves does not exist.**
-  `computeGaugeScoreLatestWave` returns `direction: null` once a gauge has
-  3+ waves spanning 6+ years, with a comment saying the real computation
-  "isn't built yet." Today the only latest-wave gauge has one wave per
-  country, so it correctly reports `insufficient-history`. **The moment a
-  second wave lands it silently degrades to "no trend data" rather than
-  computing one** — no throw, no warning. **This is dated, not
-  hypothetical: WVS Wave 8 fieldwork closes December 2026**, and the whole
-  point of the remaining upgrade triggers is to add a second wave to this
-  gauge. Build it before that lands, or make it throw.
+  **Same shape as the defect in entries 12 and 13**: a guard whose
+  correctness is only tested when something finally trips it. Unlike the
+  latest-wave trend above, **it has no date attached**, and there is no way
+  to force a real exclusion without inventing one — which would mean
+  degrading real data to test a guard, and this project does not do that.
+
+  **Logged, not acted on**, per the site owner (2026-08-27). **What closes
+  it: the first real exclusion event, whenever that occurs** — a source
+  dropping Australia's latest year, a peer set losing a country, a manual
+  gauge going empty. When it happens, check that the disclosure actually
+  names the excluded gauge on every surface rendering that composite
+  before trusting that the build passing means the guard worked.
+
+- **The latest-wave trend computation for 3+ waves does not exist, and the
+  branch now throws on purpose (2026-08-27).** `computeGaugeScoreLatestWave`
+  previously returned `direction: null` once a gauge cleared both trend
+  gates, which renders as "no trend data" — **the gauge would have
+  silently claimed no trend at the exact moment it finally acquired one**,
+  with nothing announcing the change. Same failure shape as entries 12 and
+  13, but with a delivery date: WVS Wave 8's fieldwork closes December
+  2026, and the upgrade triggers on `cohesion-majority-acceptance` exist
+  specifically to give it a second wave; a third follows.
+
+  **The throw is deliberate scaffolding, not a defect.** Whoever hits it
+  has reached a planned boundary. The message names the gauge, the country,
+  the wave count and span that tripped it, what needs building, and why it
+  was deferred rather than copied from `computePeerRelativeTrend` (that
+  function assumes an annual, evenly-spaced series; waves here are spaced
+  differently per country, which is the whole difficulty). It also says
+  explicitly not to silence it by widening the gates or restoring
+  `insufficient-history` — the gauge would then assert it has too little
+  history to trust while holding enough to compute from.
+
+  **The real trend computation was deliberately not built now**, per the
+  site owner: it is real work, it can wait for the wave, and the cheap fix
+  converts a silent wrong answer into a build failure while someone is
+  looking at it. **Validated against a deliberately qualifying case** — a
+  temporary 3-wave Australian series was injected, the build failed with
+  the full message, and the data file was restored byte-identical
+  (confirmed by an empty `git diff`) — the same discipline every other
+  checker on this site was proven with.
 
 - **The `awaiting-data` maturity tier and the `SAMPLE_DATA` badge have no
   live trigger.** All 23 gauges are LIVE with a data file. Both are display
