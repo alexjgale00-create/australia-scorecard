@@ -13,10 +13,11 @@ entered but stays in this folder's process going forward (OECD publishes
 no fetchable endpoint for it, by design, not oversight — see below).
 
 **Quality of Life** (Phase E, 2026-08): **Life satisfaction** (World
-Happiness Report) and **Cohesion — majority acceptance** (Gallup Migrant
-Acceptance Index — definitively manual, no bulk API exists; see its
-section for why this one is different from every other gauge on this
-site) and **Work-life balance** (OECD — 3 real automation rounds, the
+Happiness Report) and **Cohesion — acceptance of migrant neighbours**
+(World Values Survey Wave 7, Q21 — definitively manual, the only ungated
+route is the Online Analysis tool's own screen; see its section for why
+this one is different from every other gauge on this site) and
+**Work-life balance** (OECD — 3 real automation rounds, the
 third surfacing a genuine structural ambiguity rather than one more
 pinnable dimension; see its section for the full record).
 
@@ -283,51 +284,104 @@ this folder, not be assumed).
 
 ---
 
-## Cohesion — majority acceptance (Quality of Life)
+## Cohesion — acceptance of migrant neighbours (Quality of Life)
 
-**Measures:** the Gallup Migrant Acceptance Index, 0-9 scale — how
-accepting the surveyed population is of migrants living in the country,
-as neighbours, and marrying into the family. **Evidence type:
-survey/self-report.**
+**Measures:** the share of people who say they would not want immigrants
+or foreign workers as neighbours — World Values Survey Wave 7, question
+Q21. **Lower is better. Evidence type: survey/self-report.**
 
-**This gauge is genuinely different from every other one in this
-folder.** It isn't "manual because automation wasn't attempted or didn't
-pan out" — a real, documented 5-source search (Gallup's own broader
-World Poll item, WVS Wave 8, Pew Global Attitudes, Ipsos Global Views on
-Immigration, Edelman Trust Barometer) found **no live, currently-updating,
-peer-complete public source at all** — see METHODOLOGY.md's "Majority-
-attitude source search" for the full record. Gallup's own last **freely
-published** waves are from **2016/17 and 2019** — that's genuinely as
-current as this data gets without a paid Gallup Analytics subscription.
-Entering this data doesn't make the gauge current; it makes the gauge
-honest about the best publicly available figures that exist.
+**Renamed 2026-08-27**, from "Cohesion — majority acceptance", when the
+source moved from Gallup's Migrant Acceptance Index to WVS Q21. The gauge
+id is unchanged (`cohesion-majority-acceptance`), so plate, URL and
+history all survive. See METHODOLOGY.md's "Rename to a WVS-scoped
+construct" for why the old Gallup-shaped name could not be kept.
+
+**Why this source:** WVS Wave 7 is the only source confirmed to cover all
+nine peers. Gallup's index covered eight of nine in 2016/17 and only four
+of nine in 2019 — and precisely the four highest scorers, which would
+have biased any computed score upward. That is why this gauge sat
+unscored from 2026-08-11 until this switch.
+
+**What the switch buys, and what it costs.** It buys peer-completeness:
+nine of nine, against four of nine. It costs one year of currency —
+Australia's last Gallup wave was 2019; Australia's WVS fieldwork was
+2018. **This gauge reads STALE, and that is correct** — the data is
+genuinely eight years old. Do not "fix" it by raising
+`staleAfterMonths`; see METHODOLOGY.md.
 
 **Also different**: this gauge is scored on the
 **"latest-wave-per-country"** basis (see METHODOLOGY.md's "Alternate
-scoring basis"), not the site's usual same-year comparison — each
-country's own most recent wave is used even though the wave years differ
-by country. Direction will show **"Insufficient history"** rather than a
-computed trend (only 2 waves, too few and too irregularly spaced to trust
-a trend from) — this is expected, not an error.
+scoring basis"), not the site's usual same-year comparison — each country
+contributes its own fieldwork year, which range from 2017 to 2022.
+Direction shows **"Insufficient history"** rather than a computed trend
+(one wave per country) — this is expected, not an error. Wave 6 cannot
+supply a second wave: it covers only 7 of the 9 peers (Canada and Great
+Britain are both absent), checked live 2026-08-27.
 
-**Download steps:**
+### ⚠ Hard rule: WVS study IDs are not stable identifiers
 
-1. The 2016/17 and 2019 wave figures are reported (though not tabulated
-   as a clean downloadable dataset) in Gallup's own news releases:
-   **https://news.gallup.com/poll/216377/new-index-shows-least-accepting-countries-migrants.aspx**
-   (2016/17 wave) and
-   **https://news.gallup.com/poll/320678/world-grows-less-accepting-migrants.aspx**
-   (2019 update, "World Grows Less Accepting of Migrants").
-2. For each of the 9 peer countries, note the Migrant Acceptance Index
-   score (0-9) for whichever wave(s) that country appears in — not every
-   country was surveyed in both waves.
-3. Fill in `cohesion-majority-acceptance-template.csv` — one row per
-   country per wave it actually has a published score for. **Do not
-   interpolate or estimate a value for a country/wave that isn't
-   published** — a gap here is itself part of what makes this gauge
-   honest.
+**Never hardcode a WVS study ID. Always re-read the country list and match
+on the checkbox's `title` attribute.** Germany, the Netherlands and Great
+Britain each appear **twice** in the Wave 7 country list — once as the WVS
+study and once as an EVS twin (e.g. "Germany 2018" = `276:3310` versus
+"Germany-EVS" = `276:3381`). Picking the twin silently returns a
+different survey with no error. This is the same discover-don't-hardcode
+discipline the SIPRI and OECD fetchers already follow, and it is the
+single easiest way to corrupt this gauge without noticing.
 
----
+### Collection steps — the human route
+
+The Online Analysis tool is the only ungated route on
+worldvaluessurvey.org: no login, no registration, no paywall. (Everything
+else there — microdata, codebooks, technical reports, even the published
+"Results By Country" PDF — sits behind a registration form and a
+conditions-of-use agreement. Do not accept it on the site owner's behalf.)
+
+Deep links do not work: the site is a client-side JS app, so URL
+parameters are ignored. You must click through.
+
+1. Go to **https://www.worldvaluessurvey.org/WVSOnline.jsp**
+2. Click the wave — **2017-2022** for Wave 7.
+3. Tick one country. **Check the tooltip/title, not just the label** —
+   see the hard rule above.
+4. Find **Q21 — "Neighbors: Immigrants/foreign workers"** in the question
+   index and open it.
+5. Set the **Display** control to **"Show Column % (excluding DK/NA)"**,
+   with any crossing variable (Study is the simplest). This is the
+   valid-base figure — the one this gauge uses. The default "% of Total"
+   view puts don't-knows and refusals in the denominator, and DK/NA rates
+   run from 0% to 6.2% across these nine, which makes that view
+   systematically non-comparable.
+6. Record the **"Mentioned"** percentage and the **(N)**, plus the
+   country's fieldwork year from the study title.
+7. Repeat for all nine peers. Fill in
+   `cohesion-majority-acceptance-template.csv`.
+
+### Collection steps — the scripted route
+
+The same screen is reachable as a plain sequence of form POSTs, with no JS
+execution or browser needed. A Claude Code session can replay it directly;
+this is recorded because nothing about it is documented publicly and it
+was expensive to find.
+
+```
+POST /AJOnlineCountries.jsp   WAVE=1562                    → country list
+POST /AJOnlineIndex.jsp       SAIDS/AMIDS/WAVE             → question index
+POST /AJOnlineQtn.jsp         + MAIDX=B_Q021               → the table
+POST /AJExportXLS.jsp         same fields                  → .xls export
+```
+
+Three details that each cost a session to discover:
+
+- **`SAIDS`/`AMIDS` are the split halves of the checkbox value.** The
+  country list renders `value="276:3310"`; the form wants
+  `AMIDS=276` and `SAIDS=3310`. Posting the raw unsplit value returns a
+  tableless response that looks like a block but isn't one.
+- **Wave 7 is `WAVE=1562`**, not 7.
+- **The valid base is `CRUCES_OPERACION=2`** with a crossing variable set
+  (`MACRUCE1=2415073` is Study). Without a crossing variable the display
+  control isn't available and you only get "% of Total".
+
 
 ## Work-life balance
 

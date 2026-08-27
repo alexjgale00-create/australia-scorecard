@@ -41,7 +41,7 @@ top-level *what/when*.
 | Work-life balance | ~15 months | data-explorer.oecd.org, "Average annual hours actually worked" | The 1995-2019 data already on file doesn't need re-entering — only new years |
 | Inequality | ~24 months | data-explorer.oecd.org, Income Distribution Database, Gini (disposable income) | Australia's own series may genuinely have nothing newer to report — that's a valid, loggable outcome, not a failed pull (confirmed 2026-08-26; see `data/manual/collection-log.csv`) |
 | Education (PISA) | every 3-4 years | pisadataexplorer.oecd.org | PISA 2025 results due 8 September 2026 — worth waiting for the new cycle if you're reading this close to that date |
-| Cohesion — majority acceptance | dated triggers, not a fixed cadence | Gallup Migrant Acceptance Index (news releases, not a bulk download) | Unscored gauge, no `staleAfterMonths`. Four named upgrade triggers are tracked in METHODOLOGY.md's "Majority-attitude source search" — nearest is a standing annual check starting 2027-08-25 |
+| Cohesion — acceptance of migrant neighbours | dated triggers, not a fixed cadence | worldvaluessurvey.org → Online Analysis (WVSOnline.jsp) — click through, deep links don't work | Scored from WVS Wave 7 Q21 since 2026-08-27. Reads STALE on purpose: the data is genuinely 8 years old and that is the honest display, not a threshold to raise. **WVS study IDs are not stable — match on the title attribute, never hardcode** (Germany/Netherlands/GB each have an EVS twin). Three remaining upgrade triggers in METHODOLOGY.md; nearest is 2027-03-01 (ISSP) |
 
 The exact per-gauge `staleAfterMonths` values (the real numbers behind
 "~15 months" etc. above) live in `gauges.config.json`; `/status` and the
