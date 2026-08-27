@@ -1149,13 +1149,14 @@ discover by inspecting `lib/scoring.ts`.
 
 ### Alternate scoring basis: "latest-wave-per-country"
 
-**Currently unused as of 2026-08-11** — `cohesion-majority-acceptance` was
-the only gauge ever configured with this basis, and it's since become
-unscored entirely (see "Unscored gauges" below), so no gauge currently
-sets `scoringBasis: "latest-wave-per-country"`. The mechanism itself is
-kept, documented, and available for a future gauge in the same situation
-(irregular, non-synchronized survey waves per country) — not removed
-just because nothing uses it today.
+**In live use since 2026-08-27**, by `cohesion-majority-acceptance` — the
+gauge this basis was originally built for, which then spent sixteen months
+unscored and is now scored on it after switching to WVS Wave 7. This is the
+mechanism's first real exercise, and the switch immediately surfaced two
+defects in code that had never had to honour it — see "Two defects the
+first live latest-wave gauge exposed" below. Recorded plainly because the
+lesson generalises: a mechanism built ahead of its first user is not
+tested, only written.
 
 Every gauge on this site compares all 9 countries' values from the
 **same shared year** (`latestSharedYear` in `lib/scoring.ts`) — except a
@@ -1204,6 +1205,12 @@ once a gauge actually qualifies. Rendered as a distinct "?" glyph in
 `DirectionArrow.tsx`, never conflated with "Flat" or "No trend data."
 
 ### Unscored gauges
+
+**No gauge currently uses this mechanism.** `cohesion-majority-acceptance`,
+the case it was built for, became scored on 2026-08-27 when it switched to
+WVS Wave 7 (see "Rename to a WVS-scoped construct" below). The mechanism is
+kept and documented — the failure mode it exists for is real and will recur.
+The account below is the original 2026-08-11 record, left as written.
 
 A gauge can appear on a dimension's page — its own card in that
 dimension's gauge grid, its own detail page, real data shown — **without**
@@ -1395,7 +1402,8 @@ instrument measures attitudes to refugees specifically, not migrants
 generally — that half of the original finding holds.
 
 **Four named, dated upgrade triggers replace the single Ipsos-Netherlands
-trigger** (which is now resolved, per above):
+trigger** (which is now resolved, per above). **Trigger 4 has since been
+retired and three remain — see the note after the list:**
 
 1. **ISSP `ZA10010` reaching a version with Japan and a usable GB file.**
    Review by **2027-03-01** (12 months after `v1.0.0`'s release — a
@@ -1409,13 +1417,16 @@ trigger** (which is now resolved, per above):
 3. **Gallup publishing a third Migrant Acceptance Index administration**
    with full country tables. No cadence to anchor a fixed date to —
    standing annual check, starting **2027-08-25**.
-4. **The WVS Online Analysis tool eligibility check** (see the named
-   follow-up below) — not tied to an external publication date, and the
-   fastest-resolving of the four since it depends on this project's own
-   next session, not on an outside body's release schedule. **Resolved
-   2026-08-26 — see "WVS Online Analysis tool eligibility check: resolved"
-   below.** The other three triggers (ISSP, WVS Wave 8, a third Gallup
-   administration) are unaffected and still stand as dated.
+4. **The WVS Online Analysis tool eligibility check** — **fully resolved,
+   trigger retired.** The tool cleared the bar on 2026-08-26, and the
+   remaining questions it opened (weighting; Gallup-shaped construct versus
+   a WVS-scoped rename) were ruled on 2026-08-27. **The gauge is now scored
+   from WVS Wave 7 Q21** — see "Rename to a WVS-scoped construct" below.
+
+**Three triggers still stand** (1-3 above). They are no longer about making
+this gauge scoreable — it is scored — but about improving it: a source with
+more than one wave per country would let this gauge report a real trend
+instead of "insufficient history," and Wave 8 is the nearest such prospect.
 
 **Retirement, raised and answered, recorded so it is not re-litigated
 cold.** A prior review reportedly flagged this gauge as the only real
@@ -1543,6 +1554,181 @@ refused every other time a real number was needed instead. This
 question, and the still-open Gallup-vs-WVS-construct question above, are
 now handed to a dedicated session — see HANDOVER.md's constitutional
 follow-up entry.
+
+### Are the Online Analysis percentages weighted? Derived evidence, not documentation (2026-08-27)
+
+**Finding: yes, weighted. This is an inference from the tool's own
+arithmetic, not a documented statement** — recorded that way deliberately,
+so the strength of the conclusion is never read as greater than the
+evidence behind it.
+
+**WVS documents nothing.** Re-confirmed live: no weight toggle anywhere in
+the tool's UI, no weight variable in its 27-item "Cross by" list or in the
+full Wave 7 question index, nothing in its own client-side JavaScript
+(js/jds.js and the inline blocks contain no weight logic at all), and
+nothing in WVS's FAQ stating whether Online Analysis applies one by
+default. The six standard WVS weight variables (S017, S017a, S018, S018a,
+S019, S019a) are documented as existing; their use by this tool is not.
+
+**The reasoning.** A table of raw integer frequencies has one property it
+cannot violate: a group of cells can never sum to *more* than its own
+marginal. Missing data pushes a sum below the marginal; nothing pushes it
+above. The tool's cross-tabulations break that rule repeatedly:
+
+| Table | Cell group | Cells sum to | Stated marginal |
+|---|---|---|---|
+| AUS | Q21 x income, "Fifth step" column | 374 | 373 |
+| AUS | Q21 x income, "Nineth step" column | 28 | 27 |
+| AUS | Q21 x income, "Mentioned" row | 162 | 161 |
+| CAN | Q21 x age, "16-24" column | 437 | 436 |
+| CAN | Q21 x age, "25-34" column | 660 | 659 |
+| CAN | Q21 x age, "45-54" column | 721 | 720 |
+| CAN | Q21 x age, "Mentioned" row | 353 | 352 |
+| USA | Q21 univariate, all four categories | 2,597 | 2,596 |
+| USA | Q21 x income, "Don't know" row | 95 | 94 |
+
+Every figure was read off the tool's own "Show Counts" view and re-added
+by hand, independently of the parser written for the bulk sweep. The only
+way a categorical frequency table acquires non-integer underlying
+quantities is weighting: the displayed "Number of cases" is a **rounded
+weighted count**, and the percentage beside it is computed on the same
+basis.
+
+**The control that rules out a systematic bug.** A parsing artefact or a
+server fault would appear everywhere. It doesn't. **Germany, Japan and
+South Korea return perfectly consistent tables on every crossing tried** —
+12-category income, sex, three-band education, six-band age — with zero
+mismatches across every row, column and marginal. Australia, Canada and
+the United States break on some crossings and not others, which is what
+rounding predicts and what a systematic bug would not do. That split is
+itself the confirming signal: WVS supplies no weight (or a weight
+identically 1) for some Wave 7 samples and a real one for others, and a
+sample with nothing to round cannot produce a rounding artefact.
+
+**The residual, stated plainly.** *Which* weight is not determinable from
+outside. What can be pinned is that the weighted N matches each country's
+true sample size to the unit — Germany 1,528, Australia 1,813, Canada
+4,018, USA 2,596 — which places it in the **S017 family** of nationally
+equilibrated weights and rules out S018, which rescales every country to a
+common N and would visibly change these totals.
+
+**Why this is the strongest evidence obtainable.** Every download on
+worldvaluessurvey.org — microdata, codebooks, per-country technical
+reports, even the published "WVS Results By Country 2017-2022" PDF — sits
+behind a registration form requiring a real name, institution and e-mail
+plus a conditions-of-use agreement. The Online Analysis tool is the only
+ungated route on the entire site. **The site owner has not authorised
+accepting that licence** (ruled 2026-08-27), so the microdata cross-check
+that would settle this directly is deliberately unavailable, and the
+inference above stands in its place.
+
+### Rename to a WVS-scoped construct (ruled 2026-08-27)
+
+**"Cohesion — majority acceptance" is now "Cohesion — acceptance of
+migrant neighbours."** The gauge id, plate (2.7) and URL are unchanged, so
+the record and every existing link survive.
+
+The old name was Gallup-shaped. Gallup's Migrant Acceptance Index averages
+three items at increasing personal proximity — migrants living in the
+country, becoming neighbours, marrying into the family — into a 0-9 scale.
+WVS Q21 is one rejection-framed item at a single proximity.
+
+**The evidence that this is substantive rather than cosmetic**, and the
+reason it was not treated as a matter of taste: the two instruments do not
+merely differ in breadth, they **reverse a country's standing**. Verified
+live 2026-08-27, both items on the valid base:
+
+| Country | Q21: would not want as neighbours | Q121: impact on the country is bad |
+|---|---|---|
+| Germany | **3.9%** — most accepting of the nine | **31.2%** — most negative of the nine |
+| Netherlands | 20.9% | 28.6% |
+| New Zealand | 4.7% | 7.8% |
+
+A measure that inverts Germany's position against a neighbouring item in
+WVS's own questionnaire is not a narrower reading of the Gallup construct.
+Keeping the Gallup name would have asserted an equivalence this project
+has direct evidence against — a claim about Australia's peers the
+underlying item does not support.
+
+Per CLAUDE.md's standing rule, this landed in one commit across all three
+paired files: gauges.config.json,
+content/why-this-matters/cohesion-majority-acceptance.md, and the recorded
+baseline in content/why-this-matters-verification.ts.
+
+### Q121-Q130 migration battery: checked and rejected (2026-08-27)
+
+Recorded as a **rejected option with its reason**, so a future session
+finding the battery does not read this gauge's silence as an oversight.
+
+**Not a coverage failure.** Q121 was pulled live for all nine peers and
+returns a full five-point table everywhere — the battery is as
+peer-complete as Q21.
+
+**Rejected on construct.** Its items are: fills useful jobs, strengthens
+cultural diversity, increases the crime rate, gives asylum to political
+refugees, increases the risks of terrorism, helps poor people establish
+new lives, increases unemployment, leads to social conflict, plus a
+policy-preference item at Q130. That is perceived *consequences* of
+immigration and a policy stance — a third construct, not a richer version
+of personal acceptance.
+
+**And rejected on self-assembly.** Averaging ten items into an index WVS
+does not publish would mean choosing weights, choosing how to fold the
+reverse-coded items, and choosing what to do with the policy item: three
+methodology decisions made inside a gauge, to produce a number no provider
+stands behind. One clean provider-published item is more defensible than a
+composite this site assembles.
+
+### Two defects the first live latest-wave gauge exposed (2026-08-27)
+
+scoringBasis: "latest-wave-per-country" was built on 2026-08-11 and had no
+live user until this gauge. Both defects below were latent that entire
+time and invisible by construction — nothing exercised the branch.
+
+**1. computeCompositeForAllCountries ignored scoringBasis entirely.** It
+called latestSharedYear + computeLevelScore unconditionally, while
+computeGaugeScore branched correctly. The moment a real gauge used the
+basis, the two disagreed about the same gauge on the same page: the gauge
+detail page showed Australia at 80.9 on the latest-wave basis while the
+composite was fed **72.4** — Australia scored against only the three peers
+that happen to share its own 2018 fieldwork year. This function drives the
+displayed composite, Australia's rank, the peer median and the proximity
+groups, so all four were wrong. Caught by building the change and reading
+the rendered HTML: the homepage came out at 68.4 against a hand-computed
+69.5, and that 1.1-point gap was the defect, not a rounding difference.
+Fixed by branching exactly as computeGaugeScore does.
+
+**2. computeHistoricalComposite had no notion that such a gauge has no
+history.** It builds a same-year time series; a latest-wave gauge has, by
+definition, no shared year. Including one puts a score in the series that
+is not the gauge's real score, and makes the gauge count as "eligible"
+from its first year onward — inflating the coverage-cliff fraction for
+every later year against a gauge that can never fill it. Latest-wave
+gauges are now excluded structurally.
+
+**The visible consequence of fix 2, disclosed rather than hidden**: the
+trajectory chart, and the median-annual-move the proximity disclosure is
+derived from, cover the same-year gauges only. They can therefore differ
+from the headline composite, which includes every scored gauge. That
+divergence is real and is the honest reading — a gauge with one wave per
+country genuinely has no history to plot.
+
+**Standing lesson, recorded because it will recur**: a mechanism built
+ahead of its first user is written, not tested. This project already
+tracks "unexercised branches" as a distinct category in HANDOVER.md §3;
+these two defects are the argument for reading that list as *suspected
+defects* rather than merely untriggered code.
+
+### Movement tally: a fourth term (2026-08-27)
+
+With eight scored Quality of Life gauges and one of them on
+insufficient-history, the homepage tally read "3 IMPROVING · 2 FLAT · 2
+DETERIORATING" — seven gauges, with nothing on the page to say where the
+eighth went. No code broke and no guard caught it: the three counts are
+independent filters that were never asserted to be exhaustive.
+CompositeResult.noTrend is the fourth term, and the four now always sum to
+includedGaugeIds.length. Consistent with this site's existing treatment of
+insufficient-history as a first-class state rather than an absence.
 
 ### Non-peer-complete context: Scanlon and Eurobarometer
 
