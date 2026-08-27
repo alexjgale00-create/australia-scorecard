@@ -11,6 +11,7 @@ import {
   proximityCompact,
   proximitySentence,
 } from "@/lib/scoring";
+import siteContent from "@/content/site.json";
 import AnchoredSparkline from "@/components/AnchoredSparkline";
 import DimensionRuler from "@/components/DimensionRuler";
 import type {
@@ -68,7 +69,7 @@ export default function DimensionVerdict({
   const dimensionScores = scores.filter((s) => inDimension.some((g) => g.config.id === s.gaugeId));
 
   const compositeResult = computeComposite(dimensionScores, allConfigs, dimension.id);
-  const { improving, deteriorating, flat, includedGaugeIds, excludedGaugeIds } = compositeResult;
+  const { improving, deteriorating, flat, noTrend, includedGaugeIds, excludedGaugeIds } = compositeResult;
   const compositeDisclosure = buildCompositeDisclosure(excludedGaugeIds, dimensionScores, allConfigs);
   // Fails the build rather than let a gauge silently drop out of this dimension's composite unnoticed.
   assertCompositeDisclosure(compositeResult, allConfigs, compositeDisclosure);
@@ -102,6 +103,9 @@ export default function DimensionVerdict({
   const ausProximityGroup = proximityGroups.find((g) => g.countries.some((c) => c.code === "AUS"));
   const peerProximityGroups = proximityGroups.filter((g) => g !== ausProximityGroup);
 
+  const compositionNotes: Record<string, string> = siteContent.compositionNotes ?? {};
+  const compositionNote = compositionNotes[dimension.id]?.trim() || null;
+
   const noFileCount = totalGaugeCount - inDimension.length;
 
   const deltas = inDimension
@@ -132,6 +136,7 @@ export default function DimensionVerdict({
           totalReporting={allComposites.length}
           peerMedian={peerMedian}
           improving={improving}
+          noTrend={noTrend}
           flat={flat}
           deteriorating={deteriorating}
         />
@@ -155,6 +160,20 @@ export default function DimensionVerdict({
             NO COMPOSITE YET — no gauge in this dimension has data.
           </p>
         </div>
+      )}
+
+      {/*
+        A composition change — a gauge added, removed or reweighted — moves
+        this number without anything about Australia having changed. Left as
+        a hand-written, dated, deletable slot in content/site.json rather
+        than computed: the site has no record of its own previous composite
+        to diff against, and inventing one would be a fact the page couldn't
+        actually stand behind. Renders only while the note is non-empty.
+      */}
+      {compositionNote && (
+        <p className="font-public-sans text-[13.5px] leading-[1.5] text-ink-2 border-l-2 border-chrome pl-4 mt-4">
+          {compositionNote}
+        </p>
       )}
 
       <p className="font-martian-mono text-[10.5px] sm:text-[11px] text-ink-2 tracking-[.02em] mt-3">

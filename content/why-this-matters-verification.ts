@@ -419,27 +419,30 @@ export const WHY_THIS_MATTERS_RECORDS: Record<string, WhyThisMattersRecord> = {
 
   "cohesion-majority-acceptance": {
     writtenAgainst: {
-      seriesId: "MIGRANT_ACCEPTANCE_INDEX",
-      institution: "Gallup (news releases, not a data product)",
-      polarity: "higher_is_better",
-      unit: "Gallup Migrant Acceptance Index, 0–9 scale",
+      seriesId: "WVS7_Q021",
+      institution: "World Values Survey Association",
+      polarity: "lower_is_better",
+      unit: "% who would not want immigrants/foreign workers as neighbours (WVS Q21)",
       evidenceStrength: "survey",
+      scoringBasis: "latest-wave-per-country",
     },
-    copyApprovedAt: "2026-08-20",
+    copyApprovedAt: "2026-08-27",
     claims: [
       {
-        claim: "no live, currently-updating, peer-complete measure of this exists publicly for these nine countries",
-        status: "cut",
-        note: "Bucket B — replaced with the real, already-documented 5-source search record (Gallup's own broader item, WVS Wave 8, Pew, Ipsos, Edelman — see METHODOLOGY.md's 'Majority-attitude source search' section), self-evidencing rather than asserted.",
+        claim:
+          "Germany is the most accepting of the nine on this question and among the most negative on WVS's separate question about immigration's impact on the country",
+        status: "verified",
+        note:
+          "Verified live 2026-08-27 against the WVS Online Analysis tool, both items on the valid base. Q21: DEU 3.9%, the lowest rejection rate of the nine. Q121 (impact of immigrants on the development of the country): DEU 31.2% rather bad + quite bad, the highest of the nine. This inversion is the evidence that the rename is substantive rather than cosmetic — see METHODOLOGY.md.",
       },
       {
-        claim: "this gauge runs on Gallup's last freely published waves, several years old",
-        status: "cut",
-        note: "Bucket B — replaced with the real wave years already held in the data: 2016/17 and 2019.",
+        claim: "WVS Wave 7 is the only source covering all nine peers",
+        status: "verified",
+        note:
+          "Verified across four candidate sources in the 2026-08-25 re-verification (ISSP 2023 covers 7 of 9; Ipsos/UNHCR fails on repeatability; Gallup MAI 4 of 9 in its last free wave; Pew ad hoc) and confirmed live 2026-08-27 that Wave 6 covers only 7 of 9, Canada and Great Britain both absent. Scoped to 'covering all nine peers', not to 'the only measure of this concept'.",
       },
     ],
   },
-
   "economic-output": {
     writtenAgainst: {
       seriesId: "PPPSH",

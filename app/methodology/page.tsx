@@ -451,17 +451,17 @@ export default function MethodologyPage() {
             (V-Dem&rsquo;s <code className={CODE}>v2clsocgrp</code>, the same proven Our World in Data republication
             route already built for Internal cohesion&rsquo;s <code className={CODE}>v2cacamps</code>) and{" "}
             <Link href="/gauges/cohesion-majority-acceptance" className={LINK}>
-              Cohesion &mdash; majority acceptance
+              Cohesion &mdash; acceptance of migrant neighbours
             </Link>{" "}
-            (Gallup&rsquo;s Migrant Acceptance Index). Originally planned as two independently-scored
-            gauges — as of 2026-08-11, only minority experience is actually scored (1/7 weight within
-            Quality of Life&rsquo;s 7 scored gauges). Majority acceptance turned out to be{" "}
-            <strong>unscored</strong>: fetching its real source revealed the 2019 wave publishes only a
-            global top-10 list, 4 of the {peerCount} peers, and precisely the 4 highest scorers — any score
-            computed from that subset would be structurally biased upward, not just incomplete. Ruling:
-            show the real data (both waves, honestly labelled) without pretending it supports a
-            peer-relative score. See &ldquo;Unscored gauges&rdquo; below and this gauge&rsquo;s own
-            page for the full reasoning.
+            (World Values Survey Wave 7, question Q21). Both are now scored, at 1/8 weight each within
+            Quality of Life&rsquo;s 8 scored gauges. The second gauge reached that state late and by a
+            different route: from 2026-08-11 it was <strong>unscored</strong>, because its original source
+            (Gallup&rsquo;s Migrant Acceptance Index) published only a global top-10 list in its 2019 wave —
+            4 of the {peerCount} peers, and precisely the 4 highest scorers, so any score computed from that
+            subset would have been structurally biased upward rather than merely incomplete. On 2026-08-27
+            it moved to WVS Wave 7, the only source confirmed to cover all {peerCount} peers, and was
+            renamed to what that source actually measures. See &ldquo;Rename to a WVS-scoped construct&rdquo;
+            in METHODOLOGY.md, &ldquo;Unscored gauges&rdquo; below, and this gauge&rsquo;s own page.
           </p>
 
           <h3 className="mt-5 text-base font-semibold">Unscored gauges</h3>
@@ -592,18 +592,18 @@ export default function MethodologyPage() {
             METHODOLOGY.md.
           </p>
           <p className="mt-3 text-ink-2">
-            <strong>Named follow-up (not started)</strong>: confirm whether the WVS Online Analysis
-            tool publishes exportable per-country statistics for the Q21 neighbours item or the
-            Q121&ndash;Q130 migration battery. This gates two separate questions at once — whether
-            WVS Wave 7 is usable at all without this Scorecard computing its own country statistic
-            from microdata for the first time (a constitutional decision reserved for its own
-            session), and, only if so, whether &ldquo;majority acceptance&rdquo; should be rescoped to
-            what WVS actually measures rather than Gallup&rsquo;s original construct — a concept
-            change, not a source change, that deserves its own explicit ruling rather than happening
-            by drift.
+            <strong>Resolved 2026-08-27.</strong> The WVS Online Analysis tool does publish an
+            exportable per-country table for the Q21 neighbours item, with no login or paywall, so no
+            microdata computation was ever required. This gauge now scores from that source and has
+            been renamed to what the source measures. The Q121&ndash;Q130 migration battery was checked
+            and deliberately <strong>rejected</strong>: it asks about the perceived impact of
+            immigration and about policy preference, not about personal acceptance, and averaging ten
+            items into an index WVS does not publish would mean choosing weights and handling
+            reverse-coded items — decisions no provider stands behind. One clean provider-published
+            item beats a composite this site assembles. Full record in METHODOLOGY.md.
           </p>
           <p className="mt-3 text-ink-2">
-            Until any of the above resolves, the gauge page states plainly:
+            Before that resolution, the gauge page stated plainly:
           </p>
           <p className="mt-3 border border-chrome text-[13.5px] italic text-ink-2 p-3">
             &ldquo;Four public sources were checked for a current, all-peer measure of majority
@@ -620,12 +620,12 @@ export default function MethodologyPage() {
           <p className="mt-2 text-ink-2">
             Two excellent sources don&rsquo;t cover all {peerCount} peers and can&rsquo;t score, but are
             planned as labelled, non-scored time-series context blocks on the Cohesion &mdash;
-            majority acceptance gauge page, same pattern as the WID wealth-share box on Inequality:
+            acceptance of migrant neighbours gauge page, same pattern as the WID wealth-share box on Inequality:
             the <strong>Scanlon Foundation</strong>&rsquo;s Mapping Social Cohesion report
             (Australia-only, annual since 2007) and <strong>Eurobarometer</strong> (EU-only; among
             our {peerCount} peers, only the Netherlands and Germany are current members &mdash; the UK dropped
             out post-Brexit). Blocked on sequencing, not decided against: the gauge&rsquo;s own base
-            Gallup MAI data has to be entered by hand first before a context block has anything to
+            WVS Q21 data had to be entered by hand first before a context block has anything to
             attach to &mdash; deferred to the manual-entry phase along with the gauge&rsquo;s first
             real numbers.
           </p>
@@ -651,7 +651,8 @@ export default function MethodologyPage() {
             MaturityTag, and survey evidence isn&rsquo;t a caveat, just a different evidence type)
             appears next to a gauge&rsquo;s name wherever it&rsquo;s shown. Hard statistics are the
             unmarked default, same &ldquo;quiet by default&rdquo; pattern as the Established maturity
-            tier. Currently applies to Life satisfaction and Cohesion &mdash; majority acceptance.
+            tier. Currently applies to Life satisfaction and Cohesion &mdash; acceptance of migrant
+            neighbours.
           </p>
         </section>
       </div>

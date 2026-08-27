@@ -364,7 +364,7 @@
       "reuseNote": "Scored in both dimensions from the same underlying data — housing affordability is both a national economic-pressure signal (Power) and a direct determinant of whether Australia is a good place to live (Quality of Life). One fetch, one data file, two independent composite contributions at each dimension's own weight. Disclosed here, on /status, and in METHODOLOGY.md's 'Quality of Life dimension' section, per the site owner's explicit condition that reuse must never be silent.",
       "weights": {
         "power": 0.0625,
-        "quality-of-life": 0.142857
+        "quality-of-life": 0.125
       },
       "plates": {
         "power": "1.11"
@@ -514,7 +514,7 @@
       },
       "oneLiner": "How many years a newborn today is expected to live, on average.",
       "weights": {
-        "quality-of-life": 0.142857
+        "quality-of-life": 0.125
       },
       "plates": {
         "quality-of-life": "2.1"
@@ -553,7 +553,7 @@
       },
       "oneLiner": "How people rate their own lives on a 0–10 ladder from worst to best possible.",
       "weights": {
-        "quality-of-life": 0.142857
+        "quality-of-life": 0.125
       },
       "plates": {
         "quality-of-life": "2.2"
@@ -578,7 +578,7 @@
       },
       "oneLiner": "How many people are victims of intentional homicide, per 100,000 population.",
       "weights": {
-        "quality-of-life": 0.142857
+        "quality-of-life": 0.125
       },
       "plates": {
         "quality-of-life": "2.3"
@@ -616,7 +616,7 @@
       },
       "oneLiner": "How many hours a year the average worker actually works.",
       "weights": {
-        "quality-of-life": 0.142857
+        "quality-of-life": 0.125
       },
       "plates": {
         "quality-of-life": "2.4"
@@ -641,7 +641,7 @@
       },
       "oneLiner": "How much fine-particulate air pollution the average person is exposed to.",
       "weights": {
-        "quality-of-life": 0.142857
+        "quality-of-life": 0.125
       },
       "plates": {
         "quality-of-life": "2.5"
@@ -666,7 +666,7 @@
       },
       "oneLiner": "How equally different social groups experience civil liberties — freedom of movement, property rights, access to justice.",
       "weights": {
-        "quality-of-life": 0.142857
+        "quality-of-life": 0.125
       },
       "plates": {
         "quality-of-life": "2.6"
@@ -674,29 +674,33 @@
     },
     {
       "id": "cohesion-majority-acceptance",
-      "name": "Cohesion — majority acceptance",
-      "shortName": "Majority acceptance",
-      "unit": "Gallup Migrant Acceptance Index, 0–9 scale",
-      "historyStartYear": 2016,
+      "name": "Cohesion — acceptance of migrant neighbours",
+      "shortName": "Migrant neighbours",
+      "unit": "% who would not want immigrants/foreign workers as neighbours (WVS Q21)",
+      "historyStartYear": 2017,
       "accessType": "manual",
       "evidenceStrength": "survey",
-      "polarity": "higher_is_better",
-      "polarityJustification": "A higher index score means the surveyed population is more likely to view migrants living in the country, becoming neighbours, and marrying into the family as good things — the standard, uncontroversial reading of Gallup's own index. Not actually scored — see unscoredReason — but recorded for the raw values shown.",
-      "unscoredDimensions": [
-        "quality-of-life"
-      ],
-      "unscoredReason": "This gauge is not scored. No public source measures majority attitudes toward minorities across all nine peer countries. Gallup's Migrant Acceptance Index covered eight of the nine in 2016/17, but its 2019 update published only a global top-ten list — four of our nine, and precisely the four highest scorers (Canada, New Zealand, Australia, United States), which would bias any computed score upward rather than just leave it incomplete. Gallup continues to field the underlying question; country-level results are available only by paid subscription. The absence of a comparable public series is itself a finding.",
-      "dataPolicy": "Fetched directly from the two Gallup news-release articles that publish this index's country tables — not a data product, a provenance chain disclosed explicitly on this gauge's own page. 2016/17 wave (news.gallup.com/poll/216377/...): a full ranked table, 8 of 9 peers (Canada absent — the article's own text says 'Canada will be surveyed later in 2017,' never entered this wave's table at all). 2019 wave (news.gallup.com/poll/320678/...): NOT a full table — only a global top-10 list, so only 4 of 9 peers appear (Canada, New Zealand, Australia, United States). The other 5 (UK, Germany, Japan, Netherlands, South Korea) are not published anywhere in either article — confirmed by reading both in full, not inferred. Re-verified live 2026-08-25 against four real candidates (see METHODOLOGY.md's 'Majority-attitude source re-verification' for the full record and dated triggers): ISSP's 2023 National Identity & Citizenship module (GESIS, study ZA10010_v1.0.0, released 13 March 2026) covers 7 of the 9 peers cleanly — Great Britain was fielded but published separately as ZA9132 for methodological reasons (GB and Scotland were surveyed as two distinct studies), and Japan does not appear in this release at all. The World Values Survey's Wave 7 (2017-2022) is the only source confirmed covering all 9 peers, but whether its own Online Data Analysis tool publishes country-level statistics directly — the condition that would make it usable the way this site uses every other manual-source gauge, rather than requiring this Scorecard to compute a country statistic itself for the first time — is not yet confirmed; see the named follow-up in METHODOLOGY.md. Ipsos/UNHCR's World Refugee Day survey now covers the Netherlands (confirmed in both the 2025 and 2026 editions), but the source rotates between a large periodic edition (52 countries, including all 9 peers in 2024) and a smaller ~29-country annual edition that drops New Zealand — no single peer is permanently excluded, the source simply fails to repeatably cover all 9 peers in the same year, and it measures attitudes to refugees specifically, not migrants generally.",
-      "staleDisclosure": "This gauge's underlying data is genuinely {{DATA_AGE_YEARS}} years old (last freely published wave: {{DATA_THROUGH_YEAR}}) — not a slow-but-normal cadence like Education/PISA's 3-4-yearly cycle, but the practical end of what's publicly available at all. See the dataPolicy note above and 'Quality of Life dimension' in METHODOLOGY.md for the full search record behind this. Four dated upgrade triggers (ISSP reaching a version with Japan and a usable GB file; WVS Wave 8's release; a third Gallup MAI administration; and the WVS Online Analysis tool eligibility check) are tracked in METHODOLOGY.md's 'Majority-attitude source re-verification' section and reviewed on their own schedule, not left open-ended.",
+      "scoringBasis": "latest-wave-per-country",
+      "polarity": "lower_is_better",
+      "polarityJustification": "Q21 is rejection-framed: the published figure is the share who name immigrants or foreign workers as a group they would not want as neighbours, so a lower percentage is the better outcome. Polarity is applied inside computeLevelScore, so the peer-relative direction basis needs no special handling — by the time direction is computed the score is already oriented so that up means better.",
+      "bandRobustness": {
+        "status": "robust",
+        "methodsRef": "§3.3",
+        "note": "Confirmed explicitly rather than left as the implicit default, because this scale's shape invites the question. The min-max bounds are anchored on two countries and the lower bound is genuinely outlier-set: Japan (30.1%) sits 8.1 points below Korea (22.0%) while the top three cluster within 0.8 of each other. Bounds-exclusion test, 2026-08-27: Australia scores 80.9 (Leading) with Japan in the bounds, 72.4 (Leading) with Japan excluded from the bounds only — the band does not move. Excluding the USA, §3.3's standard test country, does not move the score at all, since the USA sets neither bound here. This is a statement about THIS GAUGE's band; the Quality of Life composite's own proximity to the Strengthening/Leading boundary is a separate matter, disclosed on the homepage."
+      },
+      "dataPolicy": "Scored from World Values Survey Wave 7 (2017-2022), question Q21: \"On this list are various groups of people. Could you please mention any that you would not like to have as neighbors? … Immigrants/foreign workers.\" WVS Wave 7 is the only source confirmed to cover all nine peers — Gallup's Migrant Acceptance Index, this gauge's source until 2026-08-27, covered 8 of 9 in 2016/17 and only 4 of 9 in 2019, and precisely the 4 highest scorers, which is why the gauge was left unscored rather than partially scored. Figures are the provider's own valid-base percentage (its \"Show Column % excluding DK/NA\" view), read directly from the WVS Online Analysis tool: the tool's default \"% of Total\" view puts don't-knows and refusals in the denominator, and DK/NA rates range from 0% to 6.2% across these nine, which would make that view systematically non-comparable. The percentages are weighted; WVS documents this nowhere, and it was established by inference from the tool's own arithmetic rather than from any published statement — see METHODOLOGY.md for the evidence and the stated residual. Great Britain only: WVS fields Northern Ireland as a separate Wave 7 study (9.5%, N=446), and combining the two would be computing rather than republishing — the exclusion cannot move Australia's score, since Germany and Japan set the min-max bounds. Each country contributes its own fieldwork year (USA 2017; Australia, Germany and Korea 2018; Japan 2019; Canada and New Zealand 2020; Netherlands and Great Britain 2022) on the latest-wave-per-country basis. Wave 6 cannot supply a second wave — it covers only 7 of the 9 peers, Canada and Great Britain both absent (checked live 2026-08-27) — so direction reads \"insufficient history\" rather than a computed trend.",
+      "staleDisclosure": "This gauge's underlying data is genuinely {{DATA_AGE_YEARS}} years old (Australia's World Values Survey fieldwork year: {{DATA_THROUGH_YEAR}}), and the source switch that made this gauge scoreable at all made it one year older, not fresher — Gallup's last Australian wave was 2019. What the switch bought is peer-completeness, nine of nine against four of nine, not currency. The threshold is deliberately left where it is: raising it to suppress this flag would be arithmetic built to stop a true statement from displaying. Three dated upgrade triggers (ISSP reaching a version with Japan and a usable GB file; WVS Wave 8's release, fieldwork closing December 2026; a third Gallup MAI administration) are tracked in METHODOLOGY.md and reviewed on their own schedule.",
       "staleAfterMonths": 24,
       "source": {
-        "institution": "Gallup (news releases, not a data product)",
-        "seriesId": "MIGRANT_ACCEPTANCE_INDEX",
-        "seriesName": "Migrant Acceptance Index",
-        "url": "https://news.gallup.com/poll/320678/world-grows-less-accepting-migrants.aspx"
+        "institution": "World Values Survey Association",
+        "seriesId": "WVS7_Q021",
+        "seriesName": "Q21 — Neighbors: Immigrants/foreign workers (would not like)",
+        "url": "https://www.worldvaluessurvey.org/WVSOnline.jsp"
       },
-      "oneLiner": "How accepting the surveyed population is of migrants living in the country, as neighbours, and marrying into the family.",
-      "weights": {},
+      "oneLiner": "The share of people who say they would not want immigrants or foreign workers as neighbours.",
+      "weights": {
+        "quality-of-life": 0.125
+      },
       "plates": {
         "quality-of-life": "2.7"
       }

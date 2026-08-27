@@ -9,5 +9,10 @@
     "independence": "No funding, sponsorship, or institutional affiliation sits behind this project — it isn't run by a government body, think tank, media outlet, or advocacy group. Every methodology choice (what to measure, how to weight it, which direction counts as \"better\") is a disclosed, dated decision recorded on the Methodology page, not presented as neutral or inevitable.",
     "evolving": "This scorecard is built in the open and stays honest about its own gaps — the Data status page is the receipt: which measures are fully established, which are live but young or incomplete, and which are still waiting on their first real data.",
     "contact": "[PLACEHOLDER] contact@example.com"
+  },
+  "_compositionNotesReadme": "Per-dimension notes about a CHANGE to the composite's own composition — a gauge added, removed, or reweighted — rendered under that dimension's verdict on the homepage. Not for commentary on Australia's performance. Each note is a dated, hand-written, deliberately temporary slot: delete the entry once the change is no longer the most recent thing a returning reader needs explaining. An empty string or a missing key renders nothing.",
+  "compositionNotes": {
+    "quality-of-life": "Composition change, 2026-08-27: an eighth gauge (acceptance of migrant neighbours) was added to this composite, having previously been shown but not scored. Australia's reading moved from 67.9 to 69.5 and its band from Strengthening to Leading — that movement is an artefact of adding a gauge, not of Australia's own performance changing. The more robust finding is the rank: Australia moved from 4th to 3rd of 9, and that holds under every sensitivity treatment tested, whereas the band change does not survive the bounds-exclusion test in Methods §3.3. Read the rank, not the band.",
+    "power": ""
   }
 }

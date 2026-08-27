@@ -67,6 +67,7 @@ export default function DimensionRuler({
   improving,
   flat,
   deteriorating,
+  noTrend,
 }: {
   name: string;
   tagline: string;
@@ -80,6 +81,8 @@ export default function DimensionRuler({
   improving: number;
   flat: number;
   deteriorating: number;
+  /** Scored gauges with no computed trend — rendered as a fourth term so the tally accounts for every scored gauge. */
+  noTrend: number;
 }) {
   const sorted = [...bands].sort((a, b) => a.min - b.min);
   const gridTemplate = sorted.map((b) => `${Math.round(((b.max - b.min + 1) / 101) * 1000) / 10}%`).join(" ");
@@ -146,7 +149,8 @@ export default function DimensionRuler({
         </span>
         {peerMedian !== null && <span>PEER MEDIAN {fmtScore(peerMedian)}</span>}
         <span>
-          {improving} IMPROVING · {flat} FLAT · {deteriorating} DETERIORATING{" "}
+          {improving} IMPROVING · {flat} FLAT · {deteriorating} DETERIORATING
+          {noTrend > 0 && <> · {noTrend} NO TREND</>}{" "}
           <span className="text-ink-3">(TRAILING DECADE)</span>
         </span>
       </div>

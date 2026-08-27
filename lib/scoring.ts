@@ -411,8 +411,23 @@ export function computeCompositeForAllCountries(
       const country = data.countries[code];
       if (!country) continue;
       name = country.name;
-      const year = latestSharedYear(data);
-      const score = year ? computeLevelScore(data, config, code, year) : null;
+      // Must branch on scoringBasis exactly as computeGaugeScore does.
+      // Until 2026-08-27 this function scored every gauge same-year
+      // unconditionally, which was invisible only because no live gauge had
+      // used the latest-wave basis since it was built (2026-08-11). The
+      // moment one did, this function and computeGaugeScore disagreed about
+      // the same gauge: the gauge page showed Australia at 80.9 on the
+      // latest-wave basis while this function fed 72.4 into the composite,
+      // computed against whichever three countries happened to share
+      // Australia's own fieldwork year. Two numbers for one gauge, on one
+      // page. See CLAUDE.md.
+      const score =
+        config.scoringBasis === "latest-wave-per-country"
+          ? computeLevelScoreLatestWavePerCountry(data, config, code)
+          : (() => {
+              const year = latestSharedYear(data);
+              return year ? computeLevelScore(data, config, code, year) : null;
+            })();
       if (score !== null) weighted.push({ score, weight: config.weights[dimensionId]! });
     }
     if (!name || weighted.length === 0) continue;
@@ -579,7 +594,28 @@ export function computeHistoricalComposite(
   gaugesData: { data: GaugeData; config: GaugeConfig }[],
   dimensionId: DimensionId
 ): { points: { year: number; composite: number }[]; excludedYears: number[] } {
-  const inDimension = gaugesData.filter(({ config }) => config.weights[dimensionId] !== undefined);
+  // A latest-wave-per-country gauge is structurally excluded from the
+  // historical series, not merely absent from most years of it. This
+  // function builds a same-year time series: for each year it scores every
+  // country against that year's peer values. A gauge on the latest-wave
+  // basis has, by definition, no shared year — each country's single
+  // observation sits in a different one. Including such a gauge would put a
+  // score in the series that is not the gauge's real score (Australia's
+  // 2018 point would be computed against only the peers that also happen to
+  // have 2018 fieldwork) and would make the gauge count as "eligible" from
+  // its first year onward, inflating the coverage-cliff fraction for every
+  // later year against a gauge that can never fill it.
+  //
+  // The visible consequence, stated rather than hidden: the trajectory
+  // chart and the median-annual-move derived from it cover the same-year
+  // gauges only, so they can differ from the headline composite, which
+  // includes every scored gauge. That divergence is real and is the honest
+  // reading — a gauge with one wave per country genuinely has no history to
+  // plot. Added 2026-08-27, when the first latest-wave gauge went live.
+  const inDimension = gaugesData.filter(
+    ({ config }) =>
+      config.weights[dimensionId] !== undefined && config.scoringBasis !== "latest-wave-per-country"
+  );
 
   // 1980-1989 excluded outright, separate from (and in addition to) the
   // coverage-cliff guard below — a pre-existing, already-documented
@@ -685,6 +721,13 @@ export function computeComposite(
     improving: scores.filter((s) => s.direction === "improving").length,
     deteriorating: scores.filter((s) => s.direction === "deteriorating").length,
     flat: scores.filter((s) => s.direction === "flat").length,
+    // Scoped to gauges that actually fed the average, so the four terms
+    // always sum to includedGaugeIds.length — a gauge dropped for a null
+    // level score is disclosed by buildCompositeDisclosure, not counted here.
+    noTrend: includedGaugeIds.filter((id) => {
+      const found = scores.find((s) => s.gaugeId === id);
+      return !found || found.direction === null || found.direction === "insufficient-history";
+    }).length,
     includedGaugeIds,
     excludedGaugeIds,
   };

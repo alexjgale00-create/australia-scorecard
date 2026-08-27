@@ -435,6 +435,15 @@ export interface CompositeResult {
   improving: number;
   deteriorating: number;
   flat: number;
+  /**
+   * Scored gauges in this dimension with no computed trend at all —
+   * "insufficient-history", or a null direction. Counted separately and
+   * rendered as its own term so the movement tally always accounts for
+   * every scored gauge. Before this existed, a dimension with 8 scored
+   * gauges, one of them on the latest-wave basis, displayed a tally
+   * summing to 7 with nothing on the page to say where the eighth went.
+   */
+  noTrend: number;
   /** Gauge IDs that actually fed the weighted average. */
   includedGaugeIds: string[];
   /**
