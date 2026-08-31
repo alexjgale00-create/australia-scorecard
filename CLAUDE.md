@@ -13,6 +13,35 @@ should survive across sessions.
   2026-08-24 after a session had to ask the site owner for it; also in
   README.md and `package.json`'s `homepage` field.
 
+## Government performance page (2026-08-31)
+
+`/government-performance` — the site's 23 gauges compared across each
+federal government's term, scoped by a design memo
+(`docs/government-performance-memo.pdf`, untracked) then ruled and built.
+Own page, links back to every gauge's own table; **not a third dimension,
+never in either composite**. Full ruling record — term grouping, why all
+three comparison statistics ship together rather than one, the coverage
+asymmetry finding, the Albanese-term precondition, the headline-gauge
+stability test, and the corrected compute/republish citation — is in
+METHODOLOGY.md's "Government performance across the gauges." This entry is
+the short, action-oriented pointer.
+
+**One thing worth knowing before touching this page again**: a real
+classification-basis defect was found and fixed while building it (rollup
+counts and per-gauge glyphs briefly disagreed about what "improving"
+meant — HANDOVER.md entry 14). Both now classify on the annualised rate
+against `gaugesConfig.directionThresholdScorePointsPerYear`, the same
+basis `computePeerRelativeTrend` uses everywhere else on the site — don't
+reintroduce a second basis for a future addition to this page without
+checking it agrees with the existing one.
+
+**The PDF convention this build tested**: `docs/government-performance-
+memo.pdf` is a pre-ruling scoping memo, not a post-ruling decision record,
+so per the now-scoped PDF rule (HANDOVER.md, §4) it stays untracked — only
+`docs/q21-constitutional-memo.pdf` is a tracked binary. Don't commit the
+scoping memo on a future pass without a fresh site-owner instruction to do
+so.
+
 ## Auto-loaded instruction files
 
 `AGENTS.md` is `create-next-app` boilerplate, created in the initial

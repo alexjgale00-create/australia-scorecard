@@ -425,6 +425,251 @@ cross-cutting concept added without auditing its call sites.
     not "a function had a bug" but "a cross-cutting concept was added
     without auditing its call sites."
 
+14. **The government-performance page's rollup table and its own per-gauge
+    cells disagreed about what "improving" meant, for one build, before it
+    shipped.** Found 2026-08-31, building `/government-performance`
+    (`lib/government-performance.ts`). An early draft classified a gauge as
+    improving/declining in the government-level rollup count using its
+    *raw, un-annualised* total change over the term, while `GovTermCell`'s
+    per-gauge glyph classified the identical fact using the *annualised
+    rate* — two different bases for one claim, invisible until a gauge's
+    total move over a long term was small enough to disagree: `trade`'s
+    +0.1 total change over Hawke–Keating's 6 years read "improving" in the
+    rollup (a raw delta above the old 0.05 floor) while its per-gauge cell
+    showed a flat glyph (0.02 points/year, well under any real threshold).
+    The rollup table's Hawke–Keating row read "7▲/7▼/2•" while a reader
+    counting glyphs in the table beneath it would get a different tally
+    for the same government.
+
+    **Found by building the page and reading the rollup table against the
+    per-gauge table beneath it** — the same "someone read the page and the
+    numbers didn't match" route entries 5 through 9 already document, not a
+    guard designed to catch this. **Fixed by classifying on one basis
+    everywhere**: the annualised rate against
+    `gaugesConfig.directionThresholdScorePointsPerYear` (0.5 points/year) —
+    the identical basis `computePeerRelativeTrend` already uses for every
+    other "improving/flat/deteriorating" classification on the site (gauge
+    cards, dot strips, What's Moving), not a new threshold invented for
+    this page. The fix changed the rollup numbers this page reports (e.g.
+    Hawke–Keating's net count moved from an inconsistent "-1" to a
+    consistent "+2") — a real, disclosed change caught before the page
+    shipped, not after.
+
+    **A second, related defect caught by the same fix**: a paragraph on the
+    same page asserted "every one of those five [headline gauges] shows
+    decline" for Hawke–Keating as static prose, true under the old raw-delta
+    basis but false the moment the classification fix landed (three of the
+    five are flat, not declining, under the corrected annualised basis).
+    Fixed by computing the sentence from the same rollup object the
+    aggregate table reads, rather than a separately hand-typed claim —
+    exactly the mechanism gap entries 5, 8, and 9 already name: a fact
+    stated once in prose and once in a computation, wired to nothing that
+    would notice the two disagreeing. This page now has no such pair
+    anywhere — every claim-bearing number is read from the same computed
+    object its table renders from, not duplicated in prose.
+
+15. **Named pattern, ruled 2026-08-31, not a sixth incident: "mirrored
+    computation" is a distinct failure shape from entry 7's "copy drift,"
+    and this is now its fifth occurrence.** Entry 7 named a pattern across
+    entries 5 and 6: true prose sitting next to correct code, going false as
+    the code moved on. This pattern is different in kind — not prose next to
+    code, but **one derived fact computed twice, in two places, with nothing
+    asserting the two agree**:
+
+    - `dataStaleness` (`lib/maturity.ts`) vs the pipeline's own staleness
+      loop (`pipeline/index.mjs`) — CLAUDE.md's "`pipeline/` mirrors `lib/`
+      logic deliberately" entry.
+    - `computeCompositeForAllCountries` never branching on `scoringBasis`
+      while `computeGaugeScore` already did (entry 12).
+    - `computeHistoricalComposite` never excluding latest-wave gauges — the
+      same root cause as the entry above, a second function never taught
+      the same concept (entry 13).
+    - `REGISTER_DRAFT_LINES`' stored facts vs live `data/processed/*.json`
+      (entry 9) — the specific instance that got a retroactive guard
+      (`verify-gauge-invariants.mjs`'s `REGISTER_DRAFT_LINES` check).
+    - This session's rollup/cell disagreement (entry 14) — the fifth.
+
+    **All five were found the same way: a human reading one computed output
+    against another, never a guard built to catch this shape**, until after
+    the fact in the one case (entry 9) that got a retroactive check.
+
+    **The site owner asked directly whether this is structural (like
+    `pipeline`/`lib`, which can't be fixed by importing across a language/
+    process boundary that doesn't exist) or a second real guard this
+    project is missing. The honest answer splits the five, not one answer
+    for all of them:**
+
+    - **Structural, genuinely: the `dataStaleness`/pipeline mirror.**
+      `pipeline/index.mjs` is plain Node with no TypeScript compilation
+      step; it cannot import `lib/maturity.ts`, full stop. No assertion can
+      run inside a single build to compare two facts computed in two
+      separate process invocations on two separate schedules (a monthly
+      cron vs. the Next.js build). Accepted as-is, per the site owner —
+      the existing discipline (name what's mirrored, treat a change to
+      either side as incomplete until the other is checked) is the correct
+      mitigation for a wall that can't be removed.
+    - **Half-structural: the `REGISTER_DRAFT_LINES` guard's own mirror.**
+      `scripts/verify-gauge-invariants.mjs` is also a raw prebuild script
+      with no compilation step, so its `computeRankMirror`/`medianMirror`
+      functions are a second hand-written copy of `lib/scoring.ts`'s
+      `computeRank` and `lib/gauge-view.ts`'s median — the guard that
+      catches entry 9's *root* duplication (a hand-typed snapshot vs. live
+      data) is itself exposed to a milder version of the same risk (its
+      own mirror silently drifting from what `lib/` actually computes).
+      The root duplication this guard checks, though, is **not**
+      structural — `content/register-draft-lines.ts` is real TypeScript
+      and could compute its facts live from `lib/scoring.ts` at build time,
+      the way `/government-performance` does, rather than storing a
+      hand-typed snapshot at all. That it doesn't is a deliberate editorial
+      choice (freeze reviewed English prose against specific numbers so a
+      later data refresh can't silently reword approved copy), not a
+      technical wall — worth naming as a real, different reason for
+      duplication than the other four.
+    - **Not structural: entries 12, 13, and 14.** All three live inside the
+      same TypeScript build, the same `lib/` (or, for 14, the same page's
+      own component tree) — nothing prevented one shared implementation.
+      Confirmed live, 2026-08-31: `config.scoringBasis ===
+      "latest-wave-per-country"` is branched on in **three** separate
+      places today (`lib/scoring.ts` lines 425 and 538,
+      `lib/gauge-view.ts` line 522) — the exact duplication that produced
+      entries 12 and 13, still unconsolidated after both were fixed by
+      patching the missing branch into the second function rather than
+      factoring out one shared helper. **This is the second real guard
+      this project is missing, and it is not a runtime assertion.** The
+      fix for a same-build duplicate isn't "compute it twice and assert
+      the two agree" — an assertion still requires someone to already
+      know two implementations exist, the identical blind spot that let
+      entries 12, 13, and 14 ship silently in the first place. The
+      stronger, actually-available fix is **eliminating the second
+      computation**: exactly what this session's fix for entry 14 did
+      (both consumers now read one `GaugeTermStat` object instead of two
+      independently-computed values reconciled after the fact). A build-
+      time static check *could* be built for the narrower, recurring
+      `scoringBasis` case specifically — a grep-based script (same style
+      as the why-this-matters coverage counter already run informationally
+      in `verify-gauge-invariants.mjs`) that flags `scoringBasis ===` or
+      similarly load-bearing branches appearing in more than one function —
+      but it would be heuristic, not a contract-verifier: two functions
+      duplicating scoring logic *without* re-testing `scoringBasis`
+      wouldn't be caught. **Not built now, per the discipline of naming a
+      gap without pre-deciding its fix** — a concrete open item: factor
+      `computeGaugeScore`'s and `computeCompositeForAllCountries`'s
+      `scoringBasis` branches into one shared helper, closing that specific
+      duplication for good rather than leaving three hand-synced copies for
+      a fourth function to eventually forget.
+
+    **RESOLVED the same day, before the site owner had left the page.**
+    The open item above is done, not still open: `lib/scoring.ts` now has
+    exactly one place that decides which basis a gauge uses
+    (`usesLatestWaveBasis`) and exactly one place that computes a
+    basis-aware level score, for all countries at once
+    (`computeLevelScoreForAllCountriesRespectingBasis`) or for a single
+    country (`computeLevelScoreRespectingBasis`, a lookup into the former,
+    not a second computation). `computeGaugeScore`,
+    `computeCompositeForAllCountries`, and `buildGaugeView`
+    (`lib/gauge-view.ts`) all now call these instead of each re-deciding
+    the basis — three branch sites down to one, exactly the entry-14
+    pattern ("one computation, multiple consumers") applied here.
+    `computeGaugeScoreLatestWave`'s own dispatch inside `computeGaugeScore`
+    is the one branch left standing on purpose: it delegates to a
+    genuinely different algorithm for direction/rank (documented reason —
+    `computePeerRelativeTrend` assumes an annual, evenly-spaced series,
+    which latest-wave data isn't), not a second copy of the level-score
+    arithmetic. **Verified behaviour-preserving, not just structurally
+    cleaner**: rebuilt, and Power's composite (42.9, Slipping), Quality of
+    Life's composite (69.5, Leading), and `cohesion-majority-acceptance`'s
+    own gauge score (80.9, the one live gauge on the latest-wave basis)
+    all render byte-identical to their pre-refactor values.
+
+    **The wider grep the site owner asked for** — every other `GaugeConfig`
+    field checked for the same shape across `lib/`, not just `scoringBasis`
+    — turned up **one more real instance, and confirmed several look-alikes
+    aren't**:
+
+    - **A real instance, found and fixed the same day the wider grep ran.**
+      `computeLevelScore` and `computeLevelScoreLatestWavePerCountry`
+      (`lib/scoring.ts`) independently reimplemented the identical
+      min-max-normalise → flip for `polarity` → round-to-one-decimal
+      arithmetic, byte-for-byte, after assembling their own `values` array
+      two different ways (same year vs. each country's latest wave). No
+      live incident from this one, unlike `scoringBasis` — found only
+      because the site owner asked for a wider net **after the narrow,
+      `scoringBasis`-only grep had already come back clean**, not because
+      anything broke. First recorded here as an open item (scope at the
+      time was `scoringBasis` specifically); the site owner then ruled the
+      finding supersedes that scope, and it was fixed the same session:
+      the shared tail is now `normalizeScore(targetValue, allValues,
+      polarity)`, one function, called by both. **Verified against the same
+      standard as the `scoringBasis` consolidation**: rebuilt, Power's
+      composite (42.9), Quality of Life's (69.5), and
+      `cohesion-majority-acceptance`'s own score (80.9) all render
+      byte-identical before and after — confirmed, not assumed, exactly as
+      instructed ("if anything moves, stop and tell me rather than
+      reconciling it"; nothing moved).
+
+      **This is the concrete case for the argument two paragraphs below,
+      not a separate finding living apart from it**: a grep on
+      `config.polarity ===` would have found nothing wrong here, because
+      neither function repeats the *comparison* — they repeat the
+      *arithmetic that follows it*. The static check discussed next would
+      have missed this exact bug were it built and trusted.
+    - **Checked and NOT the same shape**: `polarity` also appears in four
+      sort-comparator sites (`computeRank`, `computeRankLatestWavePerCountry`,
+      and two peer-ordering sites in `lib/gauge-view.ts`) — each a
+      comparator local to its own sort, not a second computation of one
+      fact meant to agree with another. `accessType` appears five times
+      across `lib/gauge-view.ts`/`lib/maturity.ts`, but each site decides a
+      **different** rule keyed off the same flag (manual-lane copy, tier
+      capping, staleness-fallback eligibility, cadence defaults) — several
+      business rules sharing one flag, not one fact computed twice.
+      `valueScale`, `evidenceStrength`, `bandRobustness`, `axisTreatment`,
+      `maturityOverride`, `unscoredDimensions` each resolve inside exactly
+      one function (`buildGaugeView`) — no duplication to find.
+    - **So: three was the count for `scoringBasis` specifically, now zero.
+      Across every other field in `lib/`, the wider net found one further
+      real instance — also now zero** (`polarity`'s normalise arithmetic,
+      fixed above) — **and confirmed the rest are ordinary, non-duplicative
+      uses of a config flag**, not further hidden copies of this pattern.
+
+    **The grep-based static check stays a logged open item, not built —
+    the reasoning is recorded here so a future session starts from it
+    rather than re-litigating whether to build it:**
+
+    A build-time script (same style as the why-this-matters coverage
+    counter already run informationally in `verify-gauge-invariants.mjs`)
+    could scan `lib/*.ts` for `scoringBasis ===` (or `polarity ===`, or any
+    other named field) appearing in more than one function without routing
+    through a shared helper, and warn or fail. **What it would catch**: a
+    future function that copies the literal comparison inline instead of
+    calling `usesLatestWaveBasis` — the exact shape of entries 12 and 13.
+    **What it would not catch**: the `polarity` instance just found by hand
+    above — two functions can duplicate the *same underlying arithmetic*
+    without the check ever seeing a repeated field comparison, if neither
+    one tests `config.polarity` more than once each and the duplication is
+    in what they *do* with it, not whether they branch on it. A textual
+    grep for a repeated comparison cannot see a repeated computation that
+    doesn't repeat the comparison. That gap is exactly why this project's
+    "status-line rule" (CLAUDE.md) exists — a guard that catches one narrow
+    shape must say so precisely, not read as "duplicate logic is now
+    covered" generally. Not built, per the standing discipline of naming a
+    gap without pre-deciding its fix.
+
+    **One thing this entry must say plainly, because grouping five
+    instances under one pattern name invites treating all five the same
+    way: the `REGISTER_DRAFT_LINES` duplication above is deliberate, not a
+    defect waiting for the same fix.** `content/register-draft-lines.ts`
+    stores a hand-typed snapshot instead of computing live specifically
+    *so that* reviewed English prose stays fixed until someone re-reviews
+    it — a data refresh changing the underlying number must not silently
+    reword copy a human already approved. The guard
+    (`REGISTER_DRAFT_LINES` in `verify-gauge-invariants.mjs`) exists to
+    catch the snapshot going *stale*, not to be replaced by making the copy
+    compute live. **A future session reading "five instances of mirrored
+    computation" should eliminate the duplication in entries 12, 13, and
+    14's family (same-build, no reason two implementations should exist)
+    and leave this one exactly as it is** — collapsing it into a live
+    computation would remove the very thing it was built to protect.
+
 ---
 
 ## 2. Outstanding — tracked, not launch blockers
@@ -1180,14 +1425,29 @@ build failure:**
   housing-pressure bug this session fixed by hand. No runtime assertion
   checks `Object.keys(plates).length === 1`. Worth adding if this branch
   continues.
-- **Binaries in the repo are an exception, not the norm.**
-  `docs/q21-constitutional-memo.pdf` is the only tracked binary and was
-  committed as a deliberate exception (see §2): a decision record for a
-  constitutional ruling, which is a fixed artefact rather than
-  documentation. Documentation stays plain text — diffable, greppable,
-  reviewable. Nothing enforces this; a second PDF would pass review
-  silently on the first one's precedent, which is exactly the drift this
-  rule exists to make visible.
+- **Binaries in the repo are an exception, not the norm — and the
+  convention is now scoped, not left to drift onto the first PDF's
+  precedent (ruled 2026-08-31).** `docs/q21-constitutional-memo.pdf`
+  remains the only *tracked* binary. A second PDF was produced this
+  session (`docs/government-performance-memo.pdf`, the scoping memo behind
+  METHODOLOGY.md's "Government performance across the gauges") and
+  deliberately kept **untracked**, per the site owner's explicit
+  instruction — a real test of the convention, not a hypothetical one.
+  **The rule, stated precisely rather than left as "PDFs are an
+  exception" generally**: a PDF may be committed only when it is (a) filed
+  alongside or immediately after a specific, dated ruling recorded as
+  plain text elsewhere (METHODOLOGY.md/HANDOVER.md), and (b) deliberately
+  frozen as a point-in-time artefact expected to go stale — the way the
+  Q21 memo's own argument 3 already has (§2 above). A **pre-ruling scoping
+  memo does not qualify**, even when it's substantial and evidence-heavy:
+  it's the kind of document this project's own discipline elsewhere (design
+  briefs, HANDOVER's open items, METHODOLOGY's deferred sections) keeps in
+  plain text specifically because it may still change. The durable ruling
+  itself always lives in METHODOLOGY.md/HANDOVER.md as text — a PDF is
+  never the sole record of a decision, only supporting history for one.
+  Nothing enforces this by code; a future session could still commit a
+  disqualifying PDF on the first one's precedent, which is exactly the
+  drift this rule exists to make visible.
 
 - **Plates are permanent once public** — a process rule (don't reuse a
   retired gauge's number), not something code can enforce at all, since
