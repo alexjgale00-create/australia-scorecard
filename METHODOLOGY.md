@@ -2114,3 +2114,211 @@ published comparable OECD hours data for this dataflow at all, not
 anything about how the gauge displays. Logged here for the Phase D
 checkpoint alongside band-threshold recalibration (§3.1) and the min-max
 normalisation finding (§3.3), not acted on now.
+
+## Government performance across the gauges (ruled 2026-08-31)
+
+A fourth public surface, `/government-performance`: the site's 23 gauges,
+compared across each federal government's term. Scoped by a design memo
+(`docs/government-performance-memo.pdf` — see "PDF convention" below for why
+that memo stays a PDF and this ruling does not), ruled on, then built. Own
+page, links back to every gauge's own table, **not a third dimension and
+never in either composite** — Power and Quality of Life are unaffected by
+anything on this page.
+
+**Decided without re-litigating**: metrics come from the existing 23 gauges
+only; the page makes an explicit performance comparison, not a neutral
+who-held-office-when timeline; no composite government score, per-gauge
+comparison only.
+
+### Why no composite — the compute/republish citation was wrong, the conclusion wasn't
+
+The scoping memo argued a composite government score would be *constructed*
+under the compute/republish ruling (see "Republished, derived, constructed"
+above) and therefore barred. **That citation doesn't hold.** The rule's own
+scope clause exempts exactly this case: "the rule governs the figures that
+enter a gauge... it does not govern this site's own scoring layer... they
+are exempt for a specific reason, not by carve-out: they are attributed to
+the site." A government composite would be a weighted average of level
+scores this site already computes, attributed to the site on
+`/methodology` — the identical construction Power and Quality of Life
+already use, and it clears the rule the same way they do. Recorded here so
+a future reader who checks the citation finds it corrected, not silently
+still wrong.
+
+**The real reasons, ruled in its place:**
+
+1. A government composite would compound the existing dimension weights
+   with a second, harder set of weights across terms of wildly unequal
+   length and completeness (83 days to 13 years), into one number precise
+   enough to misread as authoritative.
+2. Unlike Power or Quality of Life, which describe a country, it would name
+   a political actor directly, in a domain (Australian federal politics)
+   where a single ranking number is the exact artefact that gets
+   screenshotted and stripped of the page it came from.
+3. The band-threshold ruling took a full options memo, run-length
+   decomposition, and a site-owner ruling to get right once, on two
+   dimensions (§3.1). A third, higher-stakes composite would need the same
+   rigour a second time, for a question this page was never asked to
+   answer.
+
+None of the three is a compute/republish violation. All three are still
+good reasons to stay per-gauge.
+
+### Terms: party continuity, not individual PM
+
+Five terms — Hawke–Keating, Howard, Rudd–Gillard–Rudd,
+Abbott–Turnbull–Morrison, Albanese — grouped by party continuity, matching
+both reference charts the scoping memo was drafted against. Individual PMs
+and their exact dates are recorded alongside each term
+(`GOVERNMENT_TERMS` in `lib/government-performance.ts`), not discarded, but
+never the page's comparison unit: Kevin Rudd's second term ran 83 days
+(27 June – 18 September 2013), too short for any annual gauge to show a
+change, and using individual PMs as the unit would multiply the coverage
+problem below rather than merely inherit it. Dates cross-checked against
+the National Archives of Australia's prime ministers record, Wikipedia,
+and AustralianPolitics.com; none disagreed.
+
+**Hawke–Keating's real term begins 1983**, seven years before this site's
+own documented composite floor of 1990 (too few gauges have data before
+then to be representative — see "Trajectory series fix" above). Every
+figure this page reports for Hawke–Keating covers only 1990–1996, the last
+6.8 of its 13 years — a truncation of that government's own history,
+disclosed on the page, not a comment on it.
+
+### The comparison statistic — all three, published together, no winner picked
+
+Three candidates were weighed, each with a distinct defect: **change in
+level score across the term** structurally favours long terms (more years
+mechanically accumulate more movement); **average annual change**
+degenerates on thin terms (dividing a real move by 1–2 years turns
+ordinary noise into an implausible rate); **end-vs-start level** measures
+cumulative trajectory up to that point, not what happened during the
+term, rewarding a government that inherited a strong position for standing
+still.
+
+**Ruled: publish all three, disagreement shown, not resolved.** Not because
+a defensible choice couldn't be argued — because testing whether one
+survives contact with matched evidence (below) showed the disagreement
+isn't measurement noise around one true ranking. They are three different
+questions (how much moved / how fast / where it ended up), and picking one
+would silently pick which question matters. The page states this directly:
+*"Measuring a government's performance is itself contested, not a solved
+arithmetic problem... They frequently disagree about which government
+comes out ahead. That disagreement is shown, not resolved."*
+
+**Classification basis, corrected during the build (a real defect, found
+before it shipped).** An early draft classified a gauge as
+improving/declining in the rollup count using its *raw, un-annualised*
+total change over the term, while the per-gauge cell glyph classified the
+same fact using the *annualised rate* — two different bases for one claim,
+disagreeing on any gauge with a small total move over a long term (`trade`:
++0.1 total over Hawke–Keating's 6 years reads "improving" on a raw basis,
+but is flat at 0.02 points/year). Fixed by classifying **only** on the
+annualised rate against `gaugesConfig.directionThresholdScorePointsPerYear`
+(currently 0.5 points/year) — the identical basis
+`computePeerRelativeTrend` already uses everywhere else on the site (gauge
+cards, dot strips, What's Moving), not a new threshold invented for this
+page. Found by building the page and comparing the rollup table against
+the per-gauge table beneath it, not by a guard — the same "someone read the
+page and the numbers didn't match" route HANDOVER.md's defect record
+already documents five times over; see HANDOVER.md's new entry for this
+one.
+
+### Coverage — the asymmetry is the finding
+
+Computed directly from each gauge's real data (first/last year Australia
+has a score-computable observation), never from `historyStartYear`, which
+diverges from real coverage on several gauges beyond the already-documented
+work-life-balance case: `education` declares 2000, real data begins 2012;
+`inequality` declares 1990, real data begins 2012 — the widest gap found.
+
+**16 of 23 gauges are delta-computable for Hawke–Keating against 22 of 23
+for Abbott–Turnbull–Morrison** — a structurally larger evidentiary base for
+the more recent term, purely because more of the site's gauges exist and
+have deeper histories by the time later governments take office. Not a
+finding about either government's performance; a finding about the
+instrument. Rule: a gauge appears for a term only if it has real coverage;
+a gauge missing entirely is named on the page, never blank.
+
+### The Albanese precondition — read before any table, not a caveat after one
+
+3 of 23 gauges (`innovation`, `inequality`, `cohesion-majority-acceptance`)
+have published **nothing at all** since this government's term began — their
+latest figures describe the government before it (`innovation`'s last point,
+2021, predates the term entirely). A further gauge (`education`) has only
+the term's opening data point. The rest average under two years of coverage
+inside a term that has now run over four. **This statement renders first on
+the page, before any comparison table**, computed fresh at build time and
+asserted to actually name every zero-observation gauge
+(`assertOpenTermPreconditionDisclosure` in `lib/government-performance.ts`
+— same discipline as `assertCompositeDisclosure`, throws if a gauge with no
+observation in the open term isn't named in the rendered sentence). This is
+the least measurable of the five governments on the page; anything shown
+for it is a partial record, not a verdict.
+
+### Headline gauges — curation changes the winner, and salience anti-correlates with coverage
+
+Eight gauges (`living-standards`, `housing-pressure`, `inequality`,
+`debt-burden`, `education`, `personal-safety`, `life-satisfaction`,
+`internal-cohesion`) picked for real political salience, to start a
+conversation rather than be exhaustive — **never rendered without the full
+23 beside it.** Curating to this set changes which government leads under
+two of the three published statistics, verified live on the page's own
+"Curating changes the winner" table, not asserted.
+
+**A second finding, sharper than expected going in:** three of the eight
+(`inequality`, `education`, `life-satisfaction`) are exactly the newest,
+shortest-history series on the site — blank for both Hawke–Keating and
+Howard. That leaves only 5 of 8 headline gauges computable for the earliest
+government, and the page states the real breakdown among those five
+(computed from the same rollup the aggregate table uses, not a separate
+hand-typed claim — an earlier draft asserted "all five decline" as static
+prose, which stopped being true the moment the classification-basis fix
+above landed and was caught the same way). The gauges people would most
+want on a "north star" list are structurally the ones with the shallowest
+history: salience and coverage depth are anti-correlated in this gauge set,
+a finding about measuring Australia, not a caveat about this page.
+
+### Robustness check: does the disagreement survive matched coverage?
+
+Tested directly, per the scoping memo's own instruction not to assert this
+either way. Restricted to the 16 gauges with a delta-computable reading in
+**every** term (`computeCommonCoverageGaugeIds`), the three statistics still
+disagree — Howard, the closest thing to a robust leader across all 23
+gauges, does not lead under any of the three once coverage is equalised.
+**The fragility is real, not a coverage artefact** — shown on the page as a
+secondary table, specifically because it proves the disagreement rather
+than merely asserting it. This also settles the question the scoping memo
+raised about whether one statistic is "more defensible": if the three
+disagreed only because of uneven coverage, a case could be made that one
+survives contact with matched evidence better than the others. It doesn't
+survive that test, which is why all three ship together rather than one.
+
+### Attribution disclosure
+
+Full prose, positioned near the top of the page (not a footnote, not a
+collapsed disclosure) — the caveat is as large as the page's entire
+premise, which this site's usual amber-tag treatment wasn't built to carry.
+Names three distinct mechanisms that break attribution before any gauge is
+scored: policy lag (an early-term figure usually describes the previous
+government's policy), data lag (several sources publish 1–3 years behind
+the year they describe, so a figure inside a term may predate it), and the
+two exogenous shocks in this data's own history (the 2008 financial crisis,
+landing inside Rudd–Gillard–Rudd's term, and the 2020 pandemic, spanning
+the end of Abbott–Turnbull–Morrison and the start of Albanese's). States
+plainly that no gauge on this site attributes an outcome to a government by
+name, and that this page is a record of what the numbers show, not an
+argument about why.
+
+### PDF convention (recorded here; the standing rule itself is in HANDOVER.md)
+
+The scoping memo's own recommendation was accepted: a PDF is reserved for a
+memo filed alongside or immediately after a specific, dated ruling recorded
+as plain text elsewhere, deliberately frozen as a point-in-time artefact —
+not for a pre-ruling scoping document. This section is that plain-text
+ruling; `docs/government-performance-memo.pdf` remains the frozen record of
+the reasoning that led here (including the parts, like the compute/
+republish citation above, that this ruling has since corrected) and stays
+**untracked**, per the site owner's explicit instruction — not committed
+alongside this section. See HANDOVER.md for the standing rule this
+establishes for any future memo.
