@@ -9,6 +9,7 @@ import type {
   GaugeScore,
   LevelScoreDelta,
   PeerRelativeTrend,
+  Polarity,
   RawDirection,
   RawValueTrend,
   ScoreBand,
@@ -51,6 +52,27 @@ export function latestSharedYear(data: GaugeData): number | null {
   return ausYears[0] ?? null;
 }
 
+/**
+ * The min-max normalise → flip for polarity → round-to-one-decimal
+ * arithmetic behind every level score on the site — the one computation
+ * computeLevelScore and computeLevelScoreLatestWavePerCountry both need,
+ * after each assembles its own set of comparable values a different way
+ * (one shared year vs. each country's own latest wave). Found duplicated
+ * byte-for-byte between the two, 2026-08-31, by a wider grep run after the
+ * scoringBasis-specific one had already come back clean — see HANDOVER.md
+ * entry 15 for why a grep on the config field itself would never have
+ * caught this: neither function repeats a comparison on `polarity`, they
+ * repeat what they *do* with it.
+ */
+function normalizeScore(targetValue: number, allValues: number[], polarity: Polarity): number {
+  const min = Math.min(...allValues);
+  const max = Math.max(...allValues);
+  if (max === min) return 50;
+  const raw = (targetValue - min) / (max - min);
+  const normalized = polarity === "higher_is_better" ? raw : 1 - raw;
+  return Math.round(normalized * 1000) / 10;
+}
+
 export function computeLevelScore(
   data: GaugeData,
   config: GaugeConfig,
@@ -68,14 +90,11 @@ export function computeLevelScore(
   const target = values.find((v) => v.code === code);
   if (!target) return null;
 
-  const nums = values.map((v) => v.value);
-  const min = Math.min(...nums);
-  const max = Math.max(...nums);
-  if (max === min) return 50;
-
-  const raw = (target.value - min) / (max - min);
-  const normalized = config.polarity === "higher_is_better" ? raw : 1 - raw;
-  return Math.round(normalized * 1000) / 10;
+  return normalizeScore(
+    target.value,
+    values.map((v) => v.value),
+    config.polarity
+  );
 }
 
 export function computeRank(
@@ -126,14 +145,11 @@ export function computeLevelScoreLatestWavePerCountry(
   const target = values.find((v) => v.code === code);
   if (!target) return null;
 
-  const nums = values.map((v) => v.value);
-  const min = Math.min(...nums);
-  const max = Math.max(...nums);
-  if (max === min) return 50;
-
-  const raw = (target.value - min) / (max - min);
-  const normalized = config.polarity === "higher_is_better" ? raw : 1 - raw;
-  return Math.round(normalized * 1000) / 10;
+  return normalizeScore(
+    target.value,
+    values.map((v) => v.value),
+    config.polarity
+  );
 }
 
 /** latest-wave-per-country counterpart to computeLevelScoreForAllCountries — each point carries its own asOfYear, since they genuinely differ. */
@@ -150,6 +166,62 @@ export function computeLevelScoreForAllCountriesLatestWave(
       return score === null ? null : { code: code as CountryCode, name: country.name, score, asOfYear: latest.year };
     })
     .filter((p): p is CountryScorePoint => p !== null);
+}
+
+/**
+ * The one place `config.scoringBasis` is compared against its
+ * "latest-wave-per-country" literal. Every other site that needs to know
+ * which basis a gauge uses calls this instead of repeating the string
+ * comparison — consolidated 2026-08-31 after the identical comparison
+ * turned up in three independent places (this file, twice, plus
+ * lib/gauge-view.ts), two of which were only found because a live gauge
+ * finally exercised the disagreement between them (a wrong 68.4 headline
+ * composite, caught before it shipped — see HANDOVER.md entries 12/13/15).
+ * If a third basis is ever added, this is the only place that needs to
+ * learn about it structurally (every dispatch below already routes
+ * through here, not through its own copy of the check).
+ */
+export function usesLatestWaveBasis(config: GaugeConfig): boolean {
+  return config.scoringBasis === "latest-wave-per-country";
+}
+
+/**
+ * The one computation of "every country's level score, on whichever basis
+ * this gauge actually uses" — the real branch on scoringBasis for the
+ * level-score fact, made exactly once. `computeCompositeForAllCountries`
+ * and `buildGaugeView` (lib/gauge-view.ts) both call this rather than
+ * re-deciding the basis themselves; `computeLevelScoreRespectingBasis`
+ * below (a single-country lookup) is defined in terms of this one, not as
+ * a second computation of the same fact.
+ */
+export function computeLevelScoreForAllCountriesRespectingBasis(
+  data: GaugeData,
+  config: GaugeConfig
+): CountryScorePoint[] {
+  if (usesLatestWaveBasis(config)) {
+    return computeLevelScoreForAllCountriesLatestWave(data, config);
+  }
+  const year = latestSharedYear(data);
+  return year ? computeLevelScoreForAllCountries(data, config, year) : [];
+}
+
+/**
+ * The single-country counterpart to computeLevelScoreForAllCountriesRespectingBasis
+ * above — a lookup into that one computation, not an independent
+ * re-implementation of the basis dispatch. `computeCompositeForAllCountries`
+ * calls this per (country, gauge) pair; `computeGaugeScore`'s own dispatch
+ * (below) still branches once at its own top, since the latest-wave path
+ * there returns a structurally different bundle (level score AND direction
+ * AND rank together, via computeGaugeScoreLatestWave) that this function
+ * was never meant to produce — see that function's own comment for why
+ * direction/rank can't be unified across bases the way level score can.
+ */
+export function computeLevelScoreRespectingBasis(
+  data: GaugeData,
+  config: GaugeConfig,
+  code: CountryCode
+): number | null {
+  return computeLevelScoreForAllCountriesRespectingBasis(data, config).find((p) => p.code === code)?.score ?? null;
 }
 
 /** latest-wave-per-country counterpart to computeRank. */
@@ -398,6 +470,26 @@ export function computeCompositeForAllCountries(
     ({ config, data }) => config.weights[dimensionId] !== undefined && data.provenance.status !== "SAMPLE_DATA"
   );
 
+  // Computed once per gauge, not once per (country, gauge) pair, and no
+  // longer this function's own branch on scoringBasis — see
+  // computeLevelScoreForAllCountriesRespectingBasis, the one place that
+  // decision is made now. Until 2026-08-27 this function scored every
+  // gauge same-year unconditionally (no branch at all), invisible only
+  // because no live gauge had used the latest-wave basis since it was
+  // built (2026-08-11). The moment one did, this function and
+  // computeGaugeScore disagreed about the same gauge: the gauge page
+  // showed Australia at 80.9 on the latest-wave basis while this function
+  // fed 72.4 into the composite, computed against whichever three
+  // countries happened to share Australia's own fieldwork year — a wrong
+  // 68.4 headline composite, caught before it shipped. See CLAUDE.md and
+  // HANDOVER.md entries 12/15.
+  const scoresByGauge = new Map(
+    inDimension.map(({ data, config }) => [
+      config.id,
+      computeLevelScoreForAllCountriesRespectingBasis(data, config),
+    ])
+  );
+
   const allCodes = new Set<CountryCode>();
   for (const { data } of inDimension) {
     for (const code of Object.keys(data.countries)) allCodes.add(code as CountryCode);
@@ -411,23 +503,7 @@ export function computeCompositeForAllCountries(
       const country = data.countries[code];
       if (!country) continue;
       name = country.name;
-      // Must branch on scoringBasis exactly as computeGaugeScore does.
-      // Until 2026-08-27 this function scored every gauge same-year
-      // unconditionally, which was invisible only because no live gauge had
-      // used the latest-wave basis since it was built (2026-08-11). The
-      // moment one did, this function and computeGaugeScore disagreed about
-      // the same gauge: the gauge page showed Australia at 80.9 on the
-      // latest-wave basis while this function fed 72.4 into the composite,
-      // computed against whichever three countries happened to share
-      // Australia's own fieldwork year. Two numbers for one gauge, on one
-      // page. See CLAUDE.md.
-      const score =
-        config.scoringBasis === "latest-wave-per-country"
-          ? computeLevelScoreLatestWavePerCountry(data, config, code)
-          : (() => {
-              const year = latestSharedYear(data);
-              return year ? computeLevelScore(data, config, code, year) : null;
-            })();
+      const score = scoresByGauge.get(config.id)!.find((p) => p.code === code)?.score ?? null;
       if (score !== null) weighted.push({ score, weight: config.weights[dimensionId]! });
     }
     if (!name || weighted.length === 0) continue;
@@ -535,7 +611,7 @@ export function computeGaugeScore(
   thresholdScorePointsPerYear: number,
   code: CountryCode = "AUS"
 ): GaugeScore {
-  if (config.scoringBasis === "latest-wave-per-country") {
+  if (usesLatestWaveBasis(config)) {
     return computeGaugeScoreLatestWave(data, config, code);
   }
 

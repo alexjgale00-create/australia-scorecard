@@ -12,13 +12,13 @@ import type {
 import {
   bandForScore,
   computeLevelScore,
-  computeLevelScoreForAllCountries,
-  computeLevelScoreForAllCountriesLatestWave,
+  computeLevelScoreForAllCountriesRespectingBasis,
   computeRank,
   computeRankLatestWavePerCountry,
   computeRawValueTrend,
   describeScoringBasis,
   latestSharedYear,
+  usesLatestWaveBasis,
 } from "@/lib/scoring";
 import {
   computeMaturity,
@@ -519,19 +519,21 @@ export function buildGaugeView(args: BuildGaugeViewArgs): GaugeView {
     );
   }
 
-  const usesLatestWaveBasis = config.scoringBasis === "latest-wave-per-country";
-  const year = usesLatestWaveBasis ? null : latestSharedYear(data);
-  if (!usesLatestWaveBasis && year === null) {
+  // The one branch on scoringBasis this file needs — delegated to
+  // lib/scoring.ts's usesLatestWaveBasis/computeLevelScoreForAllCountriesRespectingBasis
+  // rather than repeated here, per HANDOVER.md entry 15/16 (this was one
+  // of three independent copies of this exact check before consolidation).
+  const usesLatestWave = usesLatestWaveBasis(config);
+  const year = usesLatestWave ? null : latestSharedYear(data);
+  if (!usesLatestWave && year === null) {
     throw new Error(`${config.id}: no latestSharedYear could be computed — cannot build a scored view.`);
   }
 
-  const allScores = usesLatestWaveBasis
-    ? computeLevelScoreForAllCountriesLatestWave(data, config)
-    : computeLevelScoreForAllCountries(data, config, year!);
+  const allScores = computeLevelScoreForAllCountriesRespectingBasis(data, config);
 
   const ausScoreEntry = allScores.find((p) => p.code === "AUS");
   const ausScore = ausScoreEntry?.score ?? null;
-  const ausRawValue = usesLatestWaveBasis
+  const ausRawValue = usesLatestWave
     ? data.countries.AUS?.series.at(-1)?.value ?? null
     : data.countries.AUS?.series.find((p) => p.year === year)?.value ?? null;
 
@@ -545,7 +547,7 @@ export function buildGaugeView(args: BuildGaugeViewArgs): GaugeView {
 
   const peerEntries = allScores.filter((p) => p.code !== "AUS");
   const peers: Peer[] = peerEntries.map((p) => {
-    const raw = usesLatestWaveBasis
+    const raw = usesLatestWave
       ? data.countries[p.code]?.series.at(-1)?.value
       : data.countries[p.code]?.series.find((pt) => pt.year === year)?.value;
     return { code: p.code, name: p.name, value: raw ?? NaN, score: p.score, asOfYear: p.asOfYear };
@@ -553,7 +555,7 @@ export function buildGaugeView(args: BuildGaugeViewArgs): GaugeView {
 
   assertMinimumPeerCoverage(config.id, peers); // narrows peers to [Peer, ...Peer[]] below
 
-  const rankInfo = usesLatestWaveBasis
+  const rankInfo = usesLatestWave
     ? computeRankLatestWavePerCountry(data, config, "AUS")
     : computeRank(data, config, "AUS", year!);
   const totalReporting = 1 + peers.length; // AUS + reporting peers
@@ -569,7 +571,7 @@ export function buildGaugeView(args: BuildGaugeViewArgs): GaugeView {
 
   const peerMedianRaw = median(peers.map((p) => p.value).filter((v) => !Number.isNaN(v)));
 
-  const rawTrend = !usesLatestWaveBasis && year
+  const rawTrend = !usesLatestWave && year
     ? computeRawValueTrend(data, "AUS", year, gaugesConfig.directionThresholdPctPerYear)
     : null;
   // Peer-relative score at the delta window's start year, for the
@@ -662,7 +664,7 @@ export function buildGaugeView(args: BuildGaugeViewArgs): GaugeView {
       name: p.name,
       primary: p.value,
       delta10yr: null,
-      obsYear: p.code === "AUS" && !usesLatestWaveBasis ? String(year) : String(p.asOfYear ?? year ?? ""),
+      obsYear: p.code === "AUS" && !usesLatestWave ? String(year) : String(p.asOfYear ?? year ?? ""),
     }));
 
   const view: ScoredGauge = {
