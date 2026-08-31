@@ -65,7 +65,14 @@ export default function Home() {
           <a href="/methodology" className="underline decoration-chrome hover:decoration-ink hover:text-ink">
             Methodology
           </a>{" "}
-          for how each is built.
+          for how each is built, or how Australia performed under each{" "}
+          <a
+            href="/government-performance"
+            className="underline decoration-chrome hover:decoration-ink hover:text-ink"
+          >
+            government
+          </a>{" "}
+          — its own page, per-gauge only, never a third dimension.
         </p>
 
         {/* Equal prominence, side by side; stacks below lg. Each ruler uses
