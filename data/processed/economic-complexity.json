@@ -6,11 +6,11 @@
     "seriesId": "ECI",
     "seriesName": "Economic Complexity Index",
     "url": "https://atlas.hks.harvard.edu/api/graphql",
-    "retrievedAt": "2026-08-25T06:18:30.279Z",
+    "retrievedAt": "2026-09-01T08:24:49.865Z",
     "note": "Live data: automated fetch of the Economic Complexity Index via the Atlas's public GraphQL API.",
     "missingCountries": [],
-    "scheduledRefreshCount": 1,
-    "lastScheduledRefreshAt": "2026-08-01T05:59:30.200Z"
+    "scheduledRefreshCount": 2,
+    "lastScheduledRefreshAt": "2026-09-01T08:24:49.865Z"
   },
   "countries": {
     "AUS": {

@@ -6,11 +6,11 @@
     "seriesId": "SP.DYN.LE00.IN",
     "seriesName": "Life expectancy at birth, total (years)",
     "url": "https://data.worldbank.org/indicator/SP.DYN.LE00.IN",
-    "retrievedAt": "2026-08-25T06:18:48.780Z",
+    "retrievedAt": "2026-09-01T08:25:05.122Z",
     "note": "Live data from World Bank, all 9 peer countries.",
     "missingCountries": [],
-    "scheduledRefreshCount": 0,
-    "lastScheduledRefreshAt": null
+    "scheduledRefreshCount": 1,
+    "lastScheduledRefreshAt": "2026-09-01T08:25:05.123Z"
   },
   "countries": {
     "AUS": {

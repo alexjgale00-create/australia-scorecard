@@ -6,11 +6,11 @@
     "seriesId": "MILEX_GDP_SHARE",
     "seriesName": "Military expenditure, share of GDP",
     "url": "https://www.sipri.org/sites/default/files/SIPRI-Milex-data-1949-2025_v1.2.xlsx",
-    "retrievedAt": "2026-08-25T06:18:25.811Z",
+    "retrievedAt": "2026-09-01T08:24:48.815Z",
     "note": "Live data: automated fetch of SIPRI's published Military Expenditure Database (.xlsx), \"Share of GDP\" sheet, converted from fraction to percentage.",
     "missingCountries": [],
-    "scheduledRefreshCount": 1,
-    "lastScheduledRefreshAt": "2026-08-01T05:59:28.826Z"
+    "scheduledRefreshCount": 2,
+    "lastScheduledRefreshAt": "2026-09-01T08:24:48.816Z"
   },
   "countries": {
     "AUS": {
